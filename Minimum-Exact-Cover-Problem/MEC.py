@@ -244,7 +244,7 @@ if __name__ == '__main__':
 
 
     # Parameters.
-    u = 20# size of U set
+    u = 20 # size of U set
     s = 6 # number of subsets of U, whose union is U
     n = 30 # the maximum number that can appear in the sets will be n-1 
            # must be n >= u, as we are sampling without replacement
