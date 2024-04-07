@@ -22,7 +22,9 @@
 import itertools
 import random
 import time
+import pprint
 
+import exact_cover as ec
 import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
@@ -64,14 +66,14 @@ def MEC_instance(u, s, n, print_instance, create_graph):
     # Create a random list of subsets of U.
     L = []
     control = set()
-    for i in range(s - 1):
+
+    while(len(L) != s-1):
         sub_size = random.randrange(1, u) # select a random element from range(u)
         sub = set(random.sample(U, sub_size))
 
         # If sub is already in L, repeat the i-th step.
         if any(sub == x for x in L): 
-            i = i-1
-            print("Re-extracting sub...")
+            print("INFO: Two equal subsets were randomly generated. Re-extracting one subset...")
             continue
         
         L += [sub]
@@ -94,13 +96,15 @@ def MEC_instance(u, s, n, print_instance, create_graph):
 
     if print_instance:
         # Print all the data.
-        print('-'*80)
-        print('Number of U\'s elements u =', u)
-        print('Number of subsets s =', s)
-        print('Maximum number that can appear in the sets n-1 =', n-1)
-        print('U is:', U)
-        print('The subsets are:', subsets)
-        print('-'*80)
+        print("\n")
+        print('*'*30, "INSTANCE", '*'*30)
+        print("\n")
+        print('- Number of U\'s elements u =', u)
+        print('- Number of subsets s =', s)
+        print('- Maximum number that can appear in the sets n-1 =', n-1)
+        print('- U is:', U)
+        print('- The subsets are:')
+        pprint.pprint(subsets)
 
 
     if create_graph:
@@ -135,8 +139,8 @@ def ComputeEnergy(x, U, subsets):
     """
 
 
-    A = 1. # constant parameter of H_A.
     B = 1. # constant parameter of H_B.
+    A = len(U) * (B+1) # constant parameter of H_A. It must be A > u*B
 
     E_A = 0.
     for uu in U:
@@ -147,9 +151,8 @@ def ComputeEnergy(x, U, subsets):
     E_A = A * E_A
     E_B = B * sum(x)
 
-    E = E_A + E_B    
 
-    return E
+    return E_A, E_B
 
 
 # ********************************************************************************
@@ -169,8 +172,9 @@ def BuildHam(x, U, subsets):
         E : x's energy.
     """
 
-    A = 1. # constant parameter of H_A.
+    
     B = 1. # constant parameter of H_B.
+    A = len(U) * (B+1) # constant parameter of H_A. It must be A > u*B
 
     s = len(x) # number of subsets.
     
@@ -204,25 +208,24 @@ def BitGen(n):
        
     Return
     ------
-       A generator of all possible tuples of n bits.
+       A generator of all possible n-tuples of bits.
     """
     return itertools.product([0, 1], repeat=n)
 
 
 # ********************************************************************************
 
-def PlotEnergy(E_list, x_labels):
+def PlotEnergy(E_list, x_list):
     """
     Arguments
     ---------
        E_list : a list of energies.
-       x_labels : a list of strings, each representing 
-                  the i_th state, whose energy is the i_th 
-                  element in E_list.
+       x_list : a list of binary lists representing 
+                the states whose energy is in E_list
       
     Return
     ------
-       A plot of E_list as a function of x_labels.
+       A plot of E_list as a function of x_list.
     """
     fig, ax = plt.subplots(figsize=(19, 10))
     plt.title("Energy landscape")
@@ -232,9 +235,69 @@ def PlotEnergy(E_list, x_labels):
     ax.plot(xx, yy, marker='o', linestyle='--', color='red')
     ax.set_ylabel("Energy")
     ax.set_xticks(xx)
+    x_labels = [str(x) for x in x_list]
     ax.set_xticklabels(x_labels, rotation=90)
     ax.grid() 
     return
+
+
+#**************************************************************************
+
+def SubsetsToBool(U, subsets):
+    """
+    Rewrite each subset in the boolean way. 
+    For example, if U = {0,1,2}, then S = {0,2} becomes S = [1,0,1].
+
+    Arguments
+    ---------
+        U (set): a set.
+        subsets (dictionary): a dictionary whose keys are natural 
+                              numbers, whose values are subsets of U
+
+    Return
+    ------
+        bool_subsets (list of lists): the list of subsets written 
+                                      in the boolean way.
+    """
+    bool_subsets = []
+    for subset in subsets.values():
+        bool_subset = np.zeros(len(U)).astype(bool)
+        for i,uu in enumerate(U):
+            if(uu in subset):
+                bool_subset[i] = 1
+        bool_subsets.append(bool_subset)
+
+    return bool_subsets
+
+
+#**************************************************************************
+
+def StatesFromBoolToNum(x_list):
+    """
+    The "1" in the i-th position of a bit-list describing 
+    a state x means that the i-th subset in the 
+    "subsets" dictionary is selected. We thus can rewrite 
+    the bit-list x as a list of natural numbers that label 
+    the subsets selected.
+    Example: if subsets = {0: {0,1}, 1:{1,2}, 2:{0,2}}
+             then x = [1 0 1] becomes x = [0,2]
+
+    Arguments
+    ---------
+        x_list: a list of bit-lists
+
+    Return
+    ------
+        x_numbers_list: list of natural-numbers-lists
+    """
+    
+    x_numbers_list = []
+    for x in x_list:
+        subsets_selected = list(np.where(x == 1)[0])
+        x_numbers_list.append(subsets_selected)
+
+    return x_numbers_list
+
 
 
 #**************************************************************************
@@ -244,28 +307,31 @@ if __name__ == '__main__':
 
 
     # Parameters.
+<<<<<<< HEAD
+    u = 5 # size of U set
+=======
     u = 20 # size of U set
+>>>>>>> 65a29f8f81742e4b21607ad9a01e2bc629524c98
     s = 6 # number of subsets of U, whose union is U
-    n = 30 # the maximum number that can appear in the sets will be n-1 
-           # must be n >= u, as we are sampling without replacement
+    n = u # the maximum number that can appear in the sets will be n-1 
+          # must be n >= u, as we are sampling without replacement
     len_x = s # length of x list, representing the state
     build_H = False
 
-
     # Randomly generate an instance of the problem.
-    U, subsets = MEC_instance(u, s, n, print_instance=True, create_graph=True)
-
+    U, subsets = MEC_instance(u, s, n, print_instance=True, create_graph=False)
 
     # Define empty lists.
-    E_list = [] # will contain the energies associated to each state
-    x_labels = [] # will contain bit-strings describing the states (only needed for the plot)
+    E_list = [] # will contain the energies associated to each state (E_A + E_B)
+    E_A_list = [] # we need this to see if the cover is exact 
+    x_list = [] # will contain all the states x
 
 
     # Iterate over all possible states.
     for x in BitGen(len_x):
 
-        x = np.array(x)
-        x_labels.append(str(x))
+        x = np.array(x, dtype=int)
+        x_list.append(x)
 
 
         if build_H:
@@ -279,23 +345,61 @@ if __name__ == '__main__':
         else: # this is faster
 
             # Given x, directly compute its energy.
-            E = ComputeEnergy(x, U, subsets)
-            E_list.append(E)
+            E_A, E_B = ComputeEnergy(x, U, subsets)
+            E_list.append(E_A + E_B)
+            E_A_list.append(E_A) 
             # print(f'\nDirectly computed energy = {E}')
 
 
     # Plot energies.
-    if(s<=10): # otherwise the computation is too heavy
-        PlotEnergy(E_list, x_labels)
+    if(s <= 10): # otherwise the computation is too heavy
+        PlotEnergy(E_list, x_list)
 
 
-    # Find the minimum energy and the states that minimize it.
-    E_min = min(E_list)
-    x_labels = np.array(x_labels)
-    x_min = x_labels[E_list == E_min]
-    print(f"\n-> Minimum of energy: E_min={E_min}")
-    print(f"-> States that minimize energy: {x_min}")
+    print("\n")
+    print('*'*30, "SOLUTION", '*'*30)
+    print("\nQUBO SOLUTION:")
 
+
+    # Find the exact covers.
+    exact_covers = np.array(x_list)[np.array(E_A_list) == 0.0]
+
+    if(exact_covers.size == 0):
+        print("There is no exact cover")
+        # Exit with success
+        # import sys
+        # sys.exit(0) 
+
+    else:
+        print("    -> Exact cover(s):", StatesFromBoolToNum(exact_covers))
+
+        exact_covers_energies = np.array(E_list)[np.array(E_A_list) == 0.0]
+        print("    -> Exact cover(s) energy:", exact_covers_energies)
+
+        E_min = min(exact_covers_energies)
+        print(f"    -> Energy minimum: E_min = {E_min}")
+
+        minimum_exact_covers = exact_covers[exact_covers_energies == E_min]
+        minimum_exact_covers = StatesFromBoolToNum(minimum_exact_covers)
+        print("    -> Minimum exact cover(s):", minimum_exact_covers)
+
+
+    """
+    **********************************************************************
+    Let's look for a solution without the QUBO.
+
+    First, rewrite subsets as lists of length len(U)=u of bits. 
+    The list corresponding to a set S will have '1' 
+    in the i-th position if the i-th element of U is in S.
+    """
+
+    bool_subsets = np.array(SubsetsToBool(U, subsets))
+
+    print("\nPYTHON LIBRARY SOLUTION:")
+    exact_cover = ec.get_exact_cover(bool_subsets)
+    print(f"    -> Exact cover:{np.sort(exact_cover)}")
+    num_exact_covers = ec.get_solution_count(bool_subsets)
+    print(f"    -> Number of exact covers: {num_exact_covers}")
 
     elapsed_time = time.time() - start_time
     print(f'\nComputation time (s): {elapsed_time}')
