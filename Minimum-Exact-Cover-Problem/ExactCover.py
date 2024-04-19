@@ -288,7 +288,6 @@ def StatesFromBoolToNum(x_list):
     return x_numbers_list
 
 
-
 #**************************************************************************
 
 if __name__ == '__main__':
@@ -335,7 +334,6 @@ if __name__ == '__main__':
     print('*'*30, "SOLUTION", '*'*30)
     print("\nQUBO SOLUTION:")
 
-
     # Find the exact covers.
     exact_covers = np.array(x_list)[np.array(E_A_list) == 0.0]
 
@@ -349,7 +347,6 @@ if __name__ == '__main__':
         # sys.exit(0) 
 
 
-    
     # **********************************************************************
     print("\nPYTHON LIBRARY SOLUTION:")
     """
@@ -361,7 +358,6 @@ if __name__ == '__main__':
     """
 
     bool_subsets = np.array(SubsetsToBool(U, subsets))
-
     exact_cover = ec.get_exact_cover(bool_subsets)
     print(f"    -> Exact cover:{np.sort(exact_cover)}")
     num_exact_covers = ec.get_solution_count(bool_subsets)
