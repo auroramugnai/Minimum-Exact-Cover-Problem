@@ -335,6 +335,14 @@ if __name__ == '__main__':
     big_H_A = np.kron(big_I, H_A)
     # print("big_H_A = \n", big_H_A)
 
+    
+    # Print this bigger Hamiltonian to file.
+    with open(f"EC_u={u}_s={s}_npw={n_parallel_works}.txt",'wb') as f:
+        
+        mat = np.matrix(big_H_A)
+        for line in mat:
+            np.savetxt(f, line, fmt='%d')
+
 
     # Define empty lists.
     E_A_list = [] # energies
