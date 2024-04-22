@@ -150,41 +150,57 @@ def ComputeEnergy(x, U, subsets):
 
 
 # ********************************************************************************
-
-def BuildHam(x, U, subsets):
+def EnergyExpectVal(H_A, x, u):
     """
     Arguments
     ---------
-        x : a binary array.
-        U : a set.
-        subsets : the dictionary containing subsets of U, whose union is U.
+        H_A : Hamiltonian of the problem.
+        x : binary array.
+        u : length of U set.
 
     Return
     ------
-        H_A : the Hamiltonian of the problem.
-            (See "Ising formulations of many NP problems" by Andrew Lucas)
-        E : x's energy.
+        E_A : energy of x, computed as expectation value on H_A.
+    """
+
+    # Compute the expectation value <x|H_A|x> and remember to add the constant!
+    E_A = np.dot(x, np.matmul(H_A,x)) + u
+
+    return E_A
+
+
+# ********************************************************************************
+
+
+def BuildHam(U, subsets):
+    """
+    Arguments
+    ---------
+        U : set.
+        subsets : dictionary containing subsets of U, whose union is U.
+
+    Return
+    ------
+        H_A : Hamiltonian of the problem.
+             (See "Ising formulations of many NP problems" by Andrew Lucas)
     """
 
     
-    A = 1.
-    s = len(x) # number of subsets.
+    A = 1
+    s = len(subsets) # number of subsets.
     
     H_A = np.zeros(shape=(s,s))
     for uu in U:
         for i in range(s):
             if uu in subsets[i]:
-                H_A[i,i] += -1.
+                H_A[i,i] += -1
             for j in range(i+1,s):  
                 if (uu in subsets[i] and uu in subsets[j]):
-                    H_A[i,j] += 2.        
+                    H_A[i,j] += 2     
 
     H_A = A * H_A
 
-    # Compute the expectation value <x|H_A|x> and remember to add the constant!
-    E_A = np.dot(x, np.matmul(H_A,x)) + len(U)
-
-    return H_A, E_A
+    return H_A
 
 
 # ********************************************************************************
@@ -288,6 +304,7 @@ def StatesFromBoolToNum(x_list):
     return x_numbers_list
 
 
+
 #**************************************************************************
 
 if __name__ == '__main__':
@@ -295,15 +312,29 @@ if __name__ == '__main__':
 
 
     # Parameters.
-    u = 4 # size of U set
-    s = 6 # number of subsets of U, whose union is U
+    u = 6 # size of U set
+    s = 10 # number of subsets of U, whose union is U
     n = u # the maximum number that can appear in the sets will be n-1 
           # must be n >= u, as we are sampling without replacement
     len_x = s # length of x list, representing the state
     build_H = True
 
+
     # Randomly generate an instance of the problem.
     U, subsets = MEC_instance(u, s, n, print_instance=True, create_graph=False)
+
+
+    # Build the Hamiltonian of the problem
+    H_A = BuildHam(U, subsets)
+    # print("H_A = \n", H_A)
+
+
+    # Create a bigger Hamiltonian by copying H_A over n_parallel_works subspaces.
+    n_parallel_works = 5
+    big_I = np.eye(n_parallel_works, dtype=int)
+    big_H_A = np.kron(big_I, H_A)
+    # print("big_H_A = \n", big_H_A)
+
 
     # Define empty lists.
     E_A_list = [] # energies
@@ -316,11 +347,11 @@ if __name__ == '__main__':
         x = np.array(x, dtype=int)
         x_list.append(x)
 
-
-        # Build the Hamiltonian of the problem and compute x's energy.
-        H_A, E_A = BuildHam(x, U, subsets)
+        # Compute x's energy.
+        E_A = EnergyExpectVal(H_A, x, u)
         E_A_list.append(E_A)
 
+        # (Optional) Just to double check.
         if E_A != ComputeEnergy(x, U, subsets):
             print("ERROR: expectation value on H_A != straightforwardly computed energy")
 
@@ -333,6 +364,7 @@ if __name__ == '__main__':
     print("\n")
     print('*'*30, "SOLUTION", '*'*30)
     print("\nQUBO SOLUTION:")
+
 
     # Find the exact covers.
     exact_covers = np.array(x_list)[np.array(E_A_list) == 0.0]
@@ -347,6 +379,7 @@ if __name__ == '__main__':
         # sys.exit(0) 
 
 
+    
     # **********************************************************************
     print("\nPYTHON LIBRARY SOLUTION:")
     """
@@ -358,12 +391,13 @@ if __name__ == '__main__':
     """
 
     bool_subsets = np.array(SubsetsToBool(U, subsets))
+
     exact_cover = ec.get_exact_cover(bool_subsets)
     print(f"    -> Exact cover:{np.sort(exact_cover)}")
     num_exact_covers = ec.get_solution_count(bool_subsets)
     print(f"    -> Number of exact covers: {num_exact_covers}")
 
-
+    
     elapsed_time = time.time() - start_time
     print(f'\nComputation time (s): {elapsed_time}')
     plt.show()
