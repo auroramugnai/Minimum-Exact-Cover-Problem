@@ -311,33 +311,50 @@ if __name__ == '__main__':
     start_time = time.time()
 
 
-    # Parameters.
-    u = 6 # size of U set
-    s = 10 # number of subsets of U, whose union is U
-    n = u # the maximum number that can appear in the sets will be n-1 
-          # must be n >= u, as we are sampling without replacement
-    len_x = s # length of x list, representing the state
-    build_H = True
+    # # Parameters.
+    # u = 6 # size of U set
+    # s = 10 # number of subsets of U, whose union is U
+    # n = u # the maximum number that can appear in the sets will be n-1 
+    #       # must be n >= u, as we are sampling without replacement
+    # len_x = s # length of x list, representing the state
 
 
-    # Randomly generate an instance of the problem.
-    U, subsets = MEC_instance(u, s, n, print_instance=True, create_graph=False)
+    # # Randomly generate an instance of the problem.
+    # U, subsets = MEC_instance(u, s, n, print_instance=True, create_graph=False)
 
+    # ---------------------------------------------------------------------------
+    U = {0, 1, 2, 3, 4, 5}
+    u = len(U)
+    subsets = {0: {0, 1, 2, 3, 5},
+               1: {1, 5},
+               2: {2, 3, 5},
+               3: {3, 4},
+               4: {1, 2, 3, 5},
+               5: {4},
+               6: {0, 1},
+               7: {0},
+               8: {1},
+               9: {0, 1, 2, 4, 5}}
+    s = len(subsets)
+    len_x = s
+
+    Exact_covers = [[4, 5, 7], [2, 5, 7, 8], [2, 5, 6], [0, 5]]
+    # ---------------------------------------------------------------------------
 
     # Build the Hamiltonian of the problem
     H_A = BuildHam(U, subsets)
     # print("H_A = \n", H_A)
 
 
-    # Create a bigger Hamiltonian by copying H_A over n_parallel_works subspaces.
-    n_parallel_works = 5
-    big_I = np.eye(n_parallel_works, dtype=int)
+    # Create a bigger Hamiltonian by copying H_A over num_units subspaces.
+    num_units = 10
+    big_I = np.eye(num_units, dtype=int)
     big_H_A = np.kron(big_I, H_A)
     # print("big_H_A = \n", big_H_A)
 
     
     # Print this bigger Hamiltonian to file.
-    with open(f"EC_u={u}_s={s}_npw={n_parallel_works}.txt",'wb') as f:
+    with open(f"EC_u={u}_s={s}_numunits={num_units}.txt",'wb') as f:
         
         mat = np.matrix(big_H_A)
         for line in mat:
@@ -389,22 +406,91 @@ if __name__ == '__main__':
 
     
     # **********************************************************************
-    print("\nPYTHON LIBRARY SOLUTION:")
-    """
-    Let's look for a solution without the QUBO.
+    
+    # print("\nPYTHON LIBRARY SOLUTION:")
+    # """
+    # Let's look for a solution without the QUBO.
 
-    First, rewrite subsets as lists of length len(U)=u of bits. 
-    The list corresponding to a set S will have '1' 
-    in the i-th position if the i-th element of U is in S.
-    """
+    # First, rewrite subsets as lists of length len(U)=u of bits. 
+    # The list corresponding to a set S will have '1' 
+    # in the i-th position if the i-th element of U is in S.
+    # """
 
-    bool_subsets = np.array(SubsetsToBool(U, subsets))
+    # bool_subsets = np.array(SubsetsToBool(U, subsets))
 
-    exact_cover = ec.get_exact_cover(bool_subsets)
-    print(f"    -> Exact cover:{np.sort(exact_cover)}")
-    num_exact_covers = ec.get_solution_count(bool_subsets)
-    print(f"    -> Number of exact covers: {num_exact_covers}")
+    # exact_cover = ec.get_exact_cover(bool_subsets)
+    # print(f"    -> Exact cover:{np.sort(exact_cover)}")
+    # num_exact_covers = ec.get_solution_count(bool_subsets)
+    # print(f"    -> Number of exact covers: {num_exact_covers}")
 
+    # ---------------------------------------------------------------------
+
+    # print("\nDWAVE SOLUTION (SteepestDescentSolver):")
+    # from dwave.samplers import SteepestDescentSolver
+    # solver = SteepestDescentSolver()
+    # sampleset = solver.sample_qubo(big_H_A)
+    # print(sampleset)
+
+    # print("\nDWAVE SOLUTION (ExactSolver):")
+    # from dimod import ExactSolver
+    # sampler = ExactSolver()
+    # sampleset = sampler.sample_qubo(big_H_A)
+    # print(sampleset)
+
+    print("\nDWAVE SOLUTION (SimulatedAnnealingSampler):")
+    import neal
+    solver = neal.SimulatedAnnealingSampler()
+    sampleset = solver.sample_qubo(big_H_A, num_reads=100)
+    # import dwave.inspector
+    # dwave.inspector.show(sampleset)
+
+    df = sampleset.to_pandas_dataframe()
+    df.to_csv("./SimulatedAnnealing.csv", index=False)
+    print(sampleset)
+
+
+    print("\nDWAVE SOLUTION (DWaveSampler):")
+    from dwave.system import DWaveSampler, EmbeddingComposite
+    import dwave.inspector
+
+    # loc_time = time.localtime(time.time())
+    # year = str(loc_time.tm_year)
+    # month = str(loc_time.tm_mon)
+    # day = str(loc_time.tm_mday)
+    # hour = str(loc_time.tm_hour)
+    # minu = str(loc_time.tm_min)
+    # sec = str(loc_time.tm_sec)
+    # str_time = year +"_"+ month +"_"+ day +"_"+ hour +"-"+ minu +"-"+ sec
+
+
+    NSAMPLES = 3
+    NREADS = 100
+
+    sampler = EmbeddingComposite(DWaveSampler(solver=dict(topology__type='zephyr')))
+    sampler_v = 2
+
+    PROBLEM = big_H_A
+    PROBLEM_NAME = f'ExactCover_{num_units}units'
+
+    if sampler_v == 2:
+        AdvVERSION = 'Adv2'
+    else:
+        AdvVERSION = 'Adv1'
+
+    # Create a pandas DataFrame and save it to .csv.
+    for ith_sample in range(1, NSAMPLES+1):
+        header = f'{PROBLEM_NAME}_{AdvVERSION}_{NREADS}_{ith_sample}of{NSAMPLES}'
+        sampleset = sampler.sample_qubo(PROBLEM, num_reads=NREADS, label=header)
+        df = sampleset.to_pandas_dataframe()
+        df.to_csv(header + '.csv', index=False)
+
+        print(sampleset)
+        dwave.inspector.show(sampleset)
+
+    # import subprocess
+    # # run postprocess file
+    # subprocess.run(["python3", "EC_postprocess.py"])
+              
     
     elapsed_time = time.time() - start_time
     print(f'\nComputation time (s): {elapsed_time}')
