@@ -83,7 +83,8 @@ if __name__ == '__main__':
     # --------------------   display the global dataframe   --------------------
 
     # df_tot is the dataframe containing the whole information of one run.
-    df_tot = pd.read_csv("./SimulatedAnnealing.csv")
+    csv_path = "./SimulatedAnnealing.csv"
+    df_tot = pd.read_csv(csv_path)
 
     # Add a column to represent states as arrays.
     df_tot["array"] = list(df_tot.iloc[:, 0:num_digits].to_numpy(dtype=int))
