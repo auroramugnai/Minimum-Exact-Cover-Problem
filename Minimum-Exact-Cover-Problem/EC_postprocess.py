@@ -3,7 +3,6 @@ import pprint
 from typing import List
 
 import numpy as np
-from matplotlib import pyplot as plt
 import pandas as pd
 import ast # to evaluate strings as arrays
 from termcolor import colored # to color a dataframe
@@ -179,4 +178,3 @@ if __name__ == '__main__':
 
     elapsed_time = time.time() - start_time
     print(f'\nComputation time (s): {elapsed_time}')
-    plt.show()
