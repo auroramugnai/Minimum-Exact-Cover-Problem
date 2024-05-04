@@ -99,9 +99,8 @@ if __name__ == '__main__':
 
     # --------------------        count occurrences         --------------------
     
-    df_counts = GetCounts(df_tot, col="array", 
-                          print_df_counts=True)
- 
+    df_counts = GetCounts(df_tot, col="array", print_df_counts=True)
+
 
 
     # --------------------   create each unit's dataframe   --------------------
