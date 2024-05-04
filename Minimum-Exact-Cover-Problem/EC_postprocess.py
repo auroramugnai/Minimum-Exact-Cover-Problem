@@ -82,7 +82,7 @@ if __name__ == '__main__':
     # --------------------   display the global dataframe   --------------------
 
     # df_tot is the dataframe containing the whole information of one run.
-    csv_path = "./SimulatedAnnealing.csv"
+    csv_path = "./ExactCover_10units_Adv2_100_1of3.csv"
     df_tot = pd.read_csv(csv_path)
 
     # Add a column to represent states as arrays.
