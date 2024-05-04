@@ -1,11 +1,7 @@
-import itertools
-import random
 import time
 import pprint
 from typing import List
 
-import exact_cover as ec
-import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
@@ -116,8 +112,8 @@ if __name__ == '__main__':
     column_names = ['{}'.format(n) for n in range(s)]
 
     # Set how to split df_tot's columns.
-    start_points = np.arange(0,num_digits,s)
-    end_points = np.arange(s,num_digits+s,s)
+    start_points = np.arange(0, num_digits, s)
+    end_points = np.arange(s, num_digits+s, s)
 
 
     df_counts_list = []
