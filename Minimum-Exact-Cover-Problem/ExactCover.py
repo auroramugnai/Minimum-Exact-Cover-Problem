@@ -17,6 +17,7 @@
       all possible states.
 """
 
+from datetime import datetime
 import itertools
 import random
 import time
@@ -310,6 +311,8 @@ def StatesFromBoolToNum(x_list):
 if __name__ == '__main__':
     start_time = time.time()
 
+    # get current date and time
+    current_datetime = datetime.now().strftime("@%Y-%m-%d@%Hh%Mm%Ss")
 
     # # Parameters.
     # u = 6 # size of U set
@@ -347,18 +350,10 @@ if __name__ == '__main__':
 
 
     # Create a bigger Hamiltonian by copying H_A over num_units subspaces.
-    num_units = 10
+    num_units = 15
     big_I = np.eye(num_units, dtype=int)
     big_H_A = np.kron(big_I, H_A)
     # print("big_H_A = \n", big_H_A)
-
-    
-    # Print this bigger Hamiltonian to file.
-    with open(f"EC_u={u}_s={s}_numunits={num_units}.txt",'wb') as f:
-        
-        mat = np.matrix(big_H_A)
-        for line in mat:
-            np.savetxt(f, line, fmt='%d')
 
 
     # Define empty lists.
@@ -425,11 +420,13 @@ if __name__ == '__main__':
 
     # ---------------------------------------------------------------------
 
+
     # print("\nDWAVE SOLUTION (SteepestDescentSolver):")
     # from dwave.samplers import SteepestDescentSolver
     # solver = SteepestDescentSolver()
     # sampleset = solver.sample_qubo(big_H_A)
     # print(sampleset)
+
 
     # print("\nDWAVE SOLUTION (ExactSolver):")
     # from dimod import ExactSolver
@@ -437,34 +434,23 @@ if __name__ == '__main__':
     # sampleset = sampler.sample_qubo(big_H_A)
     # print(sampleset)
 
-    print("\nDWAVE SOLUTION (SimulatedAnnealingSampler):")
-    import neal
-    solver = neal.SimulatedAnnealingSampler()
-    sampleset = solver.sample_qubo(big_H_A, num_reads=100)
-    # import dwave.inspector
-    # dwave.inspector.show(sampleset)
 
-    df = sampleset.to_pandas_dataframe()
-    df.to_csv("./SimulatedAnnealing.csv", index=False)
-    print(sampleset)
+    # print("\nDWAVE SOLUTION (SimulatedAnnealingSampler):")
+    # import neal
+    # solver = neal.SimulatedAnnealingSampler()
+    # sampleset = solver.sample_qubo(big_H_A, num_reads=100)
+    #
+    # df = sampleset.to_pandas_dataframe()
+    # df.to_csv(f"./SimulatedAnnealing_{datetime}.csv", index=False)
+    # print(sampleset)
 
 
     print("\nDWAVE SOLUTION (DWaveSampler):")
     from dwave.system import DWaveSampler, EmbeddingComposite
     import dwave.inspector
 
-    # loc_time = time.localtime(time.time())
-    # year = str(loc_time.tm_year)
-    # month = str(loc_time.tm_mon)
-    # day = str(loc_time.tm_mday)
-    # hour = str(loc_time.tm_hour)
-    # minu = str(loc_time.tm_min)
-    # sec = str(loc_time.tm_sec)
-    # str_time = year +"_"+ month +"_"+ day +"_"+ hour +"-"+ minu +"-"+ sec
-
-
-    NSAMPLES = 3
-    NREADS = 100
+    NSAMPLES = 1
+    NREADS = 1
 
     sampler = EmbeddingComposite(DWaveSampler(solver=dict(topology__type='zephyr')))
     sampler_v = 2
@@ -482,7 +468,7 @@ if __name__ == '__main__':
         header = f'{PROBLEM_NAME}_{AdvVERSION}_{NREADS}_{ith_sample}of{NSAMPLES}'
         sampleset = sampler.sample_qubo(PROBLEM, num_reads=NREADS, label=header)
         df = sampleset.to_pandas_dataframe()
-        df.to_csv(header + '.csv', index=False)
+        df.to_csv(header + f'{current_datetime}.csv', index=False)
 
         print(sampleset)
         dwave.inspector.show(sampleset)
@@ -492,6 +478,14 @@ if __name__ == '__main__':
     # subprocess.run(["python3", "EC_postprocess.py"])
               
     
+    # Print the small Hamiltonian to file.
+    with open(f"{PROBLEM_NAME}_u={u}_s={s}_{current_datetime}.txt",'wb') as f:
+        
+        mat = np.matrix(H_A)
+        for line in mat:
+            np.savetxt(f, line, fmt='%d')
+
+
     elapsed_time = time.time() - start_time
     print(f'\nComputation time (s): {elapsed_time}')
     plt.show()
