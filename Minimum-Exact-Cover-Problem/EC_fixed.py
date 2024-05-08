@@ -1,22 +1,4 @@
-"""Exact Cover.
-
-   (See "Ising formulations of many NP problems" by Andrew Lucas)
-
-    - Given n, u, s, return a set U of u random elements, 
-      chosen arbitrarily between 0 and n-1, and a dictionary
-      containing s subsets of U, whose union is U.
-
-    - Create the graph representing the problem, where an edge between 
-      nodes i,j means that the subsets corresponding to i,j have 
-      a non-zero intersection.
-    
-    - Build the hamiltonian matrix H_A of the problem and compute
-      energies as expectation values <x|H_A|x>.
-
-    - (Optional) plot the energy landscape.
-
-    - Find the exact cover (states with zero energy) iterating over
-      all possible states.
+"""Same as Exact Cover, but with an instance fixed.
 """
 
 from datetime import datetime
@@ -110,24 +92,6 @@ if __name__ == '__main__':
 
     
     # **********************************************************************
-    
-    # print("\nPYTHON LIBRARY SOLUTION:")
-    # """
-    # Let's look for a solution without the QUBO.
-
-    # First, rewrite subsets as lists of length len(U)=u of bits. 
-    # The list corresponding to a set S will have '1' 
-    # in the i-th position if the i-th element of U is in S.
-    # """
-
-    # bool_subsets = np.array(subsets_to_bool(U, subsets))
-
-    # exact_cover = ec.get_exact_cover(bool_subsets)
-    # print(f"    -> Exact cover:{np.sort(exact_cover)}")
-    # num_exact_covers = ec.get_solution_count(bool_subsets)
-    # print(f"    -> Number of exact covers: {num_exact_covers}")
-
-    # ---------------------------------------------------------------------
 
     # print("\nDWAVE SOLUTION (SteepestDescentSolver):")
     # from dwave.samplers import SteepestDescentSolver
