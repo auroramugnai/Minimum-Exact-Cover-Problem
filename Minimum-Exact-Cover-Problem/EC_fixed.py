@@ -22,8 +22,6 @@
 from datetime import datetime
 import time
 
-import exact_cover as ec
-
 from utils import *
 
 # pylint: disable=bad-whitespace, invalid-name, redefined-outer-name, bad-indentation
@@ -35,17 +33,35 @@ if __name__ == '__main__':
     # get current date and time
     current_datetime = datetime.now().strftime("@%Y-%m-%d@%Hh%Mm%Ss")
 
-    # Parameters.
-    u = 6 # size of U set
-    s = 10 # number of subsets of U, whose union is U
-    n = u # the maximum number that can appear in the sets will be n-1 
-          # must be n >= u, as we are sampling without replacement
-    len_x = s # length of x list, representing the state
+    # # Parameters.
+    # u = 6 # size of U set
+    # s = 10 # number of subsets of U, whose union is U
+    # n = u # the maximum number that can appear in the sets will be n-1 
+    #       # must be n >= u, as we are sampling without replacement
+    # len_x = s # length of x list, representing the state
 
 
-    # Randomly generate an instance of the problem.
-    U, subsets = MEC_instance(u, s, n, print_instance=True, create_graph=False)
+    # # Randomly generate an instance of the problem.
+    # U, subsets = MEC_instance(u, s, n, print_instance=True, create_graph=False)
 
+    # ---------------------------------------------------------------------------
+    U = {0, 1, 2, 3, 4, 5}
+    u = len(U)
+    subsets = {0: {0, 1, 2, 3, 5},
+               1: {1, 5},
+               2: {2, 3, 5},
+               3: {3, 4},
+               4: {1, 2, 3, 5},
+               5: {4},
+               6: {0, 1},
+               7: {0},
+               8: {1},
+               9: {0, 1, 2, 4, 5}}
+    s = len(subsets)
+    len_x = s
+
+    Exact_covers = [[4, 5, 7], [2, 5, 7, 8], [2, 5, 6], [0, 5]]
+    # ---------------------------------------------------------------------------
 
     # Build the Hamiltonian of the problem
     H_A = build_ham(U, subsets)
@@ -105,21 +121,21 @@ if __name__ == '__main__':
     
     # **********************************************************************
     
-    print("\nPYTHON LIBRARY SOLUTION:")
-    """
-    Let's look for a solution without the QUBO.
+    # print("\nPYTHON LIBRARY SOLUTION:")
+    # """
+    # Let's look for a solution without the QUBO.
 
-    First, rewrite subsets as lists of length len(U)=u of bits. 
-    The list corresponding to a set S will have '1' 
-    in the i-th position if the i-th element of U is in S.
-    """
+    # First, rewrite subsets as lists of length len(U)=u of bits. 
+    # The list corresponding to a set S will have '1' 
+    # in the i-th position if the i-th element of U is in S.
+    # """
 
-    bool_subsets = np.array(subsets_to_bool(U, subsets))
+    # bool_subsets = np.array(subsets_to_bool(U, subsets))
 
-    exact_cover = ec.get_exact_cover(bool_subsets)
-    print(f"    -> Exact cover:{np.sort(exact_cover)}")
-    num_exact_covers = ec.get_solution_count(bool_subsets)
-    print(f"    -> Number of exact covers: {num_exact_covers}")
+    # exact_cover = ec.get_exact_cover(bool_subsets)
+    # print(f"    -> Exact cover:{np.sort(exact_cover)}")
+    # num_exact_covers = ec.get_solution_count(bool_subsets)
+    # print(f"    -> Number of exact covers: {num_exact_covers}")
 
     # ---------------------------------------------------------------------
 
@@ -143,7 +159,7 @@ if __name__ == '__main__':
     # import neal
     # solver = neal.SimulatedAnnealingSampler()
     # sampleset = solver.sample_qubo(big_H_A, num_reads=100)
-    
+    #
     # df = sampleset.to_pandas_dataframe()
     # df.to_csv(f"./SimulatedAnnealing_{datetime}.csv", index=False)
     # print(sampleset)
@@ -161,7 +177,7 @@ if __name__ == '__main__':
     # sampler_v = 2
 
     # PROBLEM = big_H_A
-    # PROBLEM_NAME = f'ExactCover_{num_units}units'
+    PROBLEM_NAME = f'ExactCover_{num_units}units'
 
     # if sampler_v == 2:
     #     AdvVERSION = 'Adv2'
@@ -185,12 +201,12 @@ if __name__ == '__main__':
 
     # ---------------------------------------------------------------------  
 
-    # # Print the small Hamiltonian to file.
-    # with open(f"{PROBLEM_NAME}_u={u}_s={s}_{current_datetime}.txt",'wb') as f:
+    # Print the small Hamiltonian to file.
+    with open(f"{PROBLEM_NAME}_u={u}_s={s}_{current_datetime}.txt",'wb') as f:
         
-    #     mat = np.matrix(H_A)
-    #     for line in mat:
-    #         np.savetxt(f, line, fmt='%d')
+        mat = np.matrix(H_A)
+        for line in mat:
+            np.savetxt(f, line, fmt='%d')
 
 
     elapsed_time = time.time() - start_time
