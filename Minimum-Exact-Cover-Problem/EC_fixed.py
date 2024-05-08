@@ -33,17 +33,6 @@ if __name__ == '__main__':
     # get current date and time
     current_datetime = datetime.now().strftime("@%Y-%m-%d@%Hh%Mm%Ss")
 
-    # # Parameters.
-    # u = 6 # size of U set
-    # s = 10 # number of subsets of U, whose union is U
-    # n = u # the maximum number that can appear in the sets will be n-1 
-    #       # must be n >= u, as we are sampling without replacement
-    # len_x = s # length of x list, representing the state
-
-
-    # # Randomly generate an instance of the problem.
-    # U, subsets = MEC_instance(u, s, n, print_instance=True, create_graph=False)
-
     # ---------------------------------------------------------------------------
     U = {0, 1, 2, 3, 4, 5}
     u = len(U)
@@ -60,7 +49,8 @@ if __name__ == '__main__':
     s = len(subsets)
     len_x = s
 
-    Exact_covers = [[4, 5, 7], [2, 5, 7, 8], [2, 5, 6], [0, 5]]
+    SOLUTIONS = [[4, 5, 7], [2, 5, 7, 8], [2, 5, 6], [0, 5]]
+    print("\nTRUE SOLUTIONS: ", SOLUTIONS)
     # ---------------------------------------------------------------------------
 
     # Build the Hamiltonian of the problem
