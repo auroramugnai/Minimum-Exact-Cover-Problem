@@ -8,65 +8,6 @@ import ast # to evaluate strings as arrays
 from termcolor import colored # to color a dataframe
 
 
-def FromStrToArr(x: str) -> List[int]:
-    """
-    Arguments
-    ---------
-        x (string of bits): such as "[0 0 1 0]"
-
-    Return
-    ------
-        x (list of integers): such as [0, 0, 1, 0]
-    """
-    x = x.replace(" ", ", ")
-    x = np.array(ast.literal_eval(x))
-    x = list(np.where(x == 1)[0])
-
-    return x
-
-
-# ******************************************************************************
-
-def GetCounts(df: pd.DataFrame, col: str, print_df_counts: bool) -> pd.DataFrame:
-    """
-    Given a dataframe df, gets elements in the "col" column and 
-    displays their occurrences in a new dataframe df_counts.
-
-    Arguments
-    ---------
-        df (pandas Dataframe): 
-            dataframe from which to extract "col" column.
-        col (string):
-            name of the column whose elements counts we're interested in.
-        print_df_counts (bool):
-            if True, prints the counts'dataframe.
-
-    Return
-    ------
-        df_counts (pandas Dataframe):
-            dataframe containing col's elements with their counts,
-            sorted in descending order.
-
-    """
-
-    df_counts = df.copy(deep=False)
-
-    # Group by the 'array' column and count the occurrences.
-    df_counts = df_counts[["array"]].groupby(["array"])["array"].count()
-    df_counts = df_counts.reset_index(name='counts')
-
-    # Sort in descending order.
-    df_counts = df_counts.sort_values(['counts'], ascending=False)
-    df_counts = df_counts.reset_index(drop=True)
-
-    if print_df_counts:
-        print(f"\n-- counts dataframe:\n", df_counts.head())
-
-    return df_counts
-
-
-# ******************************************************************************
-
 if __name__ == '__main__':
     start_time = time.time()
 
