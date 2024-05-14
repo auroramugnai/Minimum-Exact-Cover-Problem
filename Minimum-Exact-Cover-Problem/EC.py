@@ -46,7 +46,26 @@ if __name__ == '__main__':
     # Randomly generate an instance of the problem.
     U, subsets = MEC_instance(u, s, n, print_instance=True, create_graph=False)
 
+    # ---------------------------------------------------------------------------
+    # U = {0, 1, 2, 3, 4, 5}
+    # u = len(U)
+    # subsets = {0: {0, 1, 2, 3, 5},
+    #            1: {1, 5},
+    #            2: {2, 3, 5},
+    #            3: {3, 4},
+    #            4: {1, 2, 3, 5},
+    #            5: {4},
+    #            6: {0, 1},
+    #            7: {0},
+    #            8: {1},
+    #            9: {0, 1, 2, 4, 5}}
+    # s = len(subsets)
+    # len_x = s
 
+    # SOLUTIONS = [[4, 5, 7], [2, 5, 7, 8], [2, 5, 6], [0, 5]]
+    # print("\nTRUE SOLUTIONS: ", SOLUTIONS)
+    # ---------------------------------------------------------------------------
+   
     # Build the Hamiltonian of the problem
     H_A = build_ham(U, subsets)
     # print("H_A = \n", H_A)
