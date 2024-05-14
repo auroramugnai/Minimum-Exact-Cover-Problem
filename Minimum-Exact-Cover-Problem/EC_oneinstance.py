@@ -1,4 +1,4 @@
-"""Same as Exact Cover, but with an instance fixed.
+"""Same as EC.py, but with an instance fixed.
 """
 
 from datetime import datetime
