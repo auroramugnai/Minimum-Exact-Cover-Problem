@@ -1,11 +1,16 @@
+import ast # to evaluate strings as arrays
 import itertools
 import random
 import pprint
+import time
+from typing import List
 
 import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
+from termcolor import colored # to color a dataframe
+
 
 # ********************************************************************************
 def MEC_instance(u, s, n, print_instance, create_graph):
