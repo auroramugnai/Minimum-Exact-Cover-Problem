@@ -7,6 +7,7 @@ import pandas as pd
 import ast # to evaluate strings as arrays
 from termcolor import colored # to color a dataframe
 
+from utils import get_counts, from_str_to_arr
 
 if __name__ == '__main__':
     start_time = time.time()
