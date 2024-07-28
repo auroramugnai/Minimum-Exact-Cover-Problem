@@ -110,7 +110,7 @@ if __name__ == '__main__':
     # Create a pandas DataFrame and save it to .csv.
     for ith_sample in range(1, NSAMPLES+1):
         header = f'{PROBLEM_NAME}_{NREADS}_{AdvVERSION}_{ith_sample}of{NSAMPLES}'
-        sampleset = sampler.sample_qubo(PROBLEM, NREADS=NREADS, label=header)
+        sampleset = sampler.sample_qubo(big_H_A, num_reads=NREADS, label=header)
         df = sampleset.to_pandas_dataframe()
         csv_path = header + f'{current_datetime}.csv'
         df.to_csv(csv_path, index=False)
