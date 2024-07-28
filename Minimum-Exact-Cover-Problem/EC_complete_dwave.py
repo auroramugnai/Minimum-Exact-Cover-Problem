@@ -35,19 +35,19 @@ if __name__ == '__main__':
     # get current date and time
     current_datetime = datetime.now().strftime("@%Y-%m-%d@%Hh%Mm%Ss")
 
-    # ---------------------------------------------------------------------------
-    U = {0, 1, 2, 3, 4, 5}
+    # ---------------------------------------------------------------------------    
+    
+    U = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+    subsets = {0: {2, 4, 5, 6, 9}, 
+               1: {16, 13, 14, 15}, 
+               2: {1, 4, 5, 6}, 
+               3: {8, 10, 12, 7}, 
+               4: {1, 3, 7, 8, 10, 11, 12, 13, 14, 15, 16}, 
+               5: {11, 9, 2, 3}, 
+               6: {3, 4, 5, 7, 8, 10, 12}, 
+               7: {3, 7, 8, 9, 10, 11, 14}
+               }
     u = len(U)
-    subsets = {0: {0, 1, 2, 3, 5},
-               1: {1, 5},
-               2: {2, 3, 5},
-               3: {3, 4},
-               4: {1, 2, 3, 5},
-               5: {4},
-               6: {0, 1},
-               7: {0},
-               8: {1},
-               9: {0, 1, 2, 4, 5}}
     s = len(subsets)
     len_x = s
 
@@ -79,43 +79,44 @@ if __name__ == '__main__':
 
     # ------------------------- SIMULATED ANNEALING ------------------------ 
 
-    print("\nDWAVE SOLUTION (SimulatedAnnealingSampler):")
-    import neal
-    solver = neal.SimulatedAnnealingSampler()
-    NREADS = 100
-    sampleset = solver.sample_qubo(big_H_A, num_reads=NREADS)
+    # print("\nDWAVE SOLUTION (SimulatedAnnealingSampler):")
+    # import neal
+    # solver = neal.SimulatedAnnealingSampler()
+    # NREADS = 100
+    # sampleset = solver.sample_qubo(big_H_A, num_reads=NREADS)
     
-    df = sampleset.to_pandas_dataframe()
-    csv_path = f"./{PROBLEM_NAME}_{NREADS}_{current_datetime}.csv"
-    df.to_csv(csv_path, index=False)
-    print(sampleset)
+    # df = sampleset.to_pandas_dataframe()
+    # csv_path = f"./{PROBLEM_NAME}_{NREADS}_{current_datetime}.csv"
+    # df.to_csv(csv_path, index=False)
+    # print(sampleset)
 
     # --------------------------- QPU ---------------------------------------
 
-    # print("\nDWAVE SOLUTION (DWaveSampler):")
-    # from dwave.system import DWaveSampler, EmbeddingComposite
-    # import dwave.inspector
+    print("\nDWAVE SOLUTION (DWaveSampler):")
+    from dwave.system import DWaveSampler, EmbeddingComposite
+    import dwave.inspector
 
-    # NSAMPLES = 5
-    # NREADS = 100
+    NSAMPLES = 5
+    NREADS = 100
 
-    # sampler = EmbeddingComposite(DWaveSampler(solver=dict(topology__type='zephyr')))
-    # sampler_v = 2
+    sampler = EmbeddingComposite(DWaveSampler(solver=dict(topology__type='zephyr')))
+    sampler_v = 2
 
-    # if sampler_v == 2:
-    #     AdvVERSION = 'Adv2'
-    # else:
-    #     AdvVERSION = 'Adv1'
+    if sampler_v == 2:
+        AdvVERSION = 'Adv2'
+    else:
+        AdvVERSION = 'Adv1'
 
-    # # Create a pandas DataFrame and save it to .csv.
-    # for ith_sample in range(1, NSAMPLES+1):
-    #     header = f'{PROBLEM_NAME}_{NREADS}_{AdvVERSION}_{ith_sample}of{NSAMPLES}'
-    #     sampleset = sampler.sample_qubo(PROBLEM, NREADS=NREADS, label=header)
-    #     df = sampleset.to_pandas_dataframe()
-    #     df.to_csv(header + f'{current_datetime}.csv', index=False)
+    # Create a pandas DataFrame and save it to .csv.
+    for ith_sample in range(1, NSAMPLES+1):
+        header = f'{PROBLEM_NAME}_{NREADS}_{AdvVERSION}_{ith_sample}of{NSAMPLES}'
+        sampleset = sampler.sample_qubo(PROBLEM, NREADS=NREADS, label=header)
+        df = sampleset.to_pandas_dataframe()
+        csv_path = header + f'{current_datetime}.csv'
+        df.to_csv(csv_path, index=False)
 
-    #     print(sampleset)
-    #     dwave.inspector.show(sampleset)
+        print(sampleset)
+        dwave.inspector.show(sampleset)
 
 
 
