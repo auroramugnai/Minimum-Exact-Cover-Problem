@@ -26,6 +26,42 @@ import pandas as pd
 from utils import *
 
 
+
+def is_feasible(state, subsets):
+    """ Checks if a state selects subsets that have 0 intersection 
+        (= if it is feasible).
+
+        Parameters
+        ----------
+            state (str): the state to be checked.
+            subsets (list or dict): a list containing the subsets of the problem,
+                                    or a dictionary where keys are natural numbers 
+                                    and values are the subsets of the problem.
+
+        Returns
+        -------
+            check (bool): True if the state is feasible, False otherwise.
+
+    """
+
+    state = ast.literal_eval(state) # str -> list
+
+    chosen_subsets = [subsets[int(i)] for i in state]
+    union_set = set().union(*chosen_subsets)
+    sum_of_len = sum([len(sub) for sub in chosen_subsets])
+
+    """ The sum of the lengths of the subsets selected by a state is 
+        equal to the length of the union set `union_set` only if the 
+        subsets do not intersect, that is, if the state is feasible.
+    """
+
+    if len(union_set) == sum_of_len:
+        check = True
+    else:
+        check = False
+
+    return check
+
 # pylint: disable=bad-whitespace, invalid-name, redefined-outer-name, bad-indentation
 
 
@@ -37,22 +73,21 @@ if __name__ == '__main__':
 
     # ---------------------------------------------------------------------------    
     
-    U = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
-    subsets = {0: {2, 4, 5, 6, 9}, 
-               1: {16, 13, 14, 15}, 
-               2: {1, 4, 5, 6}, 
-               3: {8, 10, 12, 7}, 
-               4: {1, 3, 7, 8, 10, 11, 12, 13, 14, 15, 16}, 
-               5: {11, 9, 2, 3}, 
-               6: {3, 4, 5, 7, 8, 10, 12}, 
-               7: {3, 7, 8, 9, 10, 11, 14}
-               }
+
+    # Instance 3 of the e-mail (dimension=6)
+    subsets_as_list = [{8, 10, 3}, {2, 4, 5, 6, 9, 11, 12}, {1, 3, 7, 8, 10}, 
+                       {3, 4, 6, 8, 11}, {2, 3, 4, 6, 7, 9, 12}, {1, 7}]
+
+    subsets = dict([(k,v) for k,v in enumerate(subsets_as_list)])
+    U = find_U_from_subsets(subsets_dict)
+
     u = len(U)
     s = len(subsets)
     len_x = s
 
-    SOLUTIONS = [[0, 4], [1, 2, 3, 5]]
+    SOLUTIONS = [[0,1,5], [1,2]]
     print("\nTRUE SOLUTIONS: ", SOLUTIONS)
+
     # ---------------------------------------------------------------------------
 
 
@@ -73,9 +108,10 @@ if __name__ == '__main__':
     # *************************** DWAVE SAMPLING *****************************
     # ************************************************************************
 
+    PROBLEM_NAME = f'EC_instance6_u{u}_s{s}_{NUNITS}units'
     
 
-    PROBLEM_NAME = f'EC_u{u}_s{s}_{NUNITS}units'
+    
 
     # ------------------------- SIMULATED ANNEALING ------------------------ 
 
@@ -208,8 +244,9 @@ if __name__ == '__main__':
 
 
     #-----------------        Print it with colors         --------------------
-
     df_print = df_sum.copy()
+
+    df_print['is_feasible'] = df_print['array_to_num'].apply(lambda x: is_feasible(x, subsets_as_list))
 
     # Define a function that colors arrays in green if they are a solution.
     color_solutions = lambda x: (colored(str(x), None, 'on_green') 
@@ -219,7 +256,8 @@ if __name__ == '__main__':
     df_print['array_to_num'] = df_print['array_to_num'].map(color_solutions)
 
     # Reset columns or they will be shifted.
-    df_print.columns =  [colored('array_to_num', 'white', None)] + ["counts"]
+    df_print.columns =  [colored('array_to_num', 'white', None)] + ["counts", "is_feasible"]
+
     print(df_print)    
 
     #-----------------------------------------------------------------------------

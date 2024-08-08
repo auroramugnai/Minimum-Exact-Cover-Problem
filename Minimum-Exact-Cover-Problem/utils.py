@@ -411,3 +411,47 @@ def get_counts(df: pd.DataFrame, col: str, print_df_counts: bool) -> pd.DataFram
 
 
 # ******************************************************************************
+
+def find_U_from_subsets(subsets_dict):
+    U = subsets_dict[0]
+    for s in subsets_dict.values():
+        U = U | s
+    return U
+
+
+# ******************************************************************************
+
+def is_feasible(state, subsets):
+    """ Checks if a state selects subsets that have 0 intersection 
+        (= if it is feasible).
+
+        Parameters
+        ----------
+            state (str): the state to be checked.
+            subsets (list or dict): a list containing the subsets of the problem,
+                                    or a dictionary where keys are natural numbers 
+                                    and values are the subsets of the problem.
+
+        Returns
+        -------
+            check (bool): True if the state is feasible, False otherwise.
+
+    """
+
+    state = ast.literal_eval(state) # str -> list
+
+    chosen_subsets = [subsets[int(i)] for i in state]
+    union_set = set().union(*chosen_subsets)
+    sum_of_len = sum([len(sub) for sub in chosen_subsets])
+
+    """ The sum of the lengths of the subsets selected by a state is 
+        equal to the length of the union set `union_set` only if the 
+        subsets do not intersect, that is, if the state is feasible.
+    """
+
+    if len(union_set) == sum_of_len:
+        check = True
+    else:
+        check = False
+
+    return check
