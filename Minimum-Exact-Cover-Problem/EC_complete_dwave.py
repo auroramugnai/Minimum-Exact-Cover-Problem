@@ -98,9 +98,9 @@ if __name__ == '__main__':
 
     # Create a bigger Hamiltonian by copying H_A over num_units subspaces.
     NUNITS = 30
-    big_I = np.eye(NUNITS, dtype=int)
-    big_H_A = np.kron(big_I, H_A)
-    # print("big_H_A = \n", big_H_A)
+    I_chip = np.eye(NUNITS, dtype=int)
+    H_A_chip = np.kron(I_chip, H_A)
+    # print("H_A_chip = \n", H_A_chip)
 
 
   
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     # import neal
     # solver = neal.SimulatedAnnealingSampler()
     # NREADS = 100
-    # sampleset = solver.sample_qubo(big_H_A, num_reads=NREADS)
+    # sampleset = solver.sample_qubo(H_A_chip, num_reads=NREADS)
     
     # df = sampleset.to_pandas_dataframe()
     # csv_path = f"./{PROBLEM_NAME}_{NREADS}_{current_datetime}.csv"
@@ -146,7 +146,7 @@ if __name__ == '__main__':
     # Create a pandas DataFrame and save it to .csv.
     for ith_sample in range(1, NSAMPLES+1):
         header = f'{PROBLEM_NAME}_{NREADS}_{AdvVERSION}_{ith_sample}of{NSAMPLES}'
-        sampleset = sampler.sample_qubo(big_H_A, num_reads=NREADS, label=header)
+        sampleset = sampler.sample_qubo(H_A_chip, num_reads=NREADS, label=header)
         df = sampleset.to_pandas_dataframe()
         csv_path = header + f'{current_datetime}.csv'
         df.to_csv(csv_path, index=False)
