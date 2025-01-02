@@ -412,9 +412,9 @@ def get_counts(df: pd.DataFrame, col: str, print_df_counts: bool) -> pd.DataFram
 
 # ******************************************************************************
 
-def find_U_from_subsets(subsets_dict):
-    U = subsets_dict[0]
-    for s in subsets_dict.values():
+def find_U_from_subsets(subsets):
+    U = subsets[0]
+    for s in subsets:
         U = U | s
     return U
 
