@@ -147,42 +147,6 @@ def is_feasible(state, subsets):
         check = False
 
     return check
-# def is_feasible(state, subsets):
-#     """ Checks if a state selects subsets that have 0 intersection 
-#         (= if it is feasible).
-
-#         Parameters
-#         ----------
-#             state (str or list): the state to be checked.
-#             subsets (list or dict): a list containing the subsets of the problem,
-#                                     or a dictionary where keys are natural numbers 
-#                                     and values are the subsets of the problem.
-
-#         Returns
-#         -------
-#             check (bool): True if the state is feasible, False otherwise.
-
-#     """
-    
-#     if type(state) == str:
-#         state = from_str_to_list(state)
-#     chosen_subsets = [subsets[i] for i in state]
-#     union_set = set().union(*chosen_subsets)
-#     sum_of_len = sum([len(sub) for sub in chosen_subsets])
-
-#     """ The sum of the lengths of the subsets selected by a state is 
-#         equal to the length of the union set `union_set` only if the 
-#         subsets do not intersect, that is, if the state is feasible.
-#     """
-
-#     if len(union_set) == sum_of_len:
-#         check = True
-#     else:
-#         check = False
-
-#     return check
-
-
 
 def get_input(prompt, default_value, type_func=int):
     """
