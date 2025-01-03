@@ -31,6 +31,7 @@ Minimum exact cover.
         - Computation time and optional energy plots (for small problem sizes).
 """
 import time
+from typing import List, Dict, Set
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -41,103 +42,136 @@ from utils import build_instance, bit_gen, from_bool_to_numeric_lst
 
 
 # ********************************************************************************
-def build_ham_MEC(x, U, subsets):
+def build_ham_MEC(x: np.ndarray, U: Set[int], subsets: Dict[int, Set[int]]) -> (np.ndarray, float):
     """
-    Arguments
-    ---------
-        x : a binary array.
-        U : a set.
-        subsets : the dictionary containing subsets of U, whose union is U.
+    Constructs the Hamiltonian and computes the energy for the Minimum Exact Cover (MEC) problem.
 
-    Return
-    ------
-        H : the Hamiltonian H of the problem.
-            (See "Ising formulations of many NP problems" by Andrew Lucas)
-        E : x's energy.
+    The Hamiltonian is formulated based on the Ising model, as discussed in
+    "Ising formulations of many NP problems" by Andrew Lucas.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        A binary array representing the solution (variables are either 0 or 1).
+    U : set of int
+        A set of elements representing the universe in the Exact Cover problem.
+    subsets : dictionary of {int: set of int}
+        A dictionary where the keys are subset indices and the values are sets
+        representing subsets of U.
+
+    Returns
+    -------
+    H : numpy.ndarray
+        The Hamiltonian matrix for the problem.
+    E : float
+        The energy of the configuration x.
     """
 
-    
-    B = 1. # constant parameter of H_B.
-    A = len(U) * (B+1) # constant parameter of H_A. It must be A > u*B
+    B = 1.  # constant parameter of H_B.
+    A = len(U) * (B + 1)  # constant parameter of H_A. It must be A > u*B
 
-    s = len(x) # number of subsets.
+    s = len(x)  # number of subsets
     
-    H_A = np.zeros(shape=(s,s))
+    H_A = np.zeros(shape=(s, s))  # Initialize the Hamiltonian matrix
     for uu in U:
         for i in range(s):
             if uu in subsets[i]:
-                H_A[i,i] += -1.
-            for j in range(i+1,s):  
+                H_A[i, i] += -1.  # Update diagonal elements
+            for j in range(i + 1, s):  
                 if (uu in subsets[i] and uu in subsets[j]):
-                    H_A[i,j] += 2.        
+                    H_A[i, j] += 2.  # Update off-diagonal elements
 
-    H_A = A * H_A
-    H_B = B * np.identity(s)
+    H_A = A * H_A  # Apply the scaling factor to H_A
+    H_B = B * np.identity(s)  # Identity matrix for H_B
 
-    H = H_A + H_B
+    H = H_A + H_B  # Final Hamiltonian
 
-    # Compute the expectation value <x|H|x> and remember to add the constant!
-    E = np.dot(x, np.matmul(H,x)) + len(U)
+    # Compute the expectation value <x|H|x> and add the constant term
+    E = np.dot(x, np.matmul(H, x)) + len(U)
 
     return H, E
 
 
 # ********************************************************************************
-def compute_energy_MEC(x, U, subsets):
+def compute_energy_MEC(x: np.ndarray, U: Set[int], subsets: Dict[int, Set[int]]) -> (float, float):
     """
-    Arguments
-    ---------
-        x : a binary array.
-        U : a set.
-        subsets : a dictionary containing subsets of U, whose union is U.
+    Computes the energy for the Minimum Exact Cover (MEC) problem.
 
-    Return
-    ------
-        E : x's energy (See "Ising formulations of many NP problems" by Andrew Lucas)
+    The energy is calculated using the Ising formulation for the Exact Cover problem,
+    as described in "Ising formulations of many NP problems" by Andrew Lucas.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        A binary array representing the solution (variables are either 0 or 1).
+    U : set of int
+        A set of elements representing the universe in the Exact Cover problem.
+    subsets : dictionary of {int: set of int}
+        A dictionary where the keys are subset indices and the values are sets
+        representing subsets of U.
+
+    Returns
+    -------
+    E_A : float
+        The energy corresponding to H_A.
+    E_B : float
+        The energy corresponding to H_B.
     """
 
+    B = 1.  # constant parameter of H_B.
+    A = len(U) * (B + 1)  # constant parameter of H_A. It must be A > u*B
 
-    B = 1. # constant parameter of H_B.
-    A = len(U) * (B+1) # constant parameter of H_A. It must be A > u*B
-
-    E_A = 0.
+    E_A = 0.0
     for uu in U:
         counts = sum([x[i] for i in subsets.keys() if uu in subsets[i]])
-        #print(f'uu = {uu}, counts = {counts}')
-        E_A += (1 - counts)**2
+        E_A += (1 - counts) ** 2  # Add contribution to energy for H_A
 
-    E_A = A * E_A
-    E_B = B * sum(x)
-
+    E_A = A * E_A  # Apply scaling factor for H_A
+    E_B = B * sum(x)  # Calculate energy for H_B
 
     return E_A, E_B
 
 
 # ********************************************************************************
-def plot_energy(E_list, x_list):
+def plot_energy(E_list: List[float], x_list: List[List[int]]) -> None:
     """
-    Arguments
-    ---------
-       E_list : a list of energies.
-       x_list : a list of binary lists representing 
-                the states whose energy is in E_list
-      
-    Return
-    ------
-       A plot of E_list as a function of x_list.
+    Plots the energy landscape of the system as a function of different configurations.
+
+    The plot shows how the energy varies with the binary configurations in `x_list`.
+
+    Parameters
+    ----------
+    E_list : list of float
+        A list of energy values corresponding to different configurations.
+    x_list : list of lists of int
+        A list of binary configurations (represented as lists) whose energy values
+        are stored in `E_list`.
+
+    Returns
+    -------
+    None
+        Displays a plot of the energy landscape.
     """
+
     fig, ax = plt.subplots(figsize=(19, 10))
-    plt.title("Energy landscape")
+    plt.title("Energy Landscape")
     plt.subplots_adjust(left=0.03, bottom=0.2, right=0.94, top=0.94)
-    xx = np.linspace(0,len(E_list),len(E_list))
-    yy = E_list
+    
+    xx = np.linspace(0, len(E_list), len(E_list))  # X-axis values (index of configurations)
+    yy = E_list  # Y-axis values (corresponding energies)
+    
     ax.plot(xx, yy, marker='o', linestyle='--', color='red')
     ax.set_ylabel("Energy")
     ax.set_xticks(xx)
+    
+    # Set x-tick labels as string representations of the configurations
     x_labels = [str(x) for x in x_list]
     ax.set_xticklabels(x_labels, rotation=90)
-    ax.grid() 
+    
+    ax.grid()  # Display grid
     return
+
+
 
 if __name__ == '__main__':
     start_time = time.time()

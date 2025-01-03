@@ -5,74 +5,77 @@ from typing import List
 
 import networkx as nx
 import numpy as np
-from matplotlib import pyplot as pltù
+from matplotlib import pyplot as plt
 
 
 # ********************************************************************************
-def build_instance(u, s, n, print_instance, create_graph):
+def build_instance(u: int, s: int, n: int, print_instance: bool, create_graph: bool):
     """
-    Arguments
-    ---------
-        u : number of U's elements.
-        s : number of subsets of U, whose union is U.
-        n : the maximum number that can appear in the sets will be n-1.
-        print_instance : if True, prints out some information of the instance.
-        create_graph : if True, creates a graph to visualize the instance.
+    Build an instance of a set U and a collection of subsets.
 
+    Parameters
+    ----------
+    u : int
+        Number of elements in the set U.
+    s : int
+        Number of subsets of U, whose union is U.
+    n : int
+        The maximum number that can appear in the sets will be n-1.
+    print_instance : bool
+        If True, prints out information about the instance.
+    create_graph : bool
+        If True, creates a graph to visualize the instance.
 
-    Return
-    ------
-        U : a set of u elements.
-        subsets : a dictionary containing s subsets of U, whose union is U.
+    Returns
+    -------
+    U : set
+        A set of u elements.
+    subsets : dict
+        A dictionary containing s subsets of U, whose union is U.
     """
     
     possible_numbers_range = range(n)
 
-
     # Create U.
     try:
-        U = set(random.sample(possible_numbers_range, u)) # Sample without repetitions
+        U = set(random.sample(possible_numbers_range, u))  # Sample without repetitions
     except ValueError as e:
         print(f"\n!!! Explanation: n={n}, u={u}. It must be n >= u", 
-                "as we are sampling without replacement !!!\n")
+              "as we are sampling without replacement !!!\n")
         raise
-
 
     # Create a random list of subsets of U.
     L = []
     control = set()
 
-    while(len(L) != s-1):
-        sub_size = random.randrange(1, u) # select a random element from range(u)
+    while len(L) != s - 1:
+        sub_size = random.randrange(1, u)  # select a random element from range(u)
         sub = set(random.sample(U, sub_size))
 
-        # If sub is already in L, repeat the i-th step.
+        # If sub is already in L, repeat the step.
         if any(sub == x for x in L): 
             print("INFO: Two equal subsets were randomly generated. Re-extracting one subset...")
             continue
         
         L += [sub]
-        control |= sub # union operation
+        control |= sub  # union operation
 
-    
     # Make sure that the union of the subsets is equal to U.
     rest = U - control     
     if rest:
         L += [rest]
     else:
-        sub_size = random.randrange(1, u) # select a random element from range(u)
+        sub_size = random.randrange(1, u)  # select a random element from range(u)
         sub = set(random.sample(U, sub_size))
         L += [sub]
 
-
     # Create a dictionary to label L's elements with numbers.
-    subsets = {i:s for i,s in enumerate(L)}
-
+    subsets = {i: s for i, s in enumerate(L)}
 
     if print_instance:
         # Print all the data.
         print("\n")
-        print('*'*30, "INSTANCE", '*'*30)
+        print('*' * 30, "INSTANCE", '*' * 30)
         print("\n")
         print('- Number of U\'s elements u =', u)
         print('- Number of subsets s =', s)
@@ -81,7 +84,6 @@ def build_instance(u, s, n, print_instance, create_graph):
         print('- The subsets are:')
         pprint.pprint(subsets)
 
-
     if create_graph:
         # Create a graph where nodes are L's elements.
         plt.figure()
@@ -89,9 +91,9 @@ def build_instance(u, s, n, print_instance, create_graph):
         G = nx.Graph()
         G.add_nodes_from(subsets)
 
-        # While creating the edges make sure to get rid of self-edges (i!=j).
+        # While creating the edges, make sure to get rid of self-edges (i != j).
         keys = subsets.keys()
-        G.add_edges_from([(i,j) for i in keys for j in keys if subsets[i]&subsets[j] and i!=j])
+        G.add_edges_from([(i, j) for i in keys for j in keys if subsets[i] & subsets[j] and i != j])
 
         nx.draw(G, with_labels=True, font_size=15, alpha=0.8)
 
@@ -99,15 +101,19 @@ def build_instance(u, s, n, print_instance, create_graph):
 
 
 # ********************************************************************************
-def bit_gen(n):
+def bit_gen(n: int):
     """
-    Arguments
-    ---------
-       n: length of the tuples to be produced.
-       
-    Return
-    ------
-       A generator of all possible n-tuples of bits.
+    Generate all possible n-tuples of bits.
+
+    Parameters
+    ----------
+    n : int
+        The length of the tuples to be produced.
+
+    Returns
+    -------
+    generator
+        A generator that yields all possible n-tuples of bits.
     """
     return itertools.product([0, 1], repeat=n)
     

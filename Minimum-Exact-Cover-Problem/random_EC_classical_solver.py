@@ -37,6 +37,7 @@ Exact Cover Solver.
 
 from datetime import datetime
 import time
+from typing import Set, Dict, List
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -47,110 +48,145 @@ from utils import build_instance, bit_gen, from_bool_to_numeric_lst
 
 # pylint: disable=bad-whitespace, invalid-name, redefined-outer-name, bad-indentation
 
+
 # ********************************************************************************
-def build_ham_EC(U, subsets):
+def build_ham_EC(U: Set[int], subsets: Dict[int, Set[int]]) -> np.ndarray:
     """
-    Arguments
-    ---------
-        U : set.
-        subsets : dictionary containing subsets of U, whose union is U.
+    Constructs the Hamiltonian matrix for the Exact Cover problem.
 
-    Return
-    ------
-        H_A : Hamiltonian of the problem.
-             (See "Ising formulations of many NP problems" by Andrew Lucas)
+    The Hamiltonian is formulated based on the Ising model, as discussed in
+    "Ising formulations of many NP problems" by Andrew Lucas.
+
+    Parameters
+    ----------
+    U : set of int
+        A set of elements, typically representing the universe in the Exact Cover problem.
+    subsets : dictionary of {int: set of int}
+        A dictionary where the keys are subset indices and the values are sets
+        representing subsets of the universe U.
+
+    Returns
+    -------
+    H_A : numpy.ndarray
+        The Hamiltonian matrix for the problem.
     """
 
-    
     A = 1
-    s = len(subsets) # number of subsets.
+    s = len(subsets)  # number of subsets
     
-    H_A = np.zeros(shape=(s,s))
+    H_A = np.zeros(shape=(s, s))  # Initialize the Hamiltonian matrix
     for uu in U:
         for i in range(s):
             if uu in subsets[i]:
-                H_A[i,i] += -1
-            for j in range(i+1,s):  
+                H_A[i, i] += -1
+            for j in range(i + 1, s):  
                 if (uu in subsets[i] and uu in subsets[j]):
-                    H_A[i,j] += 2     
+                    H_A[i, j] += 2     
 
-    H_A = A * H_A
+    H_A = A * H_A  # Apply the scalar factor to the Hamiltonian matrix
 
     return H_A
 
+
 # ********************************************************************************
-def compute_energy(x, U, subsets):
+def compute_energy(x: np.ndarray, U: Set[int], subsets: Dict[int, Set[int]]) -> float:
     """
-    Arguments
-    ---------
-        x : a binary array.
-        U : a set.
-        subsets : a dictionary containing subsets of U, whose union is U.
+    Computes the energy of a given binary configuration.
 
-    Return
-    ------
-        E : x's energy (See "Ising formulations of many NP problems" by Andrew Lucas)
+    The energy is calculated using the Ising formulation for the Exact Cover problem,
+    as described in "Ising formulations of many NP problems" by Andrew Lucas.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        A binary array representing the solution (variables are either 0 or 1).
+    U : set of int
+        A set representing the universe of elements in the Exact Cover problem.
+    subsets : dictionary of {int: set of int}
+        A dictionary of subsets of U, where the keys are subset indices and
+        the values are sets representing the subsets.
+
+    Returns
+    -------
+    E_A : float
+        The energy of the configuration x.
     """
 
-    A = 1.
+    A = 1.0  # Scaling factor for the energy
 
-    E_A = 0.
+    E_A = 0.0
     for uu in U:
         counts = sum([x[i] for i in subsets.keys() if uu in subsets[i]])
-        #print(f'uu = {uu}, counts = {counts}')
-        E_A += (1 - counts)**2
+        E_A += (1 - counts) ** 2  # Add contribution to energy
 
-    E_A = A * E_A
+    E_A = A * E_A  # Apply scaling factor
 
     return E_A
 
 
 # ********************************************************************************
-def energy_expect_val(H_A, x, u):
+def energy_expect_val(H_A: np.ndarray, x: np.ndarray, u: int) -> float:
     """
-    Arguments
-    ---------
-        H_A : Hamiltonian of the problem.
-        x : binary array.
-        u : length of U set.
+    Computes the expected energy of a binary configuration using the Hamiltonian.
 
-    Return
-    ------
-        E_A : energy of x, computed as expectation value on H_A.
+    The expectation value is calculated as <x|H_A|x> + constant, where H_A is
+    the Hamiltonian matrix and x is the binary configuration.
+
+    Parameters
+    ----------
+    H_A : numpy.ndarray
+        The Hamiltonian matrix for the problem.
+    x : numpy.ndarray
+        A binary array representing the solution (variables are either 0 or 1).
+    u : int
+        The length of the set U (number of elements in the universe).
+
+    Returns
+    -------
+    E_A : float
+        The expected energy of the configuration x.
     """
 
-    # Compute the expectation value <x|H_A|x> and remember to add the constant!
-    E_A = np.dot(x, np.matmul(H_A,x)) + u
+    # Compute the expectation value <x|H_A|x> and add the constant term.
+    E_A = np.dot(x, np.matmul(H_A, x)) + u
 
     return E_A
 
 
-#**************************************************************************
-def subsets_to_bool(U, subsets):
+# ********************************************************************************
+def subsets_to_bool(U: Set[int], subsets: Dict[int, Set[int]]) -> List[np.ndarray]:
     """
-    Rewrite each subset in the boolean way. 
-    For example, if U = {0,1,2}, then S = {0,2} becomes S = [1,0,1].
+    Converts each subset of U into its boolean representation.
 
-    Arguments
-    ---------
-        U (set): a set.
-        subsets (dictionary): a dictionary whose keys are natural 
-                              numbers, whose values are subsets of U
+    For each subset, creates a binary vector where each position corresponds
+    to an element in U, and the value is 1 if the element is in the subset, 
+    otherwise 0.
 
-    Return
-    ------
-        bool_subsets (list of lists): the list of subsets written 
-                                      in the boolean way.
+    Parameters
+    ----------
+    U : set of int
+        A set representing the universe of elements.
+    subsets : dictionary of {int: set of int}
+        A dictionary where the keys are subset indices and the values are sets
+        representing the subsets of U.
+
+    Returns
+    -------
+    bool_subsets : list of numpy.ndarray
+        A list of binary arrays representing the subsets in boolean form.
     """
+
     bool_subsets = []
     for subset in subsets.values():
-        bool_subset = np.zeros(len(U)).astype(bool)
-        for i,uu in enumerate(U):
-            if(uu in subset):
-                bool_subset[i] = 1
+        bool_subset = np.zeros(len(U), dtype=bool)  # Initialize a boolean array
+        for i, uu in enumerate(U):
+            if uu in subset:
+                bool_subset[i] = 1  # Set the corresponding position to 1
         bool_subsets.append(bool_subset)
 
     return bool_subsets
+
+
 
 if __name__ == '__main__':
     start_time = time.time()

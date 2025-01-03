@@ -1,3 +1,10 @@
+"""
+This code contains instances of the Minimum Exact Cover (MEC) problem of size 6, 
+along with their respective solutions, as used by Wang et al. in theie paper
+' Quantum Alternating Operator Ansatz for Solving the Minimum Exact Cover
+ Problem. '.
+"""
+
 all_instances = {
     1: [{4, 6, 7, 9, 10, 11}, {1, 2, 5, 6, 11, 12}, {8, 1, 12}, {2, 3, 5}, {1, 3, 4, 5, 9, 12}, {2, 6, 7, 9, 12}],
     2: [{2, 11, 12, 6}, {2, 4, 6, 8, 9, 11}, {1, 3, 5, 7, 10, 12}, {2, 7}, {2, 3, 4, 5, 8, 12}, {1, 2, 8, 9, 12}],
