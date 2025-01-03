@@ -310,6 +310,6 @@ if __name__ == "__main__":
         NREADS = all_data[0]["filename_data"]["NREADS"]
         NSAMPLES = all_data[0]["filename_data"]["NSAMPLES"]
 
-        print(instances)
+        
         plot_accuracy(accuracy_EC_values, accuracy_MEC_values, instances, 
                       NUNITS, NREADS, NSAMPLES)
