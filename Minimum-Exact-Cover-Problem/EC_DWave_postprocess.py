@@ -20,9 +20,9 @@ def plot_accuracy(accuracy_EC_values, accuracy_MEC_values, instances, NUNITS, NR
     plt.figure(figsize=(10, 6))
     plt.title(f"Accuracy\n NUNITS = {NUNITS}, NREADS = {NREADS}, NSAMPLES = {NSAMPLES}")
 
-    plt.plot(instances, accuracy_EC_values, label='EC / NREADS x NUNITS', 
+    plt.plot(instances, accuracy_EC_values, label='num_EC / NREADS x NUNITS', 
              marker='x', color='r')
-    plt.plot(instances, accuracy_MEC_values, label='MEC / NREADS x NUNITS', 
+    plt.plot(instances, accuracy_MEC_values, label='num_MEC / NREADS x NUNITS', 
              marker='x', color='b')
 
 

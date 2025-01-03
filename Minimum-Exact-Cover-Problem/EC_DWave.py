@@ -263,7 +263,7 @@ if __name__ == '__main__':
     accuracy_EC_values = []
     accuracy_MEC_values = []
 
-    chosen_instances = [3]
+    chosen_instances = range(1,11)
 
     # ---------------------------------------------------------------------------
     for instance in chosen_instances:

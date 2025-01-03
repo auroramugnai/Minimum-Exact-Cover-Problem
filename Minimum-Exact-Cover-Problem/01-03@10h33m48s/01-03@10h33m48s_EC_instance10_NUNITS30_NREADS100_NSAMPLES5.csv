@@ -1,0 +1,22 @@
+state,label,num_occurrences
+"[0, 3]",MEC,14275
+"[3, 5]",xxx,473
+[4],feasible,100
+"[0, 2]",xxx,38
+"[0, 1, 3]",xxx,27
+[3],feasible,19
+[2],feasible,17
+"[4, 5]",xxx,14
+"[1, 3]",xxx,7
+"[0, 2, 3]",xxx,6
+"[0, 1]",xxx,5
+"[1, 4]",xxx,4
+[1],feasible,3
+[0],feasible,2
+"[0, 4]",xxx,2
+"[2, 5]",xxx,2
+[5],feasible,2
+"[0, 3, 5]",xxx,1
+"[0, 3, 4]",xxx,1
+"[2, 3]",xxx,1
+"[3, 4]",xxx,1
