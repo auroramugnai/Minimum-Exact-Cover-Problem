@@ -248,8 +248,8 @@ if __name__ == '__main__':
             sampleset = sampler.sample_qubo(H_A_chip, num_reads=NREADS, label=f"sample_{ith_sample}")
             ith_df = sampleset.to_pandas_dataframe() # ith-sample dataset
             df_tot.append(ith_df)
-            # print(sampleset)
-            # dwave.inspector.show(sampleset)
+            print(sampleset)
+            dwave.inspector.show(sampleset)
 
         df_tot = pd.concat(df_tot, ignore_index=True)
         # print("df_tot", df_tot)
