@@ -13,7 +13,29 @@ from instances import all_solutions
 
 
 def plot_accuracy(accuracy_EC_values, accuracy_MEC_values, instances, NUNITS, NREADS, NSAMPLES):
-
+    """
+    Plots the accuracy of two metrics (num_EC / NREADS x NUNITS and num_MEC / NREADS x NUNITS) 
+    for different instances, displaying the results in a line plot with labeled data points.
+    
+    Parameters
+    ----------
+    accuracy_EC_values (list of float): List of accuracy values for num_EC / NREADS x NUNITS.
+    accuracy_MEC_values (list of float): List of accuracy values for num_MEC / NREADS x NUNITS.
+    instances (list of int): List of instance numbers corresponding to the data.
+    NUNITS (int): The number of units used in the experiment.
+    NREADS (int): The number of reads in the experiment.
+    NSAMPLES (int): The number of samples used in the experiment.
+    
+    Returns
+    -------
+    None: This function directly displays a plot and does not return any value.
+    
+    Notes
+    -----
+    - The plot includes two lines: one for the EC accuracy values and one for the MEC accuracy values.
+    - The plot labels each data point with its corresponding accuracy value.
+    """
+    
     plt.rcParams.update({'font.family': 'Sans-serif', 'font.size': 14})
 
     # Plot data
@@ -24,7 +46,6 @@ def plot_accuracy(accuracy_EC_values, accuracy_MEC_values, instances, NUNITS, NR
              marker='x', color='r')
     plt.plot(instances, accuracy_MEC_values, label='num_MEC / NREADS x NUNITS', 
              marker='x', color='b')
-
 
     # Adding text above each point
     for (i, value_EC, value_MEC) in zip(instances, accuracy_EC_values, accuracy_MEC_values):
@@ -69,6 +90,10 @@ def read_custom_csv(file_path):
     Returns
     -------
     list of dict: A list of dictionaries with parsed data from the CSV file.
+        Each dictionary contains:
+        - 'state' (list): The list of numbers from the 'state' column.
+        - 'label' (str): The label associated with the entry.
+        - 'num_occurrences' (int): The number of occurrences from the 'num_occurrences' column.
     """
     data = []
 
@@ -92,16 +117,21 @@ def extract_filename_data(filename):
 
     Parameters
     ----------
-        filename (str): The filename string to extract data from.
+    filename (str): The filename string to extract data from.
 
     Returns
     -------
-        dict: A dictionary with the extracted data, including date, 
-              time, instance, NUNITS, NREADS, and NSAMPLES.
+    dict: A dictionary with the extracted data, including:
+        - 'date' (str): The date in MM-DD format.
+        - 'time' (str): The time in HHhMMmSSs format.
+        - 'instance' (int): The instance number extracted from the filename.
+        - 'NUNITS' (int): The number of units extracted from the filename.
+        - 'NREADS' (int): The number of reads extracted from the filename.
+        - 'NSAMPLES' (int): The number of samples extracted from the filename.
 
     Raises
     ------
-        ValueError: If the filename does not match the expected format.
+    ValueError: If the filename does not match the expected format.
     """
     pattern = r"(?P<date>\d{2}-\d{2})@(?P<time>\d{2}h\d{2}m\d{2}s)_EC_instance(?P<instance>\d+)_NUNITS(?P<NUNITS>\d+)_NREADS(?P<NREADS>\d+)_NSAMPLES(?P<NSAMPLES>\d+)\.csv"
     match = re.match(pattern, filename)
@@ -126,33 +156,32 @@ def process_files_in_directory(directory_path):
     
     Parameters
     ----------
-        directory_path (str): The path to the directory containing the files to be processed.
+    directory_path (str): The path to the directory containing the files to be processed.
         
     Returns
     -------
-        results (list of dict): A list of dictionaries, where each dictionary contains the following keys:
-        - 'instance' (str): The extracted instance identifier from the file name.
+    results (list of dict): A list of dictionaries, where each dictionary contains:
+        - 'instance' (int): The extracted instance identifier from the file name.
         - 'filename_data' (dict): The data extracted from the file name (via `extract_filename_data`).
         - 'csv_data' (list): The parsed content of the CSV file (via `read_custom_csv`).
         
     Notes
     -----
-        - Only files with a `.csv` extension are processed.
-        - If a file name does not conform to the expected format, it will be skipped with a warning.
-        - Each processed CSV file is associated with an "instance" key, which is extracted from the file name.
+    - Only files with a `.csv` extension are processed.
+    - If a file name does not conform to the expected format, it will be skipped with a warning.
+    - Each processed CSV file is associated with an "instance" key, which is extracted from the file name.
     """
-
     results = []
     instance_files = {}
 
     print("\nFiles in the chosen directory:")
 
-    # Itera su tutti i file nella directory
+    # Iterates through all files in the directory
     for file_name in os.listdir(directory_path):
         print(file_name)  
-        if file_name.endswith(".csv"):  # Filtra solo i file .csv
+        if file_name.endswith(".csv"):  # Filters for only CSV files
             try:
-                # Estrae i dati dal nome del file
+                # Extracts data from the file name
                 extracted_data = extract_filename_data(file_name)
                 instance = extracted_data['instance']
                 instance_files[instance] = {
@@ -160,11 +189,11 @@ def process_files_in_directory(directory_path):
                     'extracted_data': extracted_data
                 }
             except ValueError:
-                # Salta il file se non corrisponde al formato atteso
+                # Skips the file if it does not match the expected format
                 print(f"Skipping file due to incorrect format: {file_name}")
                 continue
 
-    # Elabora i file e aggiungi i dati nella lista dei risultati
+    # Processes the files and adds the data to the result list
     for instance, file_info in instance_files.items():
         file_path = os.path.join(directory_path, file_info['file_name'])
         csv_data = read_custom_csv(file_path)
@@ -174,25 +203,42 @@ def process_files_in_directory(directory_path):
             'csv_data': csv_data
         })
 
+    # Sort by increasing instance
     results.sort(key=lambda x: int(x['instance']))
 
     return results
 
 
-
 def print_dictionary(d):
     """
+    Prints the contents of a dictionary.
+
     Parameters
     ----------
-        d (dict): dictionary to print.
+    d (dict): The dictionary to print.
+
+    Returns
+    -------
+    None: This function prints the key-value pairs in the dictionary.
     """
-    for key,value in d.items():
+    for key, value in d.items():
         print(f"{key}: {value}")
 
 
 def get_labels_from_directory(directory_path):
-    # Restituisce un elenco di nomi di cartelle presenti nella directory
+    """
+    Returns a list of folder names (labels) in the specified directory.
+    
+    Parameters
+    ----------
+    directory_path (str): The path to the directory containing the subfolders.
+    
+    Returns
+    -------
+    list of str: A list of folder names present in the directory.
+    """
     return [name for name in os.listdir(directory_path) if os.path.isdir(os.path.join(directory_path, name))]
+
 
 
 # ************************************************************************

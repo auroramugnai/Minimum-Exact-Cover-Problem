@@ -45,32 +45,35 @@ print(f"... Saving results in {output_dir} directory ... ")
 
 
 def is_feasible(state, subsets):
-    """ Checks if a state selects subsets that have 0 intersection 
-        (= if it is feasible).
-
-        Parameters
-        ----------
-            state (str): the state to be checked.
-            subsets (list or dict): a list containing the subsets of the problem,
-                                    or a dictionary where keys are natural numbers 
-                                    and values are the subsets of the problem.
-
-        Returns
-        -------
-            check (bool): True if the state is feasible, False otherwise.
-
     """
+    Checks if a state selects subsets that have no intersection 
+    (i.e., if it is feasible).
 
-    state = ast.literal_eval(state) # str -> list
+    Parameters
+    ----------
+    state (str): A string representing the state to be checked. The string 
+                 should represent a list of indices.
+    subsets (list or dict): A list or dictionary containing subsets. 
+                             If a list, it is a collection of subsets. 
+                             If a dictionary, keys are natural numbers, 
+                             and values are subsets of the problem.
+
+    Returns
+    -------
+    bool: True if the state is feasible (i.e., the subsets have no intersection), 
+          False otherwise.
+
+    Notes
+    -----
+    The state is considered feasible if the sum of the lengths of the subsets 
+    selected by the state equals the length of their union. If there is any intersection 
+    among the subsets, the state is not feasible.
+    """
+    state = ast.literal_eval(state)  # str -> list
 
     chosen_subsets = [subsets[int(i)] for i in state]
     union_set = set().union(*chosen_subsets)
     sum_of_len = sum([len(sub) for sub in chosen_subsets])
-
-    """ The sum of the lengths of the subsets selected by a state is 
-        equal to the length of the union set `union_set` only if the 
-        subsets do not intersect, that is, if the state is feasible.
-    """
 
     if len(union_set) == sum_of_len:
         check = True
@@ -79,9 +82,10 @@ def is_feasible(state, subsets):
 
     return check
 
+
 def get_input(prompt, default_value, type_func=int):
     """
-    Prompts the user for input with a default value and type conversion.
+    Prompts the user for input with a default value and converts the input to the specified type.
 
     Parameters
     ----------
@@ -90,7 +94,7 @@ def get_input(prompt, default_value, type_func=int):
     default_value : any
         The value returned if the user does not provide any input (presses Enter).
     type_func : callable, optional
-        A function to convert the user's input to a desired type. Defaults to `int`.
+        A function to convert the user's input to the desired type. Defaults to `int`.
 
     Returns
     -------
@@ -121,7 +125,7 @@ def get_input(prompt, default_value, type_func=int):
 
 def from_str_to_list(state_as_str: str) -> List[int]:
     """
-    Convert a string representation of a list to a list of integers.
+    Converts a string representation of a list to a list of integers.
 
     Parameters
     ----------
@@ -132,6 +136,11 @@ def from_str_to_list(state_as_str: str) -> List[int]:
     -------
     List[int]
         A list of integers extracted from the input string.
+
+    Examples
+    --------
+    >>> from_str_to_list("[1, 0, 1]")
+    [1, 0, 1]
     """
     # Remove the square brackets and commas, then split and convert to integers
     return list(map(int, state_as_str.strip("[]").replace(",", "").split()))
@@ -139,7 +148,7 @@ def from_str_to_list(state_as_str: str) -> List[int]:
 
 def from_bool_to_numeric_lst(bool_list: List[int]) -> List[int]:
     """
-    Convert a boolean-like list to a list of indices where the values are 1.
+    Converts a boolean-like list to a list of indices where the values are 1.
 
     Parameters
     ----------
@@ -150,13 +159,18 @@ def from_bool_to_numeric_lst(bool_list: List[int]) -> List[int]:
     -------
     List[int]
         A list of indices where the values in the input list are 1.
+
+    Examples
+    --------
+    >>> from_bool_to_numeric_lst([0, 1, 1])
+    [1, 2]
     """
     return list(np.where(np.array(bool_list) == 1)[0])
 
 
 def from_bool_to_numeric_str(bool_str: str) -> str:
     """
-    Convert a string representation of a boolean-like list to a string of indices.
+    Converts a string representation of a boolean-like list to a string of indices.
 
     Parameters
     ----------
@@ -167,11 +181,17 @@ def from_bool_to_numeric_str(bool_str: str) -> str:
     -------
     numeric_str : str
         A string representation of a list of integers, e.g., "[2, 3]".
+
+    Examples
+    --------
+    >>> from_bool_to_numeric_str("[0, 1, 1]")
+    "[1, 2]"
     """
     bool_list = from_str_to_list(bool_str)
     numeric_list = from_bool_to_numeric_lst(bool_list)
     numeric_str = str(numeric_list)
     return numeric_str
+
 
 
 # ************************************************************************
