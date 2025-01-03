@@ -35,71 +35,6 @@ from utils import *
 
 # pylint: disable=bad-whitespace, invalid-name, redefined-outer-name, bad-indentation
 
-def setup_logging(log_filename: str):
-    """
-    Configures logging to redirect stdout and stderr output to both a file and the console.
-
-    This function replaces `sys.stdout` and `sys.stderr` with a custom `Tee` object that duplicates
-    the output to multiple destinations: the console and a specified file.
-
-    Args:
-        log_filename (str): The path of the file where logging output will be written.
-
-    Inner Class:
-        Tee: A class that writes output to multiple streams (e.g., console and file).
-
-        Attributes:
-            files (tuple): A collection of file streams to write the output to.
-
-        Methods:
-            write(obj: str): Writes the string `obj` to all registered file streams.
-            flush(): Forces a flush on all registered file streams.
-
-    Raises:
-        OSError: If the file `log_filename` cannot be opened for writing.
-
-    Example:
-        >>> setup_logging("log.txt")
-        # Everything printed to stdout and stderr will also be logged in "log.txt".
-
-    Notes:
-        - The log file is opened in 'w' mode, overwriting any existing content.
-        - It is the caller's responsibility to close the log file if needed, although
-          the `Tee` object ensures immediate flushing.
-    """
-    class Tee(object):
-        def __init__(self, *files):
-            """
-            Initializes the Tee with the specified file streams.
-
-            Args:
-                files (tuple): Multiple streams to write output to (e.g., console and file).
-            """
-            self.files = files
-
-        def write(self, obj: str):
-            """
-            Writes the string `obj` to all file streams.
-
-            Args:
-                obj (str): The string to write.
-            """
-            for f in self.files:
-                f.write(obj)
-                f.flush()  # Forces immediate flushing
-
-        def flush(self):
-            """
-            Forces a flush on all registered file streams.
-            """
-            for f in self.files:
-                f.flush()
-
-    log_file = open(log_filename, 'w')
-    sys.stdout = Tee(sys.stdout, log_file)
-    sys.stderr = Tee(sys.stderr, log_file)
-
-
 # get current date and time
 current_datetime = datetime.now().strftime("%m-%d@%Hh%Mm%Ss")
 
@@ -107,10 +42,6 @@ current_datetime = datetime.now().strftime("%m-%d@%Hh%Mm%Ss")
 output_dir = f"./{current_datetime}"
 os.makedirs(output_dir, exist_ok=True)
 print(f"... Saving results in {output_dir} directory ... ")
-
-# Imposta il file di log
-# log_file_name = os.path.join(output_dir, f"{current_datetime}_output_log.txt")
-# setup_logging(log_file_name)
 
 
 def is_feasible(state, subsets):
