@@ -3,11 +3,11 @@ import ast
 import re
 import os
 
-import colorama
-import pandas as pd
 import json
 from matplotlib import pyplot as plt
 import numpy as np
+import pandas as pd
+from termcolor import colored # to color a dataframe
 
 from instances import all_solutions
 
@@ -121,16 +121,25 @@ def extract_filename_data(filename):
 
 def process_files_in_directory(directory_path):
     """
-    Processes all files in the given directory that are CSV files.
+    Processes all CSV files in the specified directory and extracts relevant information 
+    from the file names and the CSV content.
     
     Parameters
     ----------
-    directory_path (str): Path to the directory containing the files.
-    
+        directory_path (str): The path to the directory containing the files to be processed.
+        
     Returns
     -------
-    list of dict: A list of dictionaries, each containing the instance, 
-                  filename data, and parsed CSV data.
+        results (list of dict): A list of dictionaries, where each dictionary contains the following keys:
+        - 'instance' (str): The extracted instance identifier from the file name.
+        - 'filename_data' (dict): The data extracted from the file name (via `extract_filename_data`).
+        - 'csv_data' (list): The parsed content of the CSV file (via `read_custom_csv`).
+        
+    Notes
+    -----
+        - Only files with a `.csv` extension are processed.
+        - If a file name does not conform to the expected format, it will be skipped with a warning.
+        - Each processed CSV file is associated with an "instance" key, which is extracted from the file name.
     """
 
     results = []
@@ -140,7 +149,7 @@ def process_files_in_directory(directory_path):
 
     # Itera su tutti i file nella directory
     for file_name in os.listdir(directory_path):
-        print(file_name)  # Stampa il nome del file per il debug
+        print(file_name)  
         if file_name.endswith(".csv"):  # Filtra solo i file .csv
             try:
                 # Estrae i dati dal nome del file
@@ -165,6 +174,8 @@ def process_files_in_directory(directory_path):
             'csv_data': csv_data
         })
 
+    results.sort(key=lambda x: int(x['instance']))
+
     return results
 
 
@@ -183,13 +194,6 @@ def get_labels_from_directory(directory_path):
     # Restituisce un elenco di nomi di cartelle presenti nella directory
     return [name for name in os.listdir(directory_path) if os.path.isdir(os.path.join(directory_path, name))]
 
-
-def color_solutions(x, solutions):
-    x_as_list = eval(x) 
-    if x_as_list in solutions:
-        return f"{colorama.Fore.WHITE}{colorama.Back.GREEN}{x_as_list}{colorama.Back.RESET}"
-    else:
-        return f"{x_as_list}"
 
 # ************************************************************************
 # *************************** MAIN ***************************************
@@ -233,19 +237,27 @@ if __name__ == "__main__":
     # ----------------------------- PRINT DATA -----------------------------------
     instances = []
     for data in all_data:
-        print("-" * 40)
+        print("-" * 42)
 
         print("Instance:", data['instance'])
         instances.append(data['instance'])
         print_dictionary(data['filename_data'])
 
-        # Print the dataframe.
-        solutions = all_solutions[data['instance']]
+        #----------    Print the dataframe with colors   ------------
+        solutions_str = [str(s) for s in all_solutions[data['instance']]]
         df = pd.DataFrame(data['csv_data'], dtype=str)
+    
+        # Define a function that colors arrays in green if they are a solution.
+        color_solutions = lambda x: (colored(x, None, 'on_green') 
+                                     if x in solutions_str
+                                     else colored(x, 'white', None))
 
-        # print(df.to_string(index=False))
-        from tabulate import tabulate
-        print(tabulate(df, headers="keys", tablefmt="grid", showindex=False))
+        df['state'] = df['state'].map(color_solutions)
+
+        # Reset columns or they will be shifted.
+        df.columns =  [colored('state', 'white', None)] + ["label", "num_occurrences"]
+
+        print(df)    
 
     # ----------------------------- ACCURACY PLOT -----------------------------------
 
@@ -261,12 +273,16 @@ if __name__ == "__main__":
             data = json.load(file)
             # Moltiplicazione di ciascun valore per 100
             accuracy_EC_values = [value * 100 for value in data['accuracy_EC_values']]
+            print(accuracy_EC_values)
             accuracy_MEC_values = [value * 100 for value in data['accuracy_MEC_values']]
+            print(accuracy_MEC_values)
 
         # Plot dei dati sull'accuracy
         NUNITS = all_data[0]["filename_data"]["NUNITS"]
         NREADS = all_data[0]["filename_data"]["NREADS"]
         NSAMPLES = all_data[0]["filename_data"]["NSAMPLES"]
+
+        print(instances)
         plot_accuracy(accuracy_EC_values, accuracy_MEC_values, instances, 
                       NUNITS, NREADS, NSAMPLES)
 
