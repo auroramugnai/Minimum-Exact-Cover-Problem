@@ -1,39 +1,58 @@
-"""Exact Cover.
-
-   (See "Ising formulations of many NP problems" by Andrew Lucas)
-
-    - Given n, u, s, return a set U of u random elements, 
-      chosen arbitrarily between 0 and n-1, and a dictionary
-      containing s subsets of U, whose union is U.
-
-    - Create the graph representing the problem, where an edge between 
-      nodes i,j means that the subsets corresponding to i,j have 
-      a non-zero intersection.
-    
-    - Build the hamiltonian matrix H_A of the problem and compute
-      energies as expectation values <x|H_A|x>.
-
-    - (Optional) plot the energy landscape.
-
-    - Find the exact cover (states with zero energy) iterating over
-      all possible states.
 """
+Exact Cover Problem Solver.
+
+This module implements a solver for the Exact Cover problem, leveraging Hamiltonian-based formulations
+and quantum-inspired approaches.
+
+Features:
+---------
+1. **Input Generation:**
+   - Accepts user-defined parameters to generate:
+     - A universal set `U` consisting of random integers.
+     - Subsets of `U` forming the basis of the Exact Cover problem.
+
+2. **Hamiltonian Construction:**
+   - Constructs the Hamiltonian for the Exact Cover problem.
+   - Extends the Hamiltonian to accommodate multiple units for quantum sampling.
+
+3. **Quantum Sampling:**
+   - Utilizes D-Wave's quantum annealer (Zephyr topology) to sample potential solutions.
+   - Processes multiple samples to find solutions.
+
+4. **Postprocessing:**
+   - Aggregates sampled states across units and counts occurrences.
+   - Labels states as Minimum Exact Cover (MEC), Exact Cover (EC), feasible, or invalid.
+   - Calculates accuracy metrics for MEC and EC.
+
+5. **Visualization and Reporting:**
+   - Provides colored output to highlight solutions in the aggregated data.
+   - Exports data to CSV for reproducibility.
+   - Visualizes accuracy metrics through plots and saves results as JSON.
+
+6. **User Input Handling:**
+   - Dynamically accepts configurable parameters, such as the number of reads, samples, and units.
+"""
+
 
 from datetime import datetime
 import json
 import os
 import time
-from typing import List #  for annotations
+from typing import List, Union, Dict, Set  # For type annotations
 import sys
 
+import numpy as np
 import pandas as pd
-from termcolor import colored # to color a dataframe
+from termcolor import colored # For coloring a dataframe
 
+from random_EC_classical_solver import build_ham_EC
 from instances import all_instances, all_solutions
-from utils import *
-
+from utils import from_bool_to_numeric_lst
 
 # pylint: disable=bad-whitespace, invalid-name, redefined-outer-name, bad-indentation
+
+
+# ******************************************************************************
 
 # get current date and time
 current_datetime = datetime.now().strftime("%m-%d@%Hh%Mm%Ss")
@@ -44,46 +63,68 @@ os.makedirs(output_dir, exist_ok=True)
 print(f"... Saving results in {output_dir} directory ... ")
 
 
-def is_feasible(state, subsets):
+# ****************************** FUNCTIONS **************************************
+
+def find_U_from_subsets(subsets: Union[List[Set[int]], Dict[int, Set[int]]]) -> Set[int]:
     """
-    Checks if a state selects subsets that have no intersection 
-    (i.e., if it is feasible).
+    Computes the union of all subsets in the given collection.
 
     Parameters
     ----------
-    state (str): A string representing the state to be checked. The string 
-                 should represent a list of indices.
-    subsets (list or dict): A list or dictionary containing subsets. 
-                             If a list, it is a collection of subsets. 
-                             If a dictionary, keys are natural numbers, 
-                             and values are subsets of the problem.
+    subsets : list of sets or dict of sets
+        A collection of subsets. If a list, each element is a subset of integers.
+        If a dictionary, keys are integers, and values are subsets.
 
     Returns
     -------
-    bool: True if the state is feasible (i.e., the subsets have no intersection), 
-          False otherwise.
+    set
+        The union of all subsets in the input collection.
 
-    Notes
-    -----
-    The state is considered feasible if the sum of the lengths of the subsets 
-    selected by the state equals the length of their union. If there is any intersection 
-    among the subsets, the state is not feasible.
+    Examples
+    --------
+    >>> find_U_from_subsets([{1, 2}, {2, 3}, {4}])
+    {1, 2, 3, 4}
+
+    >>> find_U_from_subsets({0: {1, 2}, 1: {2, 3}, 2: {4}})
+    {1, 2, 3, 4}
     """
-    state = ast.literal_eval(state)  # str -> list
+    U = set()
+    for s in subsets.values() if isinstance(subsets, dict) else subsets:
+        U |= s
+    return U
 
-    chosen_subsets = [subsets[int(i)] for i in state]
+def is_feasible(state: str, subsets: Union[List[Set[int]], Dict[int, Set[int]]]) -> bool:
+    """
+    Checks if a state selects subsets that do not intersect (i.e., it is feasible).
+
+    Parameters
+    ----------
+    state : str
+        A string representing a list of indices of subsets, e.g., "[0, 1, 2]".
+    subsets : list of sets or dict of sets
+        A collection of subsets. If a list, each element is a subset of integers.
+        If a dictionary, keys are integers, and values are subsets.
+
+    Returns
+    -------
+    bool
+        True if the selected subsets do not intersect; otherwise, False.
+
+    Examples
+    --------
+    >>> is_feasible("[0, 1]", [{1, 2}, {3, 4}, {2, 3}])
+    True
+
+    >>> is_feasible("[0, 2]", [{1, 2}, {3, 4}, {2, 3}])
+    False
+    """
+    state_indices = list(map(int, state.strip("[]").split(",")))
+    chosen_subsets = [subsets[i] for i in state_indices]
     union_set = set().union(*chosen_subsets)
-    sum_of_len = sum([len(sub) for sub in chosen_subsets])
+    sum_of_lengths = sum(len(sub) for sub in chosen_subsets)
+    return len(union_set) == sum_of_lengths
 
-    if len(union_set) == sum_of_len:
-        check = True
-    else:
-        check = False
-
-    return check
-
-
-def get_input(prompt, default_value, type_func=int):
+def get_input(prompt: str, default_value: int, type_func=int) -> int:
     """
     Prompts the user for input with a default value and converts the input to the specified type.
 
@@ -91,37 +132,18 @@ def get_input(prompt, default_value, type_func=int):
     ----------
     prompt : str
         The message displayed to the user as the input prompt.
-    default_value : any
+    default_value : int
         The value returned if the user does not provide any input (presses Enter).
     type_func : callable, optional
         A function to convert the user's input to the desired type. Defaults to `int`.
 
     Returns
     -------
-    any
+    int
         The user's input converted using `type_func`, or the `default_value` if no input is provided.
-
-    Raises
-    ------
-    ValueError
-        If the user's input cannot be converted using `type_func`.
-
-    Examples
-    --------
-    >>> get_input("Enter your age", 25)
-    Enter your age (default 25): 
-    25
-
-    >>> get_input("Enter your age", 25)
-    Enter your age (default 25): 30
-    30
     """
-    user_input = input(f"{prompt} (default {default_value}): ")
-    if user_input.strip() == "":
-        return default_value
-    else:
-        return type_func(user_input)
-
+    user_input = input(f"{prompt} (default {default_value}): ").strip()
+    return type_func(user_input) if user_input else default_value
 
 def from_str_to_list(state_as_str: str) -> List[int]:
     """
@@ -136,37 +158,8 @@ def from_str_to_list(state_as_str: str) -> List[int]:
     -------
     List[int]
         A list of integers extracted from the input string.
-
-    Examples
-    --------
-    >>> from_str_to_list("[1, 0, 1]")
-    [1, 0, 1]
     """
-    # Remove the square brackets and commas, then split and convert to integers
     return list(map(int, state_as_str.strip("[]").replace(",", "").split()))
-
-
-def from_bool_to_numeric_lst(bool_list: List[int]) -> List[int]:
-    """
-    Converts a boolean-like list to a list of indices where the values are 1.
-
-    Parameters
-    ----------
-    bool_list : List[int]
-        A list of integers (0 or 1), e.g., [0, 1, 1].
-
-    Returns
-    -------
-    List[int]
-        A list of indices where the values in the input list are 1.
-
-    Examples
-    --------
-    >>> from_bool_to_numeric_lst([0, 1, 1])
-    [1, 2]
-    """
-    return list(np.where(np.array(bool_list) == 1)[0])
-
 
 def from_bool_to_numeric_str(bool_str: str) -> str:
     """
@@ -175,28 +168,21 @@ def from_bool_to_numeric_str(bool_str: str) -> str:
     Parameters
     ----------
     bool_str : str
-        A string representation of a boolean-like list, e.g., "[0,1,1]".
+        A string representation of a boolean-like list, e.g., "[0, 1, 1]".
 
     Returns
     -------
-    numeric_str : str
-        A string representation of a list of integers, e.g., "[2, 3]".
-
-    Examples
-    --------
-    >>> from_bool_to_numeric_str("[0, 1, 1]")
-    "[1, 2]"
+    str
+        A string representation of a list of indices where the input list has value 1.
     """
     bool_list = from_str_to_list(bool_str)
-    numeric_list = from_bool_to_numeric_lst(bool_list)
-    numeric_str = str(numeric_list)
-    return numeric_str
+    numeric_list = [i for i, val in enumerate(bool_list) if val == 1]
+    return str(numeric_list)
 
 
-
-# ************************************************************************
-# *************************** MAIN ***************************************
-# ************************************************************************
+# *******************************************************************************
+# *************************** MAIN **********************************************
+# *******************************************************************************
 
 if __name__ == '__main__':
 
@@ -231,13 +217,14 @@ if __name__ == '__main__':
         solutions = all_solutions[instance]
         print("\nTRUE SOLUTIONS: ", solutions)
 
-        # ---------------------------------------------------------------------------
+        # ------------------------------------------------------------------------
         # Build the Hamiltonian of the problem
-        H_A = build_ham(U, subsets)
+        H_A = build_ham_EC(U, subsets)
 
         # Create a bigger Hamiltonian by copying H_A over num_units subspaces.
         I_chip = np.eye(NUNITS, dtype=int)
         H_A_chip = np.kron(I_chip, H_A)
+
 
       
         # ************************************************************************
@@ -245,22 +232,9 @@ if __name__ == '__main__':
         # ************************************************************************
 
         PROBLEM_NAME = f'EC_instance{instance}_NUNITS{NUNITS}'
-        
 
-        # ------------------------- SIMULATED ANNEALING ------------------------ 
 
-        # print("\nDWAVE SOLUTION (SimulatedAnnealingSampler):")
-        # import neal
-        # solver = neal.SimulatedAnnealingSampler()
-        # NREADS = 3
-        # sampleset = solver.sample_qubo(H_A_chip, num_reads=NREADS)
-        
-        # df = sampleset.to_pandas_dataframe()
-        # csv_path = f"./{PROBLEM_NAME}_{NREADS}_{current_datetime}.csv"
-        # df.to_csv(csv_path, index=False)
-        # print(sampleset)
-
-        # --------------------------- QPU ---------------------------------------
+        # ------------------------------- QPU -----------------------------------
 
         print("\nDWAVE SOLUTION (DWaveSampler):")
         from dwave.system import DWaveSampler, EmbeddingComposite
@@ -280,12 +254,14 @@ if __name__ == '__main__':
         df_tot = pd.concat(df_tot, ignore_index=True)
         # print("df_tot", df_tot)
 
+
+
         # ************************************************************************
         # *************************** POSTPROCESSING *****************************
         # ************************************************************************
 
-        # --------------------   create each unit's dataframe   --------------------
-        # -----------------  & count occurrences (for each unit)  ------------------
+        # --------------------   create each unit's dataframe   ------------------
+        # -----------------  & count occurrences (for each unit)  ----------------
 
         # Set how to split df_tot's columns
         num_digits = n * NUNITS # length of a sampled state 
@@ -313,7 +289,7 @@ if __name__ == '__main__':
             df_all_units.append(df_unit)
 
 
-        # ---------      Sum counts from each unit dataframe    --------------------
+        # ---------     Sum counts from each unit dataframe    ---------------
 
         df_sum = pd.concat(df_all_units).groupby(['state']).sum()
 
@@ -324,10 +300,10 @@ if __name__ == '__main__':
         df_sum['state']= df_sum['state'].apply(from_bool_to_numeric_str)
 
 
-        #####################################
-        solutions_str = [str(s) for s in solutions]
+        # ---------------     Add labels to states     ------------------------
 
-        # Trova MEC (assicurati che solutions non sia vuoto)
+        # From the solution list find the MEC
+        solutions_str = [str(s) for s in solutions]
         MEC = min(solutions_str, key=len, default=None)
 
         df_sum['label'] = df_sum['state'].apply(lambda x: "MEC" if x==MEC
@@ -355,14 +331,14 @@ if __name__ == '__main__':
 
         print(df_print)    
 
-        #-----------------------------------------------------------------------------
+        #---------------------- Save this dataframe as CSV  -------------------------
 
         # Create a pandas DataFrame and save it to .csv.
         header = f'{PROBLEM_NAME}_NREADS{NREADS}_NSAMPLES{NSAMPLES}'
         csv_path = os.path.join(output_dir, f'{current_datetime}_' + header + '.csv')
         df_sum.to_csv(csv_path, index=False)
 
-        #-----------------------------------------------------------------------------
+        #---------------------- Compute EC and MEC accuracy -------------------------
 
         # Count the total number of exact covers.
         num_EC = df_sum.loc[df_sum["state"].isin(solutions_str), "num_occurrences"].sum()
@@ -391,15 +367,13 @@ if __name__ == '__main__':
         print(f'\nComputation time (s): {elapsed_time}')
 
 
-    # Salvataggio in un file JSON dei dati da plottare
-    with open(os.path.join(output_dir, f'{current_datetime}_accuracy_values.json'), 'w') as file:
-        json.dump({'accuracy_EC_values': accuracy_EC_values, 'accuracy_MEC_values': accuracy_MEC_values}, file)
 
-    ###################################################################################
-    #################################  PLOT   #########################################
-    ###################################################################################
+    ##################### Plot accuracy and save values for future computations #######################
 
     from EC_DWave_postprocess import plot_accuracy
     plot_accuracy(accuracy_EC_values, accuracy_MEC_values, chosen_instances,
                   NUNITS, NREADS, NSAMPLES)
-
+    
+    # Save plotting data to a JSON file
+    with open(os.path.join(output_dir, f'{current_datetime}_accuracy_values.json'), 'w') as file:
+        json.dump({'accuracy_EC_values': accuracy_EC_values, 'accuracy_MEC_values': accuracy_MEC_values}, file)

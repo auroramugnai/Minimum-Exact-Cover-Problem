@@ -30,15 +30,114 @@ Minimum exact cover.
         - Minimum energy configuration(s) if exact covers exist.
         - Computation time and optional energy plots (for small problem sizes).
 """
-
 import time
 
-from utils import *
+from matplotlib import pyplot as plt
+import numpy as np
+
+from utils import build_instance, bit_gen, from_bool_to_numeric_lst
 
 # pylint: disable=bad-whitespace, invalid-name, redefined-outer-name, bad-indentation
 
 
+# ********************************************************************************
+def build_ham_MEC(x, U, subsets):
+    """
+    Arguments
+    ---------
+        x : a binary array.
+        U : a set.
+        subsets : the dictionary containing subsets of U, whose union is U.
 
+    Return
+    ------
+        H : the Hamiltonian H of the problem.
+            (See "Ising formulations of many NP problems" by Andrew Lucas)
+        E : x's energy.
+    """
+
+    
+    B = 1. # constant parameter of H_B.
+    A = len(U) * (B+1) # constant parameter of H_A. It must be A > u*B
+
+    s = len(x) # number of subsets.
+    
+    H_A = np.zeros(shape=(s,s))
+    for uu in U:
+        for i in range(s):
+            if uu in subsets[i]:
+                H_A[i,i] += -1.
+            for j in range(i+1,s):  
+                if (uu in subsets[i] and uu in subsets[j]):
+                    H_A[i,j] += 2.        
+
+    H_A = A * H_A
+    H_B = B * np.identity(s)
+
+    H = H_A + H_B
+
+    # Compute the expectation value <x|H|x> and remember to add the constant!
+    E = np.dot(x, np.matmul(H,x)) + len(U)
+
+    return H, E
+
+
+# ********************************************************************************
+def compute_energy_MEC(x, U, subsets):
+    """
+    Arguments
+    ---------
+        x : a binary array.
+        U : a set.
+        subsets : a dictionary containing subsets of U, whose union is U.
+
+    Return
+    ------
+        E : x's energy (See "Ising formulations of many NP problems" by Andrew Lucas)
+    """
+
+
+    B = 1. # constant parameter of H_B.
+    A = len(U) * (B+1) # constant parameter of H_A. It must be A > u*B
+
+    E_A = 0.
+    for uu in U:
+        counts = sum([x[i] for i in subsets.keys() if uu in subsets[i]])
+        #print(f'uu = {uu}, counts = {counts}')
+        E_A += (1 - counts)**2
+
+    E_A = A * E_A
+    E_B = B * sum(x)
+
+
+    return E_A, E_B
+
+
+# ********************************************************************************
+def plot_energy(E_list, x_list):
+    """
+    Arguments
+    ---------
+       E_list : a list of energies.
+       x_list : a list of binary lists representing 
+                the states whose energy is in E_list
+      
+    Return
+    ------
+       A plot of E_list as a function of x_list.
+    """
+    fig, ax = plt.subplots(figsize=(19, 10))
+    plt.title("Energy landscape")
+    plt.subplots_adjust(left=0.03, bottom=0.2, right=0.94, top=0.94)
+    xx = np.linspace(0,len(E_list),len(E_list))
+    yy = E_list
+    ax.plot(xx, yy, marker='o', linestyle='--', color='red')
+    ax.set_ylabel("Energy")
+    ax.set_xticks(xx)
+    x_labels = [str(x) for x in x_list]
+    ax.set_xticklabels(x_labels, rotation=90)
+    ax.grid() 
+    return
 
 if __name__ == '__main__':
     start_time = time.time()
@@ -53,7 +152,7 @@ if __name__ == '__main__':
     build_H = False
 
     # Randomly generate an instance of the problem.
-    U, subsets = MEC_instance(u, s, n, print_instance=True, create_graph=False)
+    U, subsets = build_instance(u, s, n, print_instance=True, create_graph=False)
 
     # Define empty lists.
     E_list = [] # will contain the energies associated to each state (E_A + E_B)
@@ -105,7 +204,7 @@ if __name__ == '__main__':
         # sys.exit(0) 
 
     else:
-        print("    -> Exact cover(s):", bool_states_to_num(exact_covers))
+        print("    -> Exact cover(s):", from_bool_to_numeric_lst(exact_covers))
 
         exact_covers_energies = np.array(E_list)[np.array(E_A_list) == 0.0]
         print("    -> Exact cover(s) energy:", exact_covers_energies)
@@ -114,7 +213,7 @@ if __name__ == '__main__':
         print(f"    -> Energy minimum: E_min = {E_min}")
 
         minimum_exact_covers = exact_covers[exact_covers_energies == E_min]
-        minimum_exact_covers = bool_states_to_num(minimum_exact_covers)
+        minimum_exact_covers = from_bool_to_numeric_lst(minimum_exact_covers)
         print("    -> Minimum exact cover(s):", minimum_exact_covers)
 
 

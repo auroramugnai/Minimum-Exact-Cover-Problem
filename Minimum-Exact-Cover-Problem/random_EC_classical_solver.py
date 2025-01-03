@@ -26,7 +26,6 @@ Exact Cover Solver.
       step, displaying the exact cover(s) and the total number of solutions.
 
     Additional features:
-    - (Optional) Plots the energy landscape for visualization.
     - Includes placeholders for solving the problem using D-Wave and other QUBO
       solvers, although these are currently commented out.
 
@@ -39,12 +38,119 @@ Exact Cover Solver.
 from datetime import datetime
 import time
 
-import exact_cover as ec
+from matplotlib import pyplot as plt
+import numpy as np
 
-from utils import *
+import exact_cover as ec
+from utils import build_instance, bit_gen, from_bool_to_numeric_lst
+
 
 # pylint: disable=bad-whitespace, invalid-name, redefined-outer-name, bad-indentation
 
+# ********************************************************************************
+def build_ham_EC(U, subsets):
+    """
+    Arguments
+    ---------
+        U : set.
+        subsets : dictionary containing subsets of U, whose union is U.
+
+    Return
+    ------
+        H_A : Hamiltonian of the problem.
+             (See "Ising formulations of many NP problems" by Andrew Lucas)
+    """
+
+    
+    A = 1
+    s = len(subsets) # number of subsets.
+    
+    H_A = np.zeros(shape=(s,s))
+    for uu in U:
+        for i in range(s):
+            if uu in subsets[i]:
+                H_A[i,i] += -1
+            for j in range(i+1,s):  
+                if (uu in subsets[i] and uu in subsets[j]):
+                    H_A[i,j] += 2     
+
+    H_A = A * H_A
+
+    return H_A
+
+# ********************************************************************************
+def compute_energy(x, U, subsets):
+    """
+    Arguments
+    ---------
+        x : a binary array.
+        U : a set.
+        subsets : a dictionary containing subsets of U, whose union is U.
+
+    Return
+    ------
+        E : x's energy (See "Ising formulations of many NP problems" by Andrew Lucas)
+    """
+
+    A = 1.
+
+    E_A = 0.
+    for uu in U:
+        counts = sum([x[i] for i in subsets.keys() if uu in subsets[i]])
+        #print(f'uu = {uu}, counts = {counts}')
+        E_A += (1 - counts)**2
+
+    E_A = A * E_A
+
+    return E_A
+
+
+# ********************************************************************************
+def energy_expect_val(H_A, x, u):
+    """
+    Arguments
+    ---------
+        H_A : Hamiltonian of the problem.
+        x : binary array.
+        u : length of U set.
+
+    Return
+    ------
+        E_A : energy of x, computed as expectation value on H_A.
+    """
+
+    # Compute the expectation value <x|H_A|x> and remember to add the constant!
+    E_A = np.dot(x, np.matmul(H_A,x)) + u
+
+    return E_A
+
+
+#**************************************************************************
+def subsets_to_bool(U, subsets):
+    """
+    Rewrite each subset in the boolean way. 
+    For example, if U = {0,1,2}, then S = {0,2} becomes S = [1,0,1].
+
+    Arguments
+    ---------
+        U (set): a set.
+        subsets (dictionary): a dictionary whose keys are natural 
+                              numbers, whose values are subsets of U
+
+    Return
+    ------
+        bool_subsets (list of lists): the list of subsets written 
+                                      in the boolean way.
+    """
+    bool_subsets = []
+    for subset in subsets.values():
+        bool_subset = np.zeros(len(U)).astype(bool)
+        for i,uu in enumerate(U):
+            if(uu in subset):
+                bool_subset[i] = 1
+        bool_subsets.append(bool_subset)
+
+    return bool_subsets
 
 if __name__ == '__main__':
     start_time = time.time()
@@ -61,30 +167,12 @@ if __name__ == '__main__':
 
 
     # Randomly generate an instance of the problem.
-    U, subsets = MEC_instance(u, s, n, print_instance=True, create_graph=False)
+    U, subsets = build_instance(u, s, n, print_instance=True, create_graph=False)
 
-    # ---------------------------------------------------------------------------
-    # U = {0, 1, 2, 3, 4, 5}
-    # u = len(U)
-    # subsets = {0: {0, 1, 2, 3, 5},
-    #            1: {1, 5},
-    #            2: {2, 3, 5},
-    #            3: {3, 4},
-    #            4: {1, 2, 3, 5},
-    #            5: {4},
-    #            6: {0, 1},
-    #            7: {0},
-    #            8: {1},
-    #            9: {0, 1, 2, 4, 5}}
-    # s = len(subsets)
-    # len_x = s
-
-    # SOLUTIONS = [[4, 5, 7], [2, 5, 7, 8], [2, 5, 6], [0, 5]]
-    # print("\nTRUE SOLUTIONS: ", SOLUTIONS)
     # ---------------------------------------------------------------------------
    
     # Build the Hamiltonian of the problem
-    H_A = build_ham(U, subsets)
+    H_A = build_ham_EC(U, subsets)
     # print("H_A = \n", H_A)
 
 
@@ -115,10 +203,6 @@ if __name__ == '__main__':
             print("ERROR: expectation value on H_A != straightforwardly computed energy")
 
 
-    # Plot energies.
-    if(s <= 10): # otherwise the computation is too heavy
-        PlotEnergy(E_list, x_list)
-
 
     print("\n")
     print('*'*30, "SOLUTION", '*'*30)
@@ -129,7 +213,7 @@ if __name__ == '__main__':
     exact_covers = np.array(x_list)[np.array(E_A_list) == 0.0]
 
     if len(exact_covers):
-        print("    -> Exact cover(s):", bool_states_to_num(exact_covers))
+        print("    -> Exact cover(s):", from_bool_to_numeric_lst(exact_covers))
 
     else:
         print("There is no exact cover")
