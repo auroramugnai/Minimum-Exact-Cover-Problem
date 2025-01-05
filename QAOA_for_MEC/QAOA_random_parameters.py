@@ -9,9 +9,11 @@
 
 
 from __future__ import annotations
+from scipy.optimize import minimize 
+
 from utils_to_build_QAOAAnsatz import *
 
-
+print("import section completed")
 # #### Funzioni per trovare k.
 
 # In[4]:
@@ -59,7 +61,9 @@ k_dict = {'L=n': [0.3333333333333333,   0.5,   0.5,   0.3333333333333333,   0.5,
 k_dict_new = {}
 for key,value_list in k_dict.items():
     k_dict_new[key] = [round_up(v, 3) for v in value_list]
-k_dict_new
+
+
+print(k_dict_new)
 
 
 # ### Minimization.
@@ -73,7 +77,7 @@ k_dict_new
 p = 1 # number of layers
 random_attempts = 1
 init_string = "all1"
-
+n = 6
 
 # In[ ]:
 
@@ -82,7 +86,7 @@ from datetime import datetime
 # import itertools
 # import math 
 # import os
-# import random
+import random
 import time
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit.primitives import StatevectorEstimator, StatevectorSampler
@@ -90,7 +94,7 @@ from qiskit.primitives import StatevectorEstimator, StatevectorSampler
 
 # In[ ]:
 
-
+print("start cycle")
 for instance in [1,2]:
     h = k_dict_new['L=max(L_EC)'][instance-1]
     print("*"*50)
@@ -105,6 +109,7 @@ for instance in [1,2]:
     ### Define the instance.
     U, subsets_dict = define_instance(n, instance, verbose=False)
     subsets = list(subsets_dict.values())
+    print(subsets)
     _, _, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, h)
     MEC = [state for state in EXACT_COVERS if state.count("1") == min([x.count("1")  for x in EXACT_COVERS])]
 

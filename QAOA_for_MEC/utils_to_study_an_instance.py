@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import itertools 
 import matplotlib.pyplot as plt 
-import networkx as nx  
+import rustworkx as rx
+# import networkx as nx  
 
 
 def highlight_correct_ticks(ax, EXACT_COVERS: list) -> None:
@@ -362,10 +363,11 @@ def compute_energy_Lucas(x, U, subsets_dict):
     A = 1.  # Constant A (could be used for scaling)
 
     E_A = 0.
+
     # For each element in the set U, compute the energy contribution
     for uu in U:
         # Sum the values in `x` where the indices belong to subsets that include `uu`
-        counts = sum([x[i] for i in subsets_dict.keys() if uu in subsets_dict[i]])
+        counts = sum([x[i-1] for i in subsets_dict.keys() if uu in subsets_dict[i]])
         
         # Add to the energy based on the formula (1 - counts)^2
         E_A += (1 - counts)**2
