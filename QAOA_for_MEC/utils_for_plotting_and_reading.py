@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 from datetime import datetime
+import math
 import os
 from typing import List, Optional, Tuple
 
@@ -581,7 +582,7 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
                        title: Optional[str] = None,
                        dont_show_in_title: List[str] = [], 
                        dont_show_in_titles: List[str] = [], 
-                       pars: List[Optional[int]] = [], figsize: tuple = (18, 8), dpi: int = 300, N: int = 10):
+                       pars: List[Optional[int]] = [], figsize: tuple = (8, 8), dpi: int = 100, N: int = 10):
     """
     Plots multiple subplots for each file in the FILENAME_list. Each subplot visualizes the percentage of states,
     average values, and error bars from the corresponding data file.
@@ -625,7 +626,7 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
     fig = plt.figure(figsize=figsize, dpi=dpi)
 
     # Number of rows and columns for subplots (fixed to 5x2 grid).
-    num_rows = 5
+    num_rows = math.ceil(len(FILENAME_list)/2)
     num_cols = 2
     
     # Iterate over pairs of FILENAME and DATA_FILENAME.

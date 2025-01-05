@@ -1,0 +1,56 @@
+# ## Read files.
+
+# #### Stampa UN SOLO file che contiene una sottostringa.
+
+# In[4]:
+
+
+# Find the files that contain a substring in a certain path.
+substrings = ["all1", "mail3"]
+path = "./FILES_PER-IMMAGINI-LATEX/tutte-le-istanze_all0_all1_20ra/"
+FILENAME_list, DATA_FILENAME_list = find_files_containing_string(substrings, path)
+
+
+# Select only the first file.
+FILENAME = FILENAME_list[0]
+DATA_FILENAME = DATA_FILENAME_list[0]
+
+
+# Plot.
+plot_file(FILENAME, DATA_FILENAME, colorchosen='indigo', alpha=0.4,
+       dont_show_in_title = [], 
+       figsize=(8, 3), dpi=200, N=10)
+
+
+# #### Stampa DIVERSI file che contengono una sottostringa
+
+# In[30]:
+
+
+# ### funzione che stampa un subplot per ogni istanza. in ogni subplot mette piu barplot di colore diverso in base a  "order"
+
+# ### Plot  di all0 vs all1 con random parameters
+
+# In[3]:
+
+
+multiple_barplot(path = "./FILES_PER-IMMAGINI-LATEX/tutte-le-istanze_all0_all1_20ra/",
+              string_order = [ 'all1', 'all0'],
+              order_labels = ['$all1$', '$all0$'],
+              color_map = {"$|0\\rangle$ initialization": 'crimson', "$|1\\rangle$ initialization": 'steelblue'},
+              filename_to_save = "all0_all1_random.pdf",
+              show_title=False)
+
+
+# ### Plot di confronto tra varie k
+
+# In[135]:
+
+
+multiple_barplot(path = "./FILES_PER-IMMAGINI-LATEX/varie_k_options_tol1e4_all1/",
+              string_order = ['L=n', 'maxLEC', 'LMEC'],
+              order_labels = ['$L=n$', '$L=$max($L_{EC}$)', '$L=L_{MEC}$'],
+              color_map = {'$L=n$': 'darkorange', '$L=$max($L_{EC}$)': 'crimson', '$L=L_{MEC}$': 'steelblue'},
+              filename_to_save = "performance_k.pdf",
+              show_title = False)
+
