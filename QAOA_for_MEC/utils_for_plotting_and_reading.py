@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from more_itertools import distinct_permutations
 import seaborn as sns
 
-from ipynb.fs.full.utils_to_study_an_instance import define_instance, find_spectrum
+from utils_to_study_an_instance import define_instance, find_spectrum
 
 
 def highlight_correct_ticks(ax: Axes, EXACT_COVERS: List[str]) -> None:
