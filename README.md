@@ -20,7 +20,7 @@ pip install jupyterlab
 ### 📥 Clone the Repository
 To access the files, you'll need to clone this repository to your computer. Run the following command in your terminal:
 ```
-git clone [https://github.com/username/repository-name.git](https://github.com/auroramugnai/Minimum-Exact-Cover-Problem.git)
+git clone https://github.com/auroramugnai/Minimum-Exact-Cover-Problem.git
 ```
 
 ### 🚀 Launch JupyterLab
