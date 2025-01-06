@@ -168,6 +168,7 @@ def build_mixing_circuit(n: int, instance: int, verbose: bool = False) -> Quantu
     """
     # Define the problem instance and extract subsets.
     U, subsets_dict = define_instance(n, instance, verbose=verbose)
+    print(subsets_dict)
     subsets = list(subsets_dict.values())
     
     # Extract circuit parameters: intersections, ancillae, and dimension.

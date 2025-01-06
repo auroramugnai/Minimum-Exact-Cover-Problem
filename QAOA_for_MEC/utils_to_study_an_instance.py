@@ -547,12 +547,13 @@ def find_spectrum(U, subsets_dict, n, k):
 
     Example
     -------
-    If U = {1, 2, 3}, subsets_dict = {0: {1, 2}, 1: {2, 3}}, n = 3, and k = 1.0,
+    If U = {1, 2, 3}, subsets_dict = {1: {1, 2}, 2: {2, 3}}, n = 3, and k = 1.0,
     the function will return a list of states, their energies, the feasible states,
     and the exact covers.
     """
     # Convert subsets_dict values to a list for easier iteration
     subsets = list(subsets_dict.values())
+
     states = []
     energies = []
     states_feasible = []
@@ -584,9 +585,9 @@ def find_spectrum(U, subsets_dict, n, k):
 
         #### CHECK IF STATE IS AN EXACT COVER
         E = compute_energy_Lucas(state, U, subsets_dict)
+
         # If the energy computed by Lucas is 0, it's an exact cover
         if E == 0:
             EXACT_COVERS.append(state)
-
     return states, energies, states_feasible, energies_feasible, EXACT_COVERS
 

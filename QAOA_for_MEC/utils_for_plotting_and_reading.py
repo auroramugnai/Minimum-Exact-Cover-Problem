@@ -467,11 +467,14 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     else:
         n, instance, init_name, p, random_attempts, k = pars
 
+    print(n, instance, init_name, p, random_attempts, k)
     # Define the problem instance using the extracted parameters
     U, subsets_dict = define_instance(n, instance, verbose=False)
 
+    print(subsets_dict)
     # Analyze spectrum to extract relevant state information
     states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k=1)
+    print("EXACT COVERS", EXACT_COVERS)
     MEC = min(EXACT_COVERS, key=lambda s: s.count('1'))  # Minimum exact cover
 
     # Load the state data into a pandas DataFrame
@@ -640,8 +643,11 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
         # Define the problem instance based on extracted parameters.
         U, subsets_dict = define_instance(n, instance, verbose=False)
 
+        print("in the function subsets_dict is ", subsets_dict)
+
         # Analyze spectrum to extract relevant state information.
         states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k=1)
+
         MEC = min(EXACT_COVERS, key=lambda s: s.count('1'))  # MEC is the minimal energy cover
 
         # Load CSV data into pandas DataFrame and process it.
