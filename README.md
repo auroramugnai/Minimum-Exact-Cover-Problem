@@ -7,7 +7,7 @@ This repository contains Jupyter Notebook (`.ipynb`) files that you can open and
 
 ---
 
-### 🚀 Prerequisites
+### Prerequisites
 Ensure you have the following tools installed on your system:
 - **Python** (version 3.7 or higher)
 - **pip** 
