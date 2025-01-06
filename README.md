@@ -1,5 +1,4 @@
 # Minimum-Exact-Cover-Problem
-Minimum Exact Cover Problem
 
 ## 📚 Accessing `.ipynb` Files with JupyterLab
 
@@ -24,7 +23,7 @@ To access the files, you'll need to clone this repository to your computer. Run 
 git clone [https://github.com/username/repository-name.git](https://github.com/auroramugnai/Minimum-Exact-Cover-Problem.git)
 ```
 
-### 📚 Launch JupyterLab
+### 🚀 Launch JupyterLab
 Navigate to the repository directory:
 ```
 cd Minimum-Exact-Cover-Problem
