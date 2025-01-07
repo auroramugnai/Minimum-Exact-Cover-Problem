@@ -26,7 +26,7 @@ To access the files, you'll need to clone this repository to your computer. Run 
 
 - SSH
   ```
-  git@github.com:auroramugnai/Minimum-Exact-Cover-Problem.git
+  git clone git@github.com:auroramugnai/Minimum-Exact-Cover-Problem.git
   ```
 
 ### 🚀 Launch JupyterLab
