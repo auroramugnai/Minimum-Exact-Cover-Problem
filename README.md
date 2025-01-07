@@ -1,4 +1,19 @@
-# Minimum-Exact-Cover-Problem
+# Minimum-Exact-Cover-Problem and Quantum Algorithms
+
+This repository contains two main directories, **Minimum-Exact-Cover-Problem** and **QAOA_for_MEC**, dedicated to solving the Exact Cover Problem and Minimum Exact Cover Problem using classical and quantum computing approaches.
+
+## Directory Structure
+
+### **(M)ECP_c-and-q**
+This directory focuses on:
+1. **Solving random instances** of the Exact Cover Problem (ECP) and Minimum Exact Cover Problem (MECP) using classical strategies (c).
+2. **Solving fixed instances** of the Exact Cover Problem using the D-Wave quantum annealer (q).
+
+### **MECP_with_QAOA**
+This directory is dedicated to:
+1. Implementing the **QAOA+ (Quantum Alternating Operator Ansatz)** on Qiskit to solve the Minimum Exact Cover Problem (MECP).
+2. Solving the Minimum Exact Cover Problem on fixed instances using QAOA+.
+
 
 ## 📚 Accessing `.ipynb` Files with JupyterLab
 
