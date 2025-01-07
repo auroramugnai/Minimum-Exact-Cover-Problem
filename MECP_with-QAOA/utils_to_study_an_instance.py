@@ -531,8 +531,7 @@ def compute_energy_Wang(state, U, subsets_dict, k=1):
 #############################################################################################################
 #############################################################################################################
 #############################################################################################################
-
-def show_spectrum(n, instance, k, verbose=False):
+def show_spectrum(n, instance, k, fontsize=13, verbose=False):
     """
     Shows the spectrum of an instance for a given value of k, including the energy of all states 
     and the energy of feasible states. Highlights the exact covers and minimal exact covers (MEC).
@@ -547,7 +546,8 @@ def show_spectrum(n, instance, k, verbose=False):
         The value of k chosen for the problem instance.
     verbose : bool, optional, default=False
         If True, additional print statements will be shown during the execution.
-
+    fontsize : int, optional, default=13
+        The fontsize to use in the figure.
     Example
     -------
     show_spectrum(10, 2, 1.0, verbose=True)
@@ -572,36 +572,36 @@ def show_spectrum(n, instance, k, verbose=False):
 
     #############################################################################
     #### PLOT ALL STATES ENERGY
-    dim = 20  # Set the font size for the plot
-    plt.figure(figsize=(30,5))  # Set the figure size for the plot
-    plt.rcParams['font.size'] = dim  # Apply the font size to the plot
-    plt.title("All states")  # Title of the plot
+    plt.figure(figsize=(9,3))  
+    plt.rcParams['font.size'] = fontsize 
+    plt.title("All states")  
     plt.plot(states, energies, '.--b')  # Plot the states against their energies
-    plt.xticks(rotation='vertical', fontsize=7)  # Rotate x-axis labels vertically
-    plt.xlabel("States")  # Label for the x-axis
-    plt.ylabel("Energy")  # Label for the y-axis
-    plt.grid()  # Add gridlines to the plot
-
-    # Highlight the exact covers on the plot in red
+    plt.xticks(rotation='vertical', fontsize=fontsize-2) 
+    plt.xlabel("States")  
+    plt.ylabel("Energy")  
+    plt.grid() 
+    
+    # Highlight the exact covers on the plot
     highlight_correct_ticks(plt.gca(), EXACT_COVERS)
 
-    plt.show()  # Display the plot for all states
+    plt.show()
 
     #############################################################################
     #### PLOT THE FEASIBLE STATES ENERGIES
-    plt.figure(figsize=(30,5))  # Set the figure size for the plot
-    plt.rcParams['font.size'] = dim  # Apply the font size to the plot
-    plt.title("Feasible states")  # Title of the plot
-    plt.plot(states_feasible, energies_feasible, '.--k')  # Plot the feasible states against their energies
-    plt.xticks(rotation='vertical', fontsize=dim)  # Rotate x-axis labels vertically
-    plt.xlabel("States")  # Label for the x-axis
-    plt.ylabel("Energy")  # Label for the y-axis
-    plt.grid()  # Add gridlines to the plot
+    plt.figure(figsize=(7,3)) 
+    plt.rcParams['font.size'] = fontsize  
+    plt.title("Feasible states")
+    plt.plot(states_feasible, energies_feasible, '.--k') 
+    plt.xticks(rotation='vertical', fontsize=fontsize)
+    plt.xlabel("States")
+    plt.ylabel("Energy")
+    plt.grid()  
 
-    # Highlight the exact covers on the plot in red
+    # Highlight the exact covers on the plot
     highlight_correct_ticks(plt.gca(), EXACT_COVERS)
 
-    plt.show()  # Display the plot for feasible states
+    plt.show()
+
 
 
 

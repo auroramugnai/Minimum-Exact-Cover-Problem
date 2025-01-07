@@ -536,33 +536,39 @@ def build_initialization_circuit(
     n: int,
     instance: int,
     init_name: Union[str, List[str]],
-    verbose: bool = False,
-    check: bool = False
+    verbose: bool = False
 ) -> QuantumCircuit:
     """
-    Builds a quantum circuit for initialization with options for predefined or custom states.
+    Constructs a quantum circuit for initialization with support for predefined or 
+    custom qubit states.
 
     Parameters
     ----------
     n : int
-        Number of qubits in the circuit.
+        The number of qubits in the quantum circuit.
     instance : int
-        Identifier for the problem instance.
+        An identifier for the problem instance, used to define specific subsets for the 
+        circuit configuration.
     init_name : str or list of str
-        Name of the initialization:
-        - "all0": Initializes all qubits to |0⟩.
-        - "all1": Initializes all qubits to |1⟩.
-        - List of binary strings: Specifies states for superposition.
+        Specifies the initialization state(s) for the qubits:
+        - "all0": Initializes all qubits to the |0⟩ state.
+        - "all1": Initializes all qubits to the |1⟩ state.
+        - List of binary strings: Each string represents a desired state for the qubits 
+        in superposition.
     verbose : bool, optional
-        If True, enables debug outputs. Default is False.
-    check : bool, optional
-        If True, simulates and visualizes the initialized state. Default is False.
+        If True, enables verbose output for debugging purposes. Default is False.
 
     Returns
     -------
-    QuantumCircuit
-        A quantum circuit initialized as per the specified configuration.
+        QuantumCircuit
+            A quantum circuit (`qc_initial`) initialized according to the specified configuration, 
+            ready for further operations.
+        dict
+            A dictionary (`check_counts`) containing the measurement results and state counts, 
+            useful for verifying the initialization. 
+            This result can be plotted through `plot_histogram(check_counts)`
     """
+
     # Define instance-related parameters (e.g., problem-specific subsets)
     _, subsets_dict = define_instance(n, instance, verbose=verbose)
     subsets = list(subsets_dict.values())
@@ -585,7 +591,8 @@ def build_initialization_circuit(
     elif isinstance(init_name, list):
         init_state = init_name
     else:
-        raise ValueError("Invalid `init_name`. Must be 'all0', 'all1', or a list of binary strings.")
+        raise ValueError("Invalid `init_name`. Must be 'all0', 'all1',"
+                         + "or a list of binary strings.")
 
     # Reverse binary strings for correct qubit order in Qiskit
     init_state = [state[::-1] for state in init_state]
@@ -610,20 +617,20 @@ def build_initialization_circuit(
         print(f"Quantum circuit dimension (QC_DIM): {QC_DIM}")
         print(f"Number of ancillas: {NUM_ANC}")
 
-    if check:
-        # Measure to check that the superposition was correct
-        qc_initial.measure_all()
-        
-        # Simulate and visualize results
-        svsim = Aer.get_backend('aer_simulator')
-        qc_initial.save_statevector()
-        result = svsim.run(qc_initial).result()
-        counts = result.get_counts()
-        plot_histogram(counts)
+    # Check that everything went well.
+    # Create an idependent copy
+    qc_copy = qc_initial.copy()
 
-    return qc_initial
+    # Measure to check that the superposition was correct
+    qc_copy.measure_all()
 
-
+    # Simulate and visualize results
+    svsim = Aer.get_backend('aer_simulator')
+    qc_copy.save_statevector()
+    result = svsim.run(qc_copy).result()
+    check_counts = result.get_counts()
+    
+    return qc_initial, check_counts
 
 #############################################################################################################
 #############################################################################################################
