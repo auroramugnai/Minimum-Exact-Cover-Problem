@@ -428,7 +428,7 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
               states_to_underline: Optional[List[str]] = None, 
               title: Optional[str] = None,
               dont_show_in_title: List[str] = [], 
-              pars: List[Tuple] = [], figsize: Tuple[int, int] = (18, 8), 
+              figsize: Tuple[int, int] = (18, 8), 
               dpi: int = 300, N: int = 10) -> None:
     """
     Plots a bar chart for the states in a given file, highlighting exact covers, underlining initial states, 
@@ -450,8 +450,6 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
         Title of the plot (default is None).
     dont_show_in_title : list of str, optional
         List of parameters not to show in the plot's title (default is empty list).
-    pars : list of tuples, optional
-        Parameters to override the extraction from the filename (default is empty list).
     figsize : tuple of int, optional
         Size of the figure (default is (18, 8)).
     dpi : int, optional
@@ -473,20 +471,16 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     fig = plt.figure(figsize=figsize, dpi=dpi)
     ax = fig.add_subplot(1, 1, 1)
 
-    # Extract parameters from filename if not provided
-    if not pars:
-        n, instance, init_name, p, random_attempts, k = define_parameters_from_filename(DATA_FILENAME, verbose=False)
-    else:
-        n, instance, init_name, p, random_attempts, k = pars
+    # Extract parameters from filename 
+    n, instance, init_name, p, random_attempts, k = define_parameters_from_filename(DATA_FILENAME, 
+                                                                                    verbose=False)
 
-    print(n, instance, init_name, p, random_attempts, k)
     # Define the problem instance using the extracted parameters
     U, subsets_dict = define_instance(n, instance, verbose=False)
 
-    print(subsets_dict)
     # Analyze spectrum to extract relevant state information
     states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k=1)
-    print("EXACT COVERS", EXACT_COVERS)
+                                             
     MEC = min(EXACT_COVERS, key=lambda s: s.count('1'))  # Minimum exact cover
 
     # Load the state data into a pandas DataFrame
@@ -496,8 +490,8 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     # Compute percentages and add columns for average and standard deviation
     total = df.sum()
     percentage = (df / total) * 100
-    percentage['average'] = percentage.mean(numeric_only=True, axis=1)
-    percentage['std'] = percentage[percentage.columns[:-1]].std(numeric_only=True, axis=1)
+    # percentage['average'] = percentage.mean(numeric_only=True, axis=1)
+    # percentage['std'] = percentage[percentage.columns[:-1]].std(numeric_only=True, axis=1)
 
     # Identify the best histogram index based on metadata file
     with open(DATA_FILENAME, 'r') as DATA_FILE:
@@ -510,7 +504,7 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     column_best = f'counts_p{p}_{i_best}of{random_attempts}'
 
     # Keep the best and average results for plotting
-    percentage = percentage[[column_best, "average", "std"]]
+    percentage = percentage[[column_best]]
     percentage = percentage.sort_values(column_best, ascending=False)
 
     ############################# LABELS ###################################
@@ -532,12 +526,12 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
             label_y = rect.get_height()
             ax.text(label_x, label_y, label, fontsize=N, ha='left', va='bottom')
 
-    # Add error bars for average values
-    x_coords = [p.get_x() + 0.5 * p.get_width() for p in ax.patches]
-    y_coords = percentage["average"]
-    ax.errorbar(x=x_coords, y=y_coords, yerr=percentage["std"], linestyle="",
-                markerfacecolor='none', linewidth=1, marker='o', color='k', ecolor='k', 
-                elinewidth=0.7, capsize=3.5, barsabove=True, alpha=0.6)
+    # # Add error bars for average values
+    # x_coords = [p.get_x() + 0.5 * p.get_width() for p in ax.patches]
+    # y_coords = percentage["average"]
+    # ax.errorbar(x=x_coords, y=y_coords, yerr=percentage["std"], linestyle="",
+    #             markerfacecolor='none', linewidth=1, marker='o', color='k', ecolor='k', 
+    #             elinewidth=0.7, capsize=3.5, barsabove=True, alpha=0.6)
 
     ########################### HIGHLIGHT #####################################
     # Highlight exact covers
@@ -571,6 +565,8 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     ax.set_title(title_string, fontsize=N)
 
     ################################################################
+    ################################################################
+    
     # Refine plot aesthetics
     plt.xlabel("states", fontsize=N)
     plt.ylabel("percentage [%]", fontsize=N)
@@ -584,7 +580,6 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     # Adjust subplot layout and display the figure
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.8)
     plt.show()
-
 
 
 #############################################################################################################
@@ -700,14 +695,15 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
         for container in ax.containers:
             for rect, label in zip(container, labels_df.tolist()):
                 label_x = rect.get_x()
-                label_y = rect.get_height()
+                label_y = rect.get_height() 
                 ax.text(label_x, label_y, label, fontsize=N-2, ha='left', va='bottom')
                 
         # Add error bars for average values.
         x_coords = [p.get_x() + 0.5 * p.get_width() for p in ax.patches]
         y_coords = percentage["average"]
         ax.errorbar(x=x_coords, y=y_coords, yerr=percentage["std"], linestyle="",
-                    markerfacecolor='none', linewidth=1, marker='o', color="k", ecolor="k", 
+                    markerfacecolor='none', linewidth=1, marker='o', 
+                    markersize=3, color="k", ecolor="k", 
                     elinewidth=0.7, capsize=3.5, barsabove=True, alpha=1)
 
         ########################### HIGHLIGHT #####################################
@@ -742,14 +738,14 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
         ax.set_title(title_string, fontsize=N)
         
         ################################################################
-        if num_subplot in [0, 4, 8]:  # Add ylabel only for certain subplots
+        if num_subplot%2 == 0:  # Add ylabel only for certain subplots
             ax.set_ylabel("percentage [%]", fontsize=N)
         else:
             ax.set_ylabel("")
 
         # Refine plot aesthetics: set labels and grid.
         plt.xlabel("states", fontsize=N)
-        plt.xticks(fontsize=N-3, rotation="vertical")
+        plt.xticks(fontsize=N-1, rotation="vertical")
         plt.yticks(fontsize=N)
         plt.xlim(xmin=-1)
         plt.ylim(ymin=0, ymax=110)
@@ -763,6 +759,7 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
     # Display the plot.
     plt.tight_layout()
     plt.show()
+
 
 
 

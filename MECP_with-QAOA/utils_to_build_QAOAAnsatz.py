@@ -676,38 +676,38 @@ def cost_func(params, ansatz, hamiltonian, estimator):
 #############################################################################################################
 #############################################################################################################
 
-def invert_counts(counts: Dict[str, int]) -> Dict[str, int]:
-    """
-    Reverses the bit order in the keys of a quantum measurement result dictionary.
+# def invert_counts(counts: Dict[str, int]) -> Dict[str, int]:
+#     """
+#     Reverses the bit order in the keys of a quantum measurement result dictionary.
     
-    This function is useful for correcting the bit order in measurement results, 
-    as quantum computing platforms might return results in little-endian order 
-    (least significant bit on the left), and reversing the bit order will make 
-    the string big-endian (most significant bit on the left).
+#     This function is useful for correcting the bit order in measurement results, 
+#     as quantum computing platforms might return results in little-endian order 
+#     (least significant bit on the left), and reversing the bit order will make 
+#     the string big-endian (most significant bit on the left).
 
-    Parameters
-    ----------
-    counts : dict
-        A dictionary where the keys are binary strings representing measurement 
-        outcomes, and the values are the counts (frequencies) of those outcomes.
+#     Parameters
+#     ----------
+#     counts : dict
+#         A dictionary where the keys are binary strings representing measurement 
+#         outcomes, and the values are the counts (frequencies) of those outcomes.
 
-    Returns
-    -------
-    dict
-        A new dictionary with the keys reversed (bit order swapped).
+#     Returns
+#     -------
+#     dict
+#         A new dictionary with the keys reversed (bit order swapped).
     
-    Example
-    -------
-    If the input is:
-        {'00': 5, '01': 3, '10': 8, '11': 4}
+#     Example
+#     -------
+#     If the input is:
+#         {'00': 5, '01': 3, '10': 8, '11': 4}
     
-    The output will be:
-        {'00': 5, '10': 3, '01': 8, '11': 4}
+#     The output will be:
+#         {'00': 5, '10': 3, '01': 8, '11': 4}
     
-    The bit order in the keys is reversed in the returned dictionary.
-    """
-    # Reverse the bit order for each key and return the updated dictionary
-    return {k[::-1]: v for k, v in counts.items()}
+#     The bit order in the keys is reversed in the returned dictionary.
+#     """
+#     # Reverse the bit order for each key and return the updated dictionary
+#     return {k[::-1]: v for k, v in counts.items()}
 
 
 

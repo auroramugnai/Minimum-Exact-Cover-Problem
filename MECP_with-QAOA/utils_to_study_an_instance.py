@@ -575,7 +575,8 @@ def show_spectrum(n, instance, k, fontsize=13, verbose=False):
     plt.figure(figsize=(9,3))  
     plt.rcParams['font.size'] = fontsize 
     plt.title("All states")  
-    plt.plot(states, energies, '.--b')  # Plot the states against their energies
+    plt.plot(states, energies, 
+             marker='o', color='k', linestyle='dotted')  # Plot the states against their energies
     plt.xticks(rotation='vertical', fontsize=fontsize-2) 
     plt.xlabel("States")  
     plt.ylabel("Energy")  
@@ -591,7 +592,8 @@ def show_spectrum(n, instance, k, fontsize=13, verbose=False):
     plt.figure(figsize=(7,3)) 
     plt.rcParams['font.size'] = fontsize  
     plt.title("Feasible states")
-    plt.plot(states_feasible, energies_feasible, '.--k') 
+    plt.plot(states_feasible, energies_feasible, 
+             marker='o', color='k', linestyle='dashed') 
     plt.xticks(rotation='vertical', fontsize=fontsize)
     plt.xlabel("States")
     plt.ylabel("Energy")
