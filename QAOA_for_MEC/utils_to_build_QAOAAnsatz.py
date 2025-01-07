@@ -12,8 +12,10 @@ from qiskit.circuit.library import QAOAAnsatz, RXGate, MCMTVChain, PauliEvolutio
 from qiskit.quantum_info import SparsePauliOp, Statevector
 from qiskit.visualization import plot_histogram
 
-from ipynb.fs.full.utils_to_study_an_instance import *
-from ipynb.fs.full.utils_for_plotting_and_reading import *
+# from ipynb.fs.full.utils_to_study_an_instance import *
+# from ipynb.fs.full.utils_for_plotting_and_reading import *
+from utils_to_study_an_instance import *
+from utils_for_plotting_and_reading import *
 
 
 def get_circuit_parameters(subsets: List[Set[int]], verbose: bool = False) -> Tuple[List[List[int]], int, int, int]:
@@ -168,31 +170,51 @@ def build_mixing_circuit(n: int, instance: int, verbose: bool = False) -> Quantu
     """
     # Define the problem instance and extract subsets.
     U, subsets_dict = define_instance(n, instance, verbose=verbose)
-    print(subsets_dict)
     subsets = list(subsets_dict.values())
     
     # Extract circuit parameters: intersections, ancillae, and dimension.
     list_of_intersections, num_max_ctrl, NUM_ANC, QC_DIM = get_circuit_parameters(subsets, verbose=verbose)
-
+    
     # Initialize the quantum registers and quantum circuit.
     qr = QuantumRegister(n, 'q')
     anc = QuantumRegister(NUM_ANC, 'ancilla')
     qc_mixing = QuantumCircuit(qr, anc)
 
+    ### Inizializzare le ancille a 1 a ogni strato del QAOA non serve, 
+    ### basta inizializzarle una volta sola a p=1 perché su ogni ancilla agisce un  
+    ### numero pari di NOT-gate in ogni strato. 
+    ### In realtà uno potrebbe inizializzarle in ogni strato per  
+    ### proteggersi da eventuali bit-flip. 
+
+    # Initialize ancillas to 1. 
+    for ancilla in range(n, QC_DIM):
+        qc_mixing.initialize(1, ancilla)
+    
+    ### Creo una lista di gate che (tramite VChain) implementano  
+    ### X-rotazioni con un diverso numero di controlli. L'elemento i 
+    ### della lista avrà i+1 controlli. 
+    
     # Define the parameter beta for X-rotations.
     beta = Parameter('beta')
 
     # Create a list of gates for controlled X-rotations using V-Chain (MCMTVChain).
-    gates = [MCMTVChain(RXGate(beta), num_controls, 1).to_gate() for num_controls in range(1, num_max_ctrl + 1)]
+    g = [MCMTVChain(RXGate(beta), x, 1) for x in range(1, num_max_ctrl+1)]
+    gates = [g[i].to_gate() for i in range(len(g))]
+    
+    ### Aggiungo al circuito i gate, specificando quali qubit 
+    ### devono fare da controlli: ricorda che l'ordine giusto è  
+    ### [controlli, target, ancille] quindi se con 5 qubit [0,1,2,3,4]  
+    ### e 2 ancille [5,6] voglio fare una rotazione X su 1  
+    ### controllata da 0, 2, 3 scriverò:
+    ###  
+    ### qc_mixing.append(gates[2], [0,2,3, 1, 5,6]) 
 
     # Add gates to the quantum circuit.
     for i, intersections in enumerate(list_of_intersections):
-        num_controls = len(intersections)
-        qubits_list = intersections + [i] + list(range(n, n + num_controls - 1))  # [controls, target, ancillae]
-        qc_mixing.append(gates[num_controls - 1], qubits_list)
-
-    # Decompose the circuit to simplify multi-qubit operations.
-    qc_mixing = qc_mixing.decompose(reps=2)
+        if intersections != []:
+            N = len(intersections)
+            qubits_list = intersections + [i] + list(range(n, n+N-1))
+            qc_mixing.append(gates[N-1], qubits_list)
 
     if verbose:
         print(f"Mixing circuit created for instance {instance} with {n} qubits.")

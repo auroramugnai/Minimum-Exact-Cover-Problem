@@ -122,6 +122,7 @@ def underline_states(ax: Axes, states_to_underline: List[str], fontsize: int) ->
 #############################################################################################################
 #############################################################################################################
 
+
 def plot_histogram_of_df_column(df: pd.DataFrame, 
                                 column_to_plot: str, 
                                 EXACT_COVERS: List[str], 
@@ -165,6 +166,7 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
     # Extract the percentage of the specified column and sort it
     percentage = percentage[[column_to_plot]]
     percentage = percentage.sort_values(column_to_plot, ascending=False)
+    print(percentage.head())
     
     ##### PLOT FIGURE
     plt.figure(figsize=(10, 5))
@@ -180,8 +182,11 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
     ### Highlight exact covers' ticks and underline initial states
     df_for_ticks = percentage.copy()
     df_for_ticks["states"] = df_for_ticks.index 
-    underline_states(plt.gca(), states_to_underline, fontsize=N+2)  # Underline the specific states
-    highlight_correct_ticks(plt.gca(), EXACT_COVERS)  # Highlight exact covers
+    print("ok")
+    # underline_states(plt.gca(), states_to_underline, fontsize=N+2)  # Underline the specific states
+    print("ok")
+    # highlight_correct_ticks(plt.gca(), EXACT_COVERS)  # Highlight exact covers
+    print("ok")
     
     ### Refine plot aesthetics
     plt.xlabel("States", fontsize=N)
@@ -189,13 +194,12 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
     plt.xticks(fontsize=N-2, rotation="vertical")  # Rotate x-axis labels
     plt.yticks(fontsize=N)
     plt.xlim(xmin=-1)  
-    plt.ylim(ymin=0, ymax=106) 
-    plt.minorticks_on()  
-    plt.grid(alpha=0.2)  
+    plt.ylim(ymin=0, ymax=106)
+    plt.minorticks_on()
+    plt.grid(alpha=0.2) 
     plt.title(title, fontsize=N)  
 
     return ax
-
 
 
 #############################################################################################################
@@ -209,7 +213,7 @@ def plot_histogram_of_best_column(df: pd.DataFrame,
                                   title: str = '') -> None:
     """
     Plots the histogram of the best column from a dataframe, highlighting exact covers and underlining specific states.
-    Also overlays error bars for the average values.
+    Also overlays error bars for the average values using the max-min error.
 
     Parameters
     ----------
@@ -234,22 +238,26 @@ def plot_histogram_of_best_column(df: pd.DataFrame,
     # Set the dataframe index to 'states' and ensure numeric conversion
     df = df.set_index('states').astype(float).fillna(0.0)
 
-    # Compute percentages and add average and standard deviation columns
+    # Compute percentages and add average, max, and min columns
     total = df.sum()
     percentage = (df / total) * 100
     
-    # Calculate the average and standard deviation for each state
+    # Calculate the average, maximum, and minimum for each state
     percentage['average'] = percentage.mean(numeric_only=True, axis=1)
-    percentage['std'] = percentage[percentage.columns[:-1]].std(numeric_only=True, axis=1)
+    percentage['max'] = percentage.max(numeric_only=True, axis=1)
+    percentage['min'] = percentage.min(numeric_only=True, axis=1)
+    
+    # Calculate the max-min error (max - min)
+    percentage['error'] = percentage['max'] - percentage['min']
         
-    # Keep only the best column, average, and standard deviation results
-    percentage = percentage[[best_column, "average", "std"]]
+    # Keep only the best column, average, and error columns
+    percentage = percentage[[best_column, "average", "error"]]
     percentage = percentage.sort_values(best_column, ascending=False)
     
-    # Overlay error bars for the average values
+    # Overlay error bars for the average values using max-min error
     x_coords = [p.get_x() + 0.5 * p.get_width() for p in ax.patches]  # Get the x positions of bars
     y_coords = percentage["average"]  # Average values for the y-axis
-    ax.errorbar(x=x_coords, y=y_coords, yerr=percentage["std"], linestyle="",
+    ax.errorbar(x=x_coords, y=y_coords, yerr=percentage["error"], linestyle="",
                 markerfacecolor='none', linewidth=1,
                 marker='o', color='k', ecolor='k', elinewidth=0.7, capsize=3.5, 
                 barsabove=True, alpha=0.5)  # Plot error bars for averages
