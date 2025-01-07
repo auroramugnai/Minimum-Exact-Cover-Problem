@@ -150,79 +150,65 @@ def build_mixing_circuit(n: int, instance: int, verbose: bool = False) -> Quantu
     """
     Build the mixing Hamiltonian quantum circuit for the given problem instance.
 
-    This function constructs a mixing operator for the QAOA-style quantum circuit, which
-    is used to explore the solution space by applying rotations to the qubits. It returns
+    This function constructs a mixing operator for a QAOA-style quantum circuit, which
+    explores the solution space by applying controlled rotations to the qubits. It returns
     a quantum circuit that implements the mixing evolution.
 
     Parameters
     ----------
     n : int
-        The dimension of the instance, i.e., the number of qubits used for the problem.
+        The size of the problem instance, corresponding to the number of qubits used.
     instance : int
         The index or identifier of the specific instance being solved.
     verbose : bool, optional, default=False
-        If True, prints additional details during the circuit construction.
+        If True, prints additional information during the circuit construction.
 
     Returns
     -------
     qc_mixing : QuantumCircuit
-        The quantum circuit that implements the mixing Hamiltonian evolution, parametrized by beta.
+        A quantum circuit implementing the mixing Hamiltonian evolution, parametrized by beta.
     """
     # Define the problem instance and extract subsets.
     U, subsets_dict = define_instance(n, instance, verbose=verbose)
     subsets = list(subsets_dict.values())
     
-    # Extract circuit parameters: intersections, ancillae, and dimension.
+    # Extract circuit parameters: intersections, ancillas, and circuit dimensions.
     list_of_intersections, num_max_ctrl, NUM_ANC, QC_DIM = get_circuit_parameters(subsets, verbose=verbose)
     
-    # Initialize the quantum registers and quantum circuit.
+    # Initialize quantum registers and quantum circuit.
+    # The ancillas will be initialized to 1 in build_initialization_circuit.
     qr = QuantumRegister(n, 'q')
-    anc = QuantumRegister(NUM_ANC, 'ancilla')
-    qc_mixing = QuantumCircuit(qr, anc)
+    qr_anc = QuantumRegister(NUM_ANC, 'ancilla')
+    qc_mixing = QuantumCircuit(qr, qr_anc)
 
-    ### Inizializzare le ancille a 1 a ogni strato del QAOA non serve, 
-    ### basta inizializzarle una volta sola a p=1 perché su ogni ancilla agisce un  
-    ### numero pari di NOT-gate in ogni strato. 
-    ### In realtà uno potrebbe inizializzarle in ogni strato per  
-    ### proteggersi da eventuali bit-flip. 
-
-    # Initialize ancillas to 1. 
-    for ancilla in range(n, QC_DIM):
-        qc_mixing.initialize(1, ancilla)
-    
-    ### Creo una lista di gate che (tramite VChain) implementano  
-    ### X-rotazioni con un diverso numero di controlli. L'elemento i 
-    ### della lista avrà i+1 controlli. 
-    
     # Define the parameter beta for X-rotations.
     beta = Parameter('beta')
 
     # Create a list of gates for controlled X-rotations using V-Chain (MCMTVChain).
-    g = [MCMTVChain(RXGate(beta), x, 1) for x in range(1, num_max_ctrl+1)]
+    g = [MCMTVChain(RXGate(beta), x, 1) for x in range(1, num_max_ctrl + 1)]
     gates = [g[i].to_gate() for i in range(len(g))]
-    
-    ### Aggiungo al circuito i gate, specificando quali qubit 
-    ### devono fare da controlli: ricorda che l'ordine giusto è  
-    ### [controlli, target, ancille] quindi se con 5 qubit [0,1,2,3,4]  
-    ### e 2 ancille [5,6] voglio fare una rotazione X su 1  
-    ### controllata da 0, 2, 3 scriverò:
-    ###  
-    ### qc_mixing.append(gates[2], [0,2,3, 1, 5,6]) 
 
-    # Add gates to the quantum circuit.
+    # Add the gates to the quantum circuit, specifying the controls.
+    # The order should be [controls, target, ancillas]. 
+    # For example, with 5 qubits [0,1,2,3,4] and 2 ancillas [5,6], to apply an X rotation
+    # on qubit 1 controlled by qubits [0,2,3], the gate will be added as:
+    # qc_mixing.append(gates[2], [0,2,3, 1, 5,6])
+
     for i, intersections in enumerate(list_of_intersections):
         if intersections != []:
             N = len(intersections)
-            qubits_list = intersections + [i] + list(range(n, n+N-1))
-            qc_mixing.append(gates[N-1], qubits_list)
+            qubits_list = intersections + [i] + list(range(n, n + N - 1))
+            qc_mixing.append(gates[N - 1], qubits_list)
 
+    # Print details if verbose mode is enabled.
     if verbose:
         print(f"Mixing circuit created for instance {instance} with {n} qubits.")
         print(f"Circuit dimension (QC_DIM): {QC_DIM}")
         print(f"Number of ancillas: {NUM_ANC}")
         print(f"Number of control gates: {num_max_ctrl}")
-    
+
     return qc_mixing
+
 
 
 

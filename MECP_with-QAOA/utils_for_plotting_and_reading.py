@@ -14,7 +14,6 @@ import seaborn as sns
 
 from utils_to_study_an_instance import define_instance, find_spectrum
 
-
 def highlight_correct_ticks(ax: Axes, EXACT_COVERS: List[str]) -> None:
     """
     Highlights ticks on the axis corresponding to exact covers, minimum exact covers (MEC), 
@@ -127,7 +126,8 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
                                 column_to_plot: str, 
                                 EXACT_COVERS: List[str], 
                                 states_to_underline: List[str], 
-                                title: str = '') -> Axes:
+                                title: str = '',
+                                fontsize: int = 13) -> Axes:
     """
     Plots a histogram of a specified column from a dataframe, highlighting exact covers and underlining specific states.
 
@@ -146,6 +146,8 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
         A list of states to underline on the x-axis. Each state is a binary string.
     title : str, optional
         The title of the histogram plot (default is '').
+    fontsize : int, optional
+        The fontsize to set in the figure.
 
     Returns
     -------
@@ -166,38 +168,36 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
     # Extract the percentage of the specified column and sort it
     percentage = percentage[[column_to_plot]]
     percentage = percentage.sort_values(column_to_plot, ascending=False)
-    print(percentage.head())
     
     ##### PLOT FIGURE
+    
     plt.figure(figsize=(10, 5))
-    N = 10  # Font size for the labels
     ax = sns.barplot(x="states", y=column_to_plot, data=percentage, 
                      width=0.7, color='red', alpha=0.5)
     
     # Add percentage labels on top of the bars
     labels = percentage[column_to_plot].round(1).astype('str') + '%'
     for container in ax.containers:
-        ax.bar_label(container, labels=labels, fontsize=N-3)
+        ax.bar_label(container, labels=labels, fontsize=fontsize-3)
     
     ### Highlight exact covers' ticks and underline initial states
     df_for_ticks = percentage.copy()
     df_for_ticks["states"] = df_for_ticks.index 
-    print("ok")
-    # underline_states(plt.gca(), states_to_underline, fontsize=N+2)  # Underline the specific states
-    print("ok")
-    # highlight_correct_ticks(plt.gca(), EXACT_COVERS)  # Highlight exact covers
-    print("ok")
+
+    underline_states(plt.gca(), states_to_underline, fontsize=fontsize+2)  # Underline the specific states
+    highlight_correct_ticks(plt.gca(), EXACT_COVERS)  # Highlight exact covers
+
     
     ### Refine plot aesthetics
-    plt.xlabel("States", fontsize=N)
-    plt.ylabel("", fontsize=N)
-    plt.xticks(fontsize=N-2, rotation="vertical")  # Rotate x-axis labels
-    plt.yticks(fontsize=N)
+    plt.xlabel("States", fontsize=fontsize)
+    plt.ylabel("", fontsize=fontsize)
+    plt.xticks(fontsize=fontsize-2, rotation="vertical")  # Rotate x-axis labels
+    plt.yticks(fontsize=fontsize)
     plt.xlim(xmin=-1)  
     plt.ylim(ymin=0, ymax=106)
     plt.minorticks_on()
     plt.grid(alpha=0.2) 
-    plt.title(title, fontsize=N)  
+    plt.title(title, fontsize=fontsize)  
 
     return ax
 
@@ -210,7 +210,8 @@ def plot_histogram_of_best_column(df: pd.DataFrame,
                                   best_column: str, 
                                   EXACT_COVERS: List[str], 
                                   states_to_underline: List[str], 
-                                  title: str = '') -> None:
+                                  title: str = '',
+                                  fontsize: int = 13) -> None:
     """
     Plots the histogram of the best column from a dataframe, highlighting exact covers and underlining specific states.
     Also overlays error bars for the average values using the max-min error.
@@ -227,13 +228,16 @@ def plot_histogram_of_best_column(df: pd.DataFrame,
         A list of states to underline on the x-axis.
     title : str, optional
         The title of the histogram plot (default is '').
+    fontsize : int, optional
+        The fontsize to set in the figure.
 
     Returns
     -------
     None
     """
     # Generate the basic histogram for the best column
-    ax = plot_histogram_of_df_column(df, best_column, EXACT_COVERS, states_to_underline, title=title)
+    ax = plot_histogram_of_df_column(df, best_column, EXACT_COVERS, states_to_underline, 
+                                     title=title, fontsize=fontsize)
     
     # Set the dataframe index to 'states' and ensure numeric conversion
     df = df.set_index('states').astype(float).fillna(0.0)
