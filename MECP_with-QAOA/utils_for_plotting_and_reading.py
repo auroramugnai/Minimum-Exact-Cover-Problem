@@ -176,7 +176,7 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
     
     plt.figure(figsize=figsize)
     ax = sns.barplot(x="states", y=column_to_plot, data=percentage, 
-                     width=0.7, color='red', alpha=0.5)
+                     width=0.7, color='steelblue', alpha=0.5)
     
     # Add percentage labels on top of the bars
     labels = percentage[column_to_plot].round(1).astype('str') + '%'
@@ -199,7 +199,7 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
     plt.xlim(xmin=-1)  
     plt.ylim(ymin=0, ymax=106)
     plt.minorticks_on()
-    plt.grid(alpha=0.2) 
+    plt.grid(alpha=0.2, which='both') 
     plt.title(title, fontsize=fontsize)  
 
     return ax
