@@ -15,11 +15,11 @@ This directory focuses on:
 2. **Solving fixed instances** of the Exact Cover Problem using the D-Wave quantum annealer (q).
 
 
+---
+
 ## 📚 Accessing `.ipynb` Files with JupyterLab or Jupyter Notebook
 
 This repository contains Jupyter Notebook (`.ipynb`) files that you can open and modify using **JupyterLab** or **Jupyter Notebook**. Follow the instructions below to set up your environment and access the files.
-
----
 
 ### 🛠️ Prerequisites
 Ensure you have the following tools installed on your system:
