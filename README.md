@@ -4,15 +4,15 @@ This repository contains two main directories, **ECP_c-and-q** and **MECP_with-Q
 
 ## Directory Structure
 
-### 📁 **ECP_c-and-q**
-This directory focuses on:
-1. **Solving random instances** of the Exact Cover Problem (ECP) and Minimum Exact Cover Problem (MECP) using classical strategies (c).
-2. **Solving fixed instances** of the Exact Cover Problem using the D-Wave quantum annealer (q).
-
 ### 📁 **MECP_with-QAOA**
 This directory is dedicated to:
 1. Implementing the **QAOA+ (Quantum Alternating Operator Ansatz)** on Qiskit to solve the Minimum Exact Cover Problem (MECP).
 2. Solving the Minimum Exact Cover Problem on fixed instances using QAOA+.
+
+### 📁 **ECP_c-and-q**
+This directory focuses on:
+1. **Solving random instances** of the Exact Cover Problem (ECP) and Minimum Exact Cover Problem (MECP) using classical strategies (c).
+2. **Solving fixed instances** of the Exact Cover Problem using the D-Wave quantum annealer (q).
 
 
 ## 📚 Accessing `.ipynb` Files with JupyterLab

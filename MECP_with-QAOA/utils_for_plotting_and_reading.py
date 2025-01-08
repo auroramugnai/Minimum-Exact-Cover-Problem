@@ -127,7 +127,8 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
                                 EXACT_COVERS: List[str], 
                                 states_to_underline: List[str], 
                                 title: str = '',
-                                fontsize: int = 13) -> Axes:
+                                fontsize: int = 13,
+                                figsize: Tuple[int, int] = (7, 3)) -> Axes:
     """
     Plots a histogram of a specified column from a dataframe, highlighting exact covers and underlining specific states.
 
@@ -148,6 +149,8 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
         The title of the histogram plot (default is '').
     fontsize : int, optional
         The fontsize to set in the figure.
+    figsize : tuple, optional
+        The figure size.
 
     Returns
     -------
@@ -171,7 +174,7 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
     
     ##### PLOT FIGURE
     
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=figsize)
     ax = sns.barplot(x="states", y=column_to_plot, data=percentage, 
                      width=0.7, color='red', alpha=0.5)
     
@@ -184,7 +187,7 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
     df_for_ticks = percentage.copy()
     df_for_ticks["states"] = df_for_ticks.index 
 
-    underline_states(plt.gca(), states_to_underline, fontsize=fontsize+2)  # Underline the specific states
+    underline_states(plt.gca(), states_to_underline, fontsize=fontsize)  # Underline the specific states
     highlight_correct_ticks(plt.gca(), EXACT_COVERS)  # Highlight exact covers
 
     
@@ -211,7 +214,8 @@ def plot_histogram_of_best_column(df: pd.DataFrame,
                                   EXACT_COVERS: List[str], 
                                   states_to_underline: List[str], 
                                   title: str = '',
-                                  fontsize: int = 13) -> None:
+                                  fontsize: int = 13,
+                                  figsize: Tuple[int, int] = (7, 3)) -> None:
     """
     Plots the histogram of the best column from a dataframe, highlighting exact covers and underlining specific states.
     Also overlays error bars for the average values using the max-min error.
@@ -230,6 +234,8 @@ def plot_histogram_of_best_column(df: pd.DataFrame,
         The title of the histogram plot (default is '').
     fontsize : int, optional
         The fontsize to set in the figure.
+    figsize : tuple, optional
+        The figure size.
 
     Returns
     -------
@@ -237,7 +243,7 @@ def plot_histogram_of_best_column(df: pd.DataFrame,
     """
     # Generate the basic histogram for the best column
     ax = plot_histogram_of_df_column(df, best_column, EXACT_COVERS, states_to_underline, 
-                                     title=title, fontsize=fontsize)
+                                     title=title, fontsize=fontsize, figsize=figsize)
     
     # Set the dataframe index to 'states' and ensure numeric conversion
     df = df.set_index('states').astype(float).fillna(0.0)
@@ -423,7 +429,6 @@ def find_files_containing_string(strings: list, path: str, verbose: bool = False
 #############################################################################################################
 #############################################################################################################
 #############################################################################################################
-
 def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
               states_to_underline: Optional[List[str]] = None, 
               title: Optional[str] = None,
@@ -487,11 +492,14 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     df = pd.read_csv(FILENAME, dtype=str).set_index('states')
     df = df.astype(float).fillna(0.0)
 
-    # Compute percentages and add columns for average and standard deviation
+    # Compute percentages and add columns for average and range (max - min)
     total = df.sum()
     percentage = (df / total) * 100
-    # percentage['average'] = percentage.mean(numeric_only=True, axis=1)
-    # percentage['std'] = percentage[percentage.columns[:-1]].std(numeric_only=True, axis=1)
+    percentage['average'] = percentage.mean(numeric_only=True, axis=1)
+
+    max_values = percentage[percentage.columns[:-1]].max(numeric_only=True, axis=1)
+    min_values = percentage[percentage.columns[:-1]].min(numeric_only=True, axis=1)
+    percentage['range'] = max_values - min_values
 
     # Identify the best histogram index based on metadata file
     with open(DATA_FILENAME, 'r') as DATA_FILE:
@@ -504,7 +512,7 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     column_best = f'counts_p{p}_{i_best}of{random_attempts}'
 
     # Keep the best and average results for plotting
-    percentage = percentage[[column_best]]
+    percentage = percentage[[column_best, "average", "range"]]
     percentage = percentage.sort_values(column_best, ascending=False)
 
     ############################# LABELS ###################################
@@ -526,12 +534,12 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
             label_y = rect.get_height()
             ax.text(label_x, label_y, label, fontsize=N, ha='left', va='bottom')
 
-    # # Add error bars for average values
-    # x_coords = [p.get_x() + 0.5 * p.get_width() for p in ax.patches]
-    # y_coords = percentage["average"]
-    # ax.errorbar(x=x_coords, y=y_coords, yerr=percentage["std"], linestyle="",
-    #             markerfacecolor='none', linewidth=1, marker='o', color='k', ecolor='k', 
-    #             elinewidth=0.7, capsize=3.5, barsabove=True, alpha=0.6)
+    # Add error bars for average values
+    x_coords = [p.get_x() + 0.5 * p.get_width() for p in ax.patches]
+    y_coords = percentage["average"]
+    ax.errorbar(x=x_coords, y=y_coords, yerr=percentage["range"], linestyle="",
+                markerfacecolor='none', linewidth=1, marker='o', color='k', ecolor='k', 
+                elinewidth=0.7, capsize=3.5, barsabove=True, alpha=0.6)
 
     ########################### HIGHLIGHT #####################################
     # Highlight exact covers
@@ -649,8 +657,6 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
 
         # Define the problem instance based on extracted parameters.
         U, subsets_dict = define_instance(n, instance, verbose=False)
-
-        print("in the function subsets_dict is ", subsets_dict)
 
         # Analyze spectrum to extract relevant state information.
         states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k=1)
