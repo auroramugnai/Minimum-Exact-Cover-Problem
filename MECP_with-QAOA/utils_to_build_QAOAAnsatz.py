@@ -17,6 +17,66 @@ from qiskit.visualization import plot_histogram
 from utils_to_study_an_instance import *
 from utils_for_plotting_and_reading import *
 
+def get_parameters_from_user() -> Dict:
+    """
+    Prompts the user to input various parameters for the computation.
+
+    This function asks the user to input values for the following parameters:
+    - Number of layers (p)
+    - Number of random attempts
+    - Initialization string (init_string)
+    - Size n
+    - List of chosen instances
+    - Choice for 'chosen_k'
+
+    The function ensures that if no input is provided, default values are used.
+    The list of chosen instances can be input as a comma-separated string, 
+    either with square brackets or without.
+
+    Returns
+    -------
+    dict
+        A dictionary containing the parameters:
+        - 'p' : int (number of layers)
+        - 'random_attempts' : int (number of random attempts)
+        - 'init_string' : str (initialization string)
+        - 'n' : int (size)
+        - 'chosen_instances' : List[int] (list of chosen instances)
+        - 'chosen_k' : str (choice for 'chosen_k')
+    """
+    # Ask the user to input the parameters
+    p = int(input("Number of layers (p), default is 3: ") or 3)
+    random_attempts = int(input("Number of random attempts, default is 20: ") or 20)
+    init_string = input("String initialization (all1 or all0), default is 'all1': ") or "all1"
+    n = int(input("Size n (6, 8, 10), default is 6: ") or 6)
+
+    # Ask for a list of numbers for the chosen instances
+    chosen_instances = input("Number or list of numbers from 1 to 10 for chosen instances, default is [1, ..., 10]: ").strip()
+    if chosen_instances:
+        # Check if input is in the format "[2,3]" or "2,3"
+        if '[' in chosen_instances and ']' in chosen_instances:
+            # Parse input with square brackets
+            chosen_instances = chosen_instances.strip("[]").split(',')
+        else:
+            # Parse input without square brackets
+            chosen_instances = chosen_instances.split(',')
+            
+        # Convert to integers
+        chosen_instances = [int(x.strip()) for x in chosen_instances]
+    else:
+        chosen_instances = range(1, 11)
+
+    # Ask for the choice of k
+    chosen_k = input("Choice for 'chosen_k' ('L=max(L_EC)', 'L=n', 'L=L_MEC'), default is 'L=L_MEC': ") or 'L=L_MEC'
+
+    return {
+            'p': p,
+            'random_attempts': random_attempts,
+            'init_string': init_string,
+            'n': n,
+            'chosen_instances': chosen_instances,
+            'chosen_k': chosen_k
+        }
 
 def get_circuit_parameters(subsets: List[Set[int]], verbose: bool = False) -> Tuple[List[List[int]], int, int, int]:
     """
