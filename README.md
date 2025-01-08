@@ -69,6 +69,19 @@ In the JupyterLab or Jupyter Notebook interface, use the file browser to navigat
 Click on a `.ipynb` file to open it and start working.
 
 
+---
+
+## 📖 Accessing Function Documentation with `help()`
+Using `help()` is useful when you're working with unfamiliar functions or libraries. To access the documentation of a function `my_function` , simply call:
+```
+help(my_function)
+```
+This will display the docstring of `my_function`, which will typically contain:
+
+- A description of what the function does.
+- The parameters the function accepts, including their types and default values.
+- The return values of the function.
+- Any additional notes on how the function should be used.
 
 
 
