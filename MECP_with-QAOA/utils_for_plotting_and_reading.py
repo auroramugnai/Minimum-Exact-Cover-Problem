@@ -286,7 +286,7 @@ def define_parameters_from_filename(filename: str, verbose: bool) -> tuple:
     Parameters
     ----------
     filename : str
-        The filename containing parameter details, such as "dim6_mail5_all0_random_p3_10ra_k0.085_".
+        The filename containing parameter details, such as "./dim6_mail5_all0_random_p3_10ra_k0.085_".
     verbose : bool
         If True, prints the extracted parameters.
 
@@ -303,11 +303,12 @@ def define_parameters_from_filename(filename: str, verbose: bool) -> tuple:
 
     Example
     -------
-    >>> define_parameters_from_filename("dim6_mail3_all0_random_p3_10ra_k0.067_", verbose=True)
+    >>> define_parameters_from_filename("./dim6_mail3_all0_random_p3_10ra_k0.067_", verbose=True)
     n=6, i=3, init=all0, p=3, ra=10, k=0.067
     """
     # Remove path information if present and isolate the filename
-    filename = filename.rsplit('/', 1)[1]
+    if '/' in filename:
+        filename = filename.rsplit('/', 1)[1]
 
     # Extract the instance dimension (n)
     n = int(filename.split('dim')[1][0])
@@ -324,7 +325,11 @@ def define_parameters_from_filename(filename: str, verbose: bool) -> tuple:
         init_name = 'customized'
 
     # Extract the maximum layer or circuit depth (p)
-    p = int(filename.split('_p')[1].split('_')[0])
+    if '_p' in filename:
+        p = int(filename.split('_p')[1].split('_')[0])
+    elif '_maxp_' in filename:
+        p = int(filename.split('_maxp_')[1].split('_')[0])
+
 
     # Extract the number of random attempts (ra)
     ra = filename.split(f'p{p}_')[1]
@@ -773,7 +778,7 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
 #############################################################################################################
 #############################################################################################################
 
-def find_files_containing_string_parameters_fixing(directory: str, substring: str) -> Tuple[List[str], List[List[str]]]:
+def find_files_containing_string_parameters_fixing(directory: str, substring: str = '') -> Tuple[List[str], List[List[str]]]:
     """
     Searches for files in a given directory that match a certain substring, filters them to find
     those related to data, and then groups them based on a common prefix. It returns a sorted list of 
@@ -831,68 +836,63 @@ def find_files_containing_string_parameters_fixing(directory: str, substring: st
 #############################################################################################################
 #############################################################################################################
 
-def plot_file_parameter_fixing(path: str, datafile: str, associated_files: List[str], init_name: str, 
-                                title: str = None, dont_show_in_title: List[str] = [], 
-                                figsize: tuple = (16, 10), N: int = 10, dpi: int = 300):
+def plot_file_parameter_fixing(
+    path: str,
+    datafile: str,
+    associated_files: List[str],
+    init_name: str,
+    title: Optional[str] = None,
+    dont_show_in_title: List[str] = [],
+    figsize: Tuple[int, int] = (16, 10),
+    N: int = 10,
+    dpi: int = 300
+) -> None:
     """
-    Plots a bar chart of percentages for different states based on given data files, highlighting
-    certain states and marking initialization states. The function processes associated files, 
-    normalizes the data, and visualizes the results in a stacked bar chart.
+    Plots a bar chart based on the parameter counts from multiple associated files.
+    
+    The function reads data from the given `datafile` and `associated_files`. 
+    It then normalizes the counts and creates a stacked bar plot with 
+    appropriate labels and formatting.
 
-    Parameters
-    ----------
-    path : str
-        The directory path where the data files are located.
-    datafile : str
-        The main data file containing the state information.
-    associated_files : list of str
-        A list of associated files that contain data to merge with the main data file.
-    init_name : str
-        The type of initial state (e.g., "all1", "all0") to be highlighted in the plot.
-    title : str, optional
-        The title of the plot. If not provided, it is generated from the data.
-    dont_show_in_title : list of str, optional
-        A list of parameters to exclude from the title string.
-    figsize : tuple, optional
-        The size of the figure, default is (16, 10).
-    N : int, optional
-        Font size for labels, default is 10.
-    dpi : int, optional
-        The resolution of the plot, default is 300.
-
-    Returns
-    -------
-    None
-        Displays the plot directly.
+    Parameters:
+        path (str): The file path where the data files are located.
+        datafile (str): The main data file that contains parameter information.
+        associated_files (List[str]): List of associated CSV files to be merged.
+        init_name (str): The name of the initialization used.
+        title (Optional[str], optional): Title for the plot. If None, a default title is constructed.
+        dont_show_in_title (List[str], optional): List of parameters to exclude from the plot title.
+        figsize (Tuple[int, int], optional): Figure size for the plot (default is (16, 10)).
+        N (int, optional): Font size for the plot labels (default is 10).
+        dpi (int, optional): Dots per inch for the plot resolution (default is 300).
+    
+    Returns:
+        None: The function does not return any value but displays the plot.
     """
     
-    # Create the figure and axis for plotting.
+    # Crea la figura
     fig = plt.figure(figsize=figsize, dpi=dpi)
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot(1,1,1)
 
-    ################################ EXTRACT PARAMETERS ################################
-    # Extract parameters from the datafile name.
-    n, instance, init_name, maxp, random_attempts, k = define_parameters_from_filename(path + datafile, verbose=False)
+    ################################ ESTRAI PARAMETRI ################################
+    n, instance, init_name, maxp, random_attempts, k = define_parameters_from_filename(path+datafile, verbose=False)
     plot_title = f"n={n}, i={instance}, init={init_name}, maxp={maxp}, ra={random_attempts}, k={k}"
 
-    # Define the problem instance.
     U, subsets_dict = define_instance(n, instance, verbose=False)
     states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k)
     
     ##################################################################################
     df_final = None
 
-    # Iterate through each associated file and merge them.
+    # Per ogni file associato
     for file_to_read in associated_files:
-        df = pd.read_csv(path + file_to_read, dtype={'states': "str"})
+        df = pd.read_csv(path+file_to_read, dtype={'states': "str"})
 
-        # Merge the dataframes if not the first iteration.
         if df_final is None:
             df_final = df
         else:
             df_final = pd.merge(df_final, df, on="states", how="outer")
 
-    # Fill NaN values with 0 and normalize the counts.
+    # Riempimento e normalizzazione
     df_final = df_final.fillna(0)
     for p in range(1, maxp + 1):
         column_name = f'counts_p{p}'
@@ -900,30 +900,26 @@ def plot_file_parameter_fixing(path: str, datafile: str, associated_files: List[
         if total > 0:
             df_final[column_name] = (df_final[column_name] / total) * 100
 
-    # Sort the columns based on "p" to maintain numerical order.
+     # Ordina le colonne in base a "p" preservando l'ordine numerico
     sorted_columns = sorted(
         [col for col in df_final.columns if col.startswith('counts_p')],
         key=lambda x: int(x.split('p')[1])
     )
 
     ################################ PLOT ################################
-    # Define colors for the bars.
-    colors = ["darkorange", "crimson", "indigo"]
 
-    # Plot the data as a bar chart.
+    colors = ["darkorange", "crimson", "indigo"]
     df_final.plot(
         x='states', kind="bar", width=0.7, fontsize=N, stacked=False, ax=ax, legend=True,
         color=colors, alpha=1
     )
 
-    ################################ Add labels to the bars ###############################
-    # Annotate the bars with percentage values.
+    ################################ Etichette sulle barre ###############################
     for state in df_final['states']:
         max_height = 0
         label_text = ""
         x_position = None
 
-        # Find the maximum height for each state and label it.
         for i, container in enumerate(ax.containers):
             p = i + 1
             row = df_final[df_final['states'] == state]
@@ -934,205 +930,241 @@ def plot_file_parameter_fixing(path: str, datafile: str, associated_files: List[
                     label_text = f"{value:.1f}%"
                     x_position = container[df_final[df_final['states'] == state].index[0]].get_x() + container[0].get_width() / 2
 
-        # Add text label on the bars if max height is positive.
         if max_height > 0:
             ax.text(
                 x_position, max_height,
                 label_text, ha='center', va='bottom', fontsize=N
-            )
+                )
 
-    ############################### HIGHLIGHT AND UNDERLINE STATES ###############################
-    # Highlight the exact covers (correct ticks).
+    ############################### EVIDENZIA E SOTTOLINEA ###############################
     highlight_correct_ticks(ax, EXACT_COVERS)
 
-    # Underline initial states based on the initialization type.
+    # Sottolinea gli stati iniziali
     if init_name == "all1":
         one_one_states = ["".join(elem) for elem in distinct_permutations('0' * (n - 1) + '1')]
         init_string = "$|1 \\rangle$-initialization"
-        underline_states(ax, one_one_states, fontsize=N + 2)
+        underline_states(ax, one_one_states, fontsize=N+2)
     elif init_name == "all0":
-        underline_states(ax, "0" * n, fontsize=N + 2)
+        underline_states(ax, "0" * n, fontsize=N+2)
         init_string = "$|0 \\rangle$-initialization"
     else:
-        underline_states(ax, list_of_states_to_underline, fontsize=N + 4)
+        underline_states(ax, list_of_states_to_underline, fontsize=N+4)
         init_string = ""
 
+
     ############################### TITLE #################################
-    # Set the title for the plot.
-    if title is None:
-        # Construct subplot title from the parameters.
-        dictstring = {
-            "n": f"$n={n}$", "i": f"Instance #{instance}", "init": f"{init_string}",
-            "p": f"$p={p}$", "ra": f"$ra={random_attempts}$", "k": f"$k={k}$"
-        }
+    if title==None:
+        # Construct subplot title.
+        dictstring = {"n":f"$n={n}$", "i":f"Instance #{instance}", "init":f"{init_string}", 
+                      "p":f"$p={p}$", "ra":f"$ra={random_attempts}$", "k":f"$k={k}$"}
         title_string = ', '.join([dictstring[x] for x in dictstring if x not in dont_show_in_title])
         
-        # Append bounds and parameters information to the title.
+        # Append bounds information to the title.
         bounds_and_pars0 = datafile.split('pars0')[1].split('_data')[0]
         bounds_and_pars0 = bounds_and_pars0.replace("pi", "\pi").replace("x", "\\times")
         title_string += f"\n${bounds_and_pars0}$"
     
         ax.set_title(title_string, fontsize=N)
+        
     else:
         ax.set_title(title, fontsize=N)
-
+        
     ##################################################################
     
-    # Set y-axis limits and label.
     ax.set_ylim(0, 103)
     ax.set_ylabel("percentage [%]")
-    
-    # Display grid and minor ticks for better readability.
     plt.minorticks_on()
     plt.grid(alpha=0.2)
 
-    # Set legend for the layers.
-    legend = [f"layer {layer}" for layer in range(1, maxp + 1)]
+    # Legenda
+    legend = [f"layer {layer}" for layer in range(1, maxp+1)]
     ax.legend(legend)
-    
-    # Show the plot.
     plt.show()
 
 
-# In[ ]:
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
 
+def plot_list_of_files_parameter_fixing(
+    path: str,
+    datafiles: List[str],
+    associated_files: List[List[str]],
+    init_name: Optional[str] = None,
+    states_to_underline: Optional[List[str]] = None,
+    title: Optional[str] = None,
+    dont_show_in_title: List[str] = [],
+    dont_show_in_titles: List[str] = [],
+    figsize: Tuple[int, int] = (16, 10),
+    dpi: int = 300,
+    N: int = 10,
+    show_title: bool = True
+) -> None:
+    """
+    Plots a series of data files with associated files, and saves and displays the plot.
 
-# def plot_list_of_files_parameter_fixing(path, datafiles, associated_files, init_name, title=None,
-#                        dont_show_in_titles=[],  figsize=(16, 10), N=10, dpi=300):
-#     """
-#     """
-#     # Numero di subplot richiesti
-#     n_subplots = len(datafiles)
+    This function generates a series of subplots, each one corresponding to a data file and its
+    associated files. It normalizes the counts, creates a bar plot, and displays it with labels and
+    highlights based on the initialization scheme. The function also saves the resulting plot as a PDF.
 
-#     # Imposta il numero di righe e colonne per i subplot
-#     n_rows = 2
-#     n_cols = (n_subplots + 1) // n_rows
+    Parameters:
+        path (str): The file path where the data files are located.
+        datafiles (List[str]): A list of data file names to be plotted.
+        associated_files (List[List[str]]): A list of lists, where each list contains associated files for the corresponding datafile.
+        init_name (Optional[str], optional): The name of the initialization. Defaults to None.
+        states_to_underline (Optional[List[str]], optional): List of states to underline in the plot. Defaults to None.
+        title (Optional[str], optional): Title for the entire figure. Defaults to None.
+        dont_show_in_title (List[str], optional): Parameters to exclude from the title of the subplot. Defaults to [].
+        dont_show_in_titles (List[str], optional): Parameters to exclude from the overall figure title. Defaults to [].
+        figsize (Tuple[int, int], optional): Size of the figure (default is (16, 10)).
+        dpi (int, optional): Dots per inch for the plot resolution (default is 300).
+        N (int, optional): Font size for the plot labels (default is 10).
+        show_title (bool, optional): Whether to display the overall title of the figure. Defaults to True.
 
-#     # Crea la figura
-#     fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize, dpi=dpi, squeeze=False)
-#     fig.suptitle(title, fontsize=N + 2)
+    Returns:
+        None: The function does not return any value but displays the plot.
+    """
+    # Numero di subplot richiesti
+    n_subplots = len(datafiles)
 
-#     # Flatten dell'array di assi per accesso sequenziale
-#     axes = axes.flatten()
-
-#     # Loop attraverso ogni datafile e i suoi file associati
-#     for idx, (datafile, associated_files) in enumerate(zip(datafiles, associated_files)):
-
-#         ax = axes[idx]
-
-#         ################################ ESTRAI PARAMETRI ################################
-#         n, instance, init_name, maxp, random_attempts, k = define_parameters_from_filename(path+datafile, verbose=False)
-#         plot_title = f"n={n}, i={instance}, init={init_name}, maxp={maxp}, ra={random_attempts}, k={k}"
-
-#         U, subsets_dict = define_instance(n, instance, verbose=False)
-#         states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k)
-        
-#         ##################################################################################
-#         df_final = None
-
-#         # Per ogni file associato
-#         for file_to_read in associated_files:
-#             file_to_read = path + file_to_read
-#             df = pd.read_csv(file_to_read, dtype={'states': "str"})
-
-#             if df_final is None:
-#                 df_final = df
-#             else:
-#                 df_final = pd.merge(df_final, df, on="states", how="outer")
-
-#         # Riempimento e normalizzazione
-#         df_final = df_final.fillna(0)
-#         for p in range(1, maxp + 1):
-#             column_name = f'counts_p{p}'
-#             total = df_final[column_name].sum()
-#             if total > 0:
-#                 df_final[column_name] = (df_final[column_name] / total) * 100
-
-#          # Ordina le colonne in base a "p" preservando l'ordine numerico
-#         sorted_columns = sorted(
-#             [col for col in df_final.columns if col.startswith('counts_p')],
-#             key=lambda x: int(x.split('p')[1])
-#         )
-
-#         ################################ PLOT ################################
-#         ax.set_title(plot_title, fontsize=N)
-
-#         colors = ["darkorange", "crimson", "indigo"]
-#         df_final.plot(
-#             x='states', kind="bar", width=0.7, fontsize=N, stacked=False, ax=ax, legend=True,
-#             color=colors, alpha=1
-#         )
-
-#         ################################ Etichette sulle barre ###############################
-#         for state in df_final['states']:
-#             max_height = 0
-#             label_text = ""
-#             x_position = None
-
-#             for i, container in enumerate(ax.containers):
-#                 p = i + 1
-#                 row = df_final[df_final['states'] == state]
-#                 if not row.empty:
-#                     value = row[f'counts_p{p}'].values[0]
-#                     if value > max_height:
-#                         max_height = value
-#                         label_text = f"{value:.1f}%"
-#                         x_position = container[df_final[df_final['states'] == state].index[0]].get_x() + container[0].get_width() / 2
-
-#             if max_height > 0:
-#                 ax.text(
-#                     x_position, max_height,
-#                     label_text, ha='center', va='bottom', fontsize=8, weight='bold'
-#                 )
-
-#         ############################### EVIDENZIA E SOTTOLINEA ###############################
-#         highlight_correct_ticks(ax, EXACT_COVERS)
-
-#         # Sottolinea gli stati iniziali
-#         if init_name == "all1":
-#             one_one_states = ["".join(elem) for elem in distinct_permutations('0' * (n - 1) + '1')]
-#             init_string = "$|1 \\rangle$-initialization"
-#             underline_states(ax, one_one_states, fontsize=N+2)
-#         elif init_name == "all0":
-#             underline_states(ax, "0" * n, fontsize=N+2)
-#             init_string = "$|0 \\rangle$-initialization"
-#         else:
-#             underline_states(ax, list_of_states_to_underline, fontsize=N+4)
-#             init_string = ""
-
-
-#         ############################### TITLE #################################
-#         # Construct subplot title.
-#         dictstring = {"n":f"$n={n}$", "i":f"Instance \#{instance}", "init":f"{init_string}", 
-#                       "p":f"$p={p}$", "ra":f"$ra={random_attempts}$", "k":f"$k={k}$"}
-#         title_string = ', '.join([dictstring[x] for x in dictstring if x not in dont_show_in_titles])
-        
-#         # Append bounds information to the title.
-#         bounds_and_pars0 = datafile.split('pars0')[1].split('_data')[0]
-#         bounds_and_pars0 = bounds_and_pars0.replace("pi", "\pi").replace("x", "\\times")
-#         title_string += f"\n${bounds_and_pars0}$"
-
-#         ax.set_title(title_string, fontsize=N)
-#         ##################################################################
-        
-#         ax.set_ylim(0, 103)
-#         plt.minorticks_on()
-#         plt.grid(alpha=0.2)
-
-#         if idx == 0 or idx == 5: 
-#             ax.set_ylabel("percentage [%]")
-#         else:
-#             ax.set_ylabel("")
-
-#         # Legenda
-#         legend = [f"layer {layer}" for layer in range(1, maxp+1)]
-#         ax.legend(legend)
-
-
-#     # Nascondi gli assi inutilizzati
-#     for idx in range(n_subplots, len(axes)):
-#         fig.delaxes(axes[idx])
+    # Imposta il numero di righe e colonne per i subplot
+    n_rows = 5
+    n_cols = math.ceil(n_subplots / n_rows)
     
-#     plt.subplots_adjust(wspace=0.17, hspace=0.5, left=0.03, right=0.97)
-#     plt.show()
+    # Crea la figura
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize, dpi=dpi, squeeze=False)
 
+    # Flatten dell'array di assi per accesso sequenziale
+    axes = axes.flatten()
+
+    # Loop attraverso ogni datafile e i suoi file associati
+    for num_subplot, (datafile, associated_files) in enumerate(zip(datafiles, associated_files)):
+
+        ax = axes[num_subplot]
+
+        ################################ ESTRAI PARAMETRI ################################
+        n, instance, init_name, maxp, random_attempts, k = define_parameters_from_filename(path + datafile, verbose=False)
+        plot_title = f"n={n}, i={instance}, init={init_name}, maxp={maxp}, ra={random_attempts}, k={k}"
+
+        U, subsets_dict = define_instance(n, instance, verbose=False)
+        states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k)
+        
+        ##################################################################################
+        df_final = None
+
+        # Per ogni file associato
+        for file_to_read in associated_files:
+            file_to_read = path + file_to_read
+            df = pd.read_csv(file_to_read, dtype={'states': "str"})
+
+            if df_final is None:
+                df_final = df
+            else:
+                df_final = pd.merge(df_final, df, on="states", how="outer")
+
+        # Riempimento e normalizzazione
+        df_final = df_final.fillna(0)
+        for p in range(1, maxp + 1):
+            column_name = f'counts_p{p}'
+            total = df_final[column_name].sum()
+            if total > 0:
+                df_final[column_name] = (df_final[column_name] / total) * 100
+
+         # Ordina le colonne in base a "p" preservando l'ordine numerico
+        sorted_columns = sorted(
+            [col for col in df_final.columns if col.startswith('counts_p')],
+            key=lambda x: int(x.split('p')[1])
+        )
+
+        ################################ PLOT ################################
+        # ax.set_title(plot_title, fontsize=N)
+
+        colors = ["darkorange", "crimson", "indigo"]
+        df_final.plot(
+            x='states', kind="bar", width=0.7, fontsize=N, stacked=False, ax=ax,
+            color=colors, alpha=1, legend=False
+        )
+
+        ################################ Etichette sulle barre ###############################
+        for state, container in zip(df_final['states'], ax.containers[-1]):  # Itera direttamente su 'states' e 'container' del layer 3
+            # Get the corresponding value for 'counts_p3' (since we're working with layer_index = 2)
+            value = df_final[df_final['states'] == state][f'counts_p{maxp}'].values[0]
+        
+            # Show label only if the state is "MEC" or in EXACT_COVERS
+            if value > 0 and state == "MEC":
+                # Find the x position of the bar
+                x_position = container.get_x() + container.get_width() / 2
+                
+                # Add the label with the formatted percentage
+                ax.text(x_position, container.get_height(), f"{value:.1f}%", ha='center', va='bottom', fontsize=N)
+
+
+        ############################### EVIDENZIA E SOTTOLINEA ###############################
+        highlight_correct_ticks(ax, EXACT_COVERS)
+
+        # Sottolinea gli stati iniziali
+        if init_name == "all1":
+            one_one_states = ["".join(elem) for elem in distinct_permutations('0' * (n - 1) + '1')]
+            init_string = "$|1 \\rangle$-initialization"
+            # underline_states(ax, one_one_states, fontsize=N+1)
+        elif init_name == "all0":
+            # underline_states(ax, "0" * n, fontsize=N+1)
+            init_string = "$|0 \\rangle$-initialization"
+        else:
+            # underline_states(ax, list_of_states_to_underline, fontsize=N+4)
+            init_string = ""
+
+
+        ############################### TITLE #################################
+        # Construct subplot title.
+        dictstring = {"n":f"$n={n}$", "i":f"Instance #{instance}", "init":f"{init_string}", 
+                      "p":f"$p={p}$", "ra":f"$ra={random_attempts}$", "k":f"$k={k}$"}
+        title_string = ', '.join([dictstring[x] for x in dictstring if x not in dont_show_in_titles]) # Title of subplot
+        figure_title_string = ', '.join([dictstring[x] for x in dictstring if x not in dont_show_in_title]) # Figure title
+        
+        # Append bounds information to the title.
+        bounds_and_pars0 = datafile.split('pars0')[1].split('_data')[0]
+        bounds_and_pars0 = bounds_and_pars0.replace("pi", "\\pi").replace("x", "\\times")
+        title_string += f"\n${bounds_and_pars0}$"
+
+        ax.set_title(title_string, fontsize=N)
+        
+        ##################################################################
+        if num_subplot in [0,4,8]: 
+            ax.set_ylabel("percentage [%]", fontsize=N)
+ 
+            
+        # Refine plot aesthetics.
+        ax.set_xlabel("states", fontsize=N)
+        ax.tick_params(axis='x', which='major', labelsize=N-3, rotation=90)
+        ax.tick_params(axis='y', which='major', labelsize=N)
+        # ax.set_xlim(xmin=-1, xmax= len(states_feasible))
+        ax.set_ylim(ymin=0, ymax=120)
+        ax.tick_params(axis='both', which='minor', bottom=False)
+        ax.grid(alpha=0.2)
+
+    # Nascondi gli assi inutilizzati
+    for num_subplot in range(n_subplots, len(axes)):
+        fig.delaxes(axes[num_subplot])
+
+    # Aggiungi la legenda sopra i subplot (in cima alla figura)
+    legend_labels = [f"Layer {layer}" for layer in range(1, maxp + 1)]
+    fig.legend(legend_labels, loc='upper center', 
+               ncol=maxp, fontsize=N, bbox_to_anchor=(0.5, 1.03))  # Position legend above the figure
+    
+    # Set the overall title.
+    if show_title:
+        if title is None:
+            fig.suptitle(figure_title_string, fontsize=N+3)
+        else:
+            fig.suptitle(title, fontsize=N+3)
+    
+    # Adjust subplot layout and display the figure.
+    plt.tight_layout(rect=[0, 0, 1, 0.98])  # Ensure space for the legend
+
+    # Save the figure with tight bounding box and padding
+    current_datetime = datetime.now().strftime("@%Y-%m-%d@%Hh%Mm%Ss")
+#     plt.savefig(f"parameters_fixing_{init_name}.pdf", bbox_inches='tight', pad_inches=0.1)
+    
+    # Show the plot
+    plt.show()
