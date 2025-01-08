@@ -55,16 +55,24 @@ import rustworkx as rx
 
 def define_instance(n, instance, verbose):
     """
+    Define an instance with a given dimension and number, returning the associated universe set
+    and subsets dictionary. Optionally, print additional information if verbose is True.
+
     Parameters
     ----------
-        n (int): instance dimension.
-        instance (int): number of the instance.
-        verbose (bool): if True, print is activated.
+    n : int
+        The dimension of the instance.
+    instance : int
+        The specific instance number within the given dimension.
+    verbose : bool
+        If True, activates print statements for additional information.
 
-    Return
-    ------
-        U (set): set Universe of the instance.
-        subsets_dict (dict): dictionary that enumerates subsets of the instance.
+    Returns
+    -------
+    U : set
+        The universe set associated with the instance.
+    subsets_dict : dict
+        A dictionary mapping each subset number to the corresponding set of elements for the instance.
     """
     all_instances = {}
 
@@ -616,7 +624,7 @@ def find_spectrum(U, subsets_dict, n, k):
     Computes the spectrum of an instance, which includes:
     - All possible states and their associated energies.
     - Feasible states and their energies.
-    - Exact covers that satisfy specific constraints.
+    - Exact covers.
 
     Parameters
     ----------
@@ -640,7 +648,7 @@ def find_spectrum(U, subsets_dict, n, k):
     energies_feasible : list of float
         A list of energies associated with the feasible states.
     EXACT_COVERS : list of str
-        A list of states that are exact covers, which satisfy certain constraints.
+        A list of states that are exact covers.
 
     Example
     -------
