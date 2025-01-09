@@ -446,7 +446,9 @@ def find_files_containing_string(path: str, strings: Optional[list] = [], verbos
 #############################################################################################################
 #############################################################################################################
 
-def build_title(filename: str, dont_show_in_title: Optional[list] = []) -> str:
+def build_title(filename: str, 
+                dont_show_in_title: Optional[list] = [],
+                show_bounds: Optional[bool] = True) -> str:
     """
     Builds a formatted title string based on the parameters extracted from the given filename.
 
@@ -461,6 +463,8 @@ def build_title(filename: str, dont_show_in_title: Optional[list] = []) -> str:
         The filename from which parameters will be extracted.
     dont_show_in_title : list of str, optional
         A list of parameters to exclude from the title string. Default is [].
+    show_bounds : bool, optional
+        If True, bounds are shown in the title. Defaults to True.
 
     Returns
     -------
@@ -484,10 +488,11 @@ def build_title(filename: str, dont_show_in_title: Optional[list] = []) -> str:
     # Build the title string excluding the parameters in the `dont_show_in_title` list
     title_string = ', '.join([d[x] for x in d if x not in dont_show_in_title])
 
-    # Append bounds information to the title
-    bounds_and_pars0 = filename.split('pars0')[1].split('_data')[0]
-    bounds_and_pars0 = bounds_and_pars0.replace("pi", "\\pi").replace("x", "\\times")
-    title_string += f"\n${bounds_and_pars0}$"
+    if show_bounds:
+        # Append bounds information to the title
+        bounds_and_pars0 = filename.split('pars0')[1].split('_data')[0]
+        bounds_and_pars0 = bounds_and_pars0.replace("pi", "\\pi").replace("x", "\\times")
+        title_string += f"\n${bounds_and_pars0}$"
 
     return title_string
 
@@ -726,7 +731,8 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
         percentage = (df / total) * 100
         percentage['average'] = percentage.mean(numeric_only=True, axis=1)
         percentage['std'] = percentage[percentage.columns[:-1]].std(numeric_only=True, axis=1)
-
+        
+        print(DATA_FILENAME)
         # Read metadata to extract the attempt that reached the best result.
         with open(DATA_FILENAME, 'r') as DATA_FILE:
             for line in DATA_FILE:
@@ -788,6 +794,8 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
         # Set x and y labels
         if num_subplot%2 == 0:  
             ax.set_ylabel("percentage [%]", fontsize=N)
+        else:
+            ax.set_ylabel("")
         plt.xlabel("states", fontsize=N)
 
         # Refine plot aesthetics: set labels and grid.       
@@ -804,7 +812,7 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
     
     # Set the overall title.
     if show_title:
-        figure_title = build_title(FILENAME, dont_show_in_title)
+        figure_title = build_title(FILENAME, dont_show_in_title, show_bounds=False)
         fig.suptitle(figure_title, fontsize=N+3)
         
     # Display the plot.
@@ -1038,6 +1046,8 @@ def plot_list_of_files_parameter_fixing(
         ax.set_xlabel("states", fontsize=N)
         if num_subplot%2 == 0: 
             ax.set_ylabel("percentage [%]", fontsize=N)
+        else:
+            ax.set_ylabel("")
             
         # Refine plot aesthetics.
         ax.tick_params(axis='x', which='major', labelsize=N-3, rotation=90)
@@ -1058,7 +1068,7 @@ def plot_list_of_files_parameter_fixing(
     
     # Set the overall title.
     if show_title:
-        figure_title = build_title(file, dont_show_in_title)
+        figure_title = build_title(file, dont_show_in_title, show_bounds=False)
         fig.suptitle(figure_title, fontsize=N+3)
         
         
