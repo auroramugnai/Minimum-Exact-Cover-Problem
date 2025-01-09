@@ -209,6 +209,45 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
 #############################################################################################################
 #############################################################################################################
 
+def get_percentage_df(df: pd.DataFrame, cols_to_keep: List[str], sorting_col: str) -> pd.DataFrame:
+    """
+    Computes the percentage of each value in the DataFrame relative to the sum of the values, 
+    and adds columns for average, maximum, minimum, and error (max - min).
+    
+    Args:
+        df (pd.DataFrame): The input DataFrame containing the data to calculate percentages from.
+        cols_to_keep (List[str]): List of column names to keep in the final output, which should include 
+                                  the relevant data columns to show in the result.
+        sorting_col (str): The column name by which to sort the final DataFrame.
+        
+    Returns:
+        pd.DataFrame: A DataFrame containing the percentage values, along with calculated average, 
+                       maximum, minimum, and error (max - min), sorted by the specified column.
+    """
+    
+    # Compute percentages and add average, max, and min columns
+    total = df.sum()
+    percentage = (df / total) * 100
+
+    # Calculate the average, maximum, and minimum for each state
+    percentage['average'] = percentage.mean(numeric_only=True, axis=1)
+    percentage['max'] = percentage.max(numeric_only=True, axis=1)
+    percentage['min'] = percentage.min(numeric_only=True, axis=1)
+
+    # Calculate the max-min error (max - min)
+    percentage['error'] = percentage['max'] - percentage['min']
+
+    # Keep only cols_to_keep, average, and error columns
+    percentage = percentage[cols_to_keep + ["average", "error"]]
+    percentage = percentage.sort_values(sorting_col, ascending=False)
+    
+    return percentage
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
 def plot_histogram_of_best_column(df: pd.DataFrame, 
                                   best_column: str, 
                                   EXACT_COVERS: List[str], 
@@ -248,21 +287,9 @@ def plot_histogram_of_best_column(df: pd.DataFrame,
     # Set the dataframe index to 'states' and ensure numeric conversion
     df = df.set_index('states').astype(float).fillna(0.0)
 
-    # Compute percentages and add average, max, and min columns
-    total = df.sum()
-    percentage = (df / total) * 100
-    
-    # Calculate the average, maximum, and minimum for each state
-    percentage['average'] = percentage.mean(numeric_only=True, axis=1)
-    percentage['max'] = percentage.max(numeric_only=True, axis=1)
-    percentage['min'] = percentage.min(numeric_only=True, axis=1)
-    
-    # Calculate the max-min error (max - min)
-    percentage['error'] = percentage['max'] - percentage['min']
-        
-    # Keep only the best column, average, and error columns
-    percentage = percentage[[best_column, "average", "error"]]
-    percentage = percentage.sort_values(best_column, ascending=False)
+    percentage = get_percentage_df(df, 
+                                   cols_to_keep=[best_column], 
+                                   sorting_col=best_column)
     
     # Overlay error bars for the average values using max-min error
     x_coords = [p.get_x() + 0.5 * p.get_width() for p in ax.patches]  # Get the x positions of bars
@@ -272,6 +299,7 @@ def plot_histogram_of_best_column(df: pd.DataFrame,
                 marker='o', color='k', ecolor='k', elinewidth=0.7, capsize=3.5, 
                 barsabove=True, alpha=0.5)  # Plot error bars for averages
     plt.show()
+
 
 
 
@@ -570,15 +598,6 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     df = pd.read_csv(FILENAME, dtype=str).set_index('states')
     df = df.astype(float).fillna(0.0)
 
-    # Compute percentages and add columns for average and range (max - min)
-    total = df.sum()
-    percentage = (df / total) * 100
-    percentage['average'] = percentage.mean(numeric_only=True, axis=1)
-
-    max_values = percentage[percentage.columns[:-1]].max(numeric_only=True, axis=1)
-    min_values = percentage[percentage.columns[:-1]].min(numeric_only=True, axis=1)
-    percentage['range'] = max_values - min_values
-
     # Identify the best histogram index based on metadata file
     with open(DATA_FILENAME, 'r') as DATA_FILE:
         for line in DATA_FILE:
@@ -589,11 +608,10 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     # Select the column corresponding to the best result
     column_best = f'counts_p{p}_{i_best}of{random_attempts}'
 
-    # Keep the best and average results for plotting
-    percentage = percentage[[column_best, "average", "range"]]
-    percentage = percentage.sort_values(column_best, ascending=False)
-
-    
+    # Get the percentage version of df, with average and range columns
+    percentage = get_percentage_df(df, 
+                                   cols_to_keep=[column_best], 
+                                   sorting_col=column_best)
     ################################################################
     # Create subplot for bar chart
     ax = sns.barplot(x="states", y=column_best, data=percentage, width=0.7, color=colorchosen, alpha=alpha)
@@ -715,14 +733,7 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
         # Load CSV data into pandas DataFrame and process it.
         df = pd.read_csv(FILENAME, dtype=str).set_index('states')
         df = df.astype(float).fillna(0.0)
-
-        # Compute percentage of each state, along with the average and standard deviation.
-        total = df.sum()
-        percentage = (df / total) * 100
-        percentage['average'] = percentage.mean(numeric_only=True, axis=1)
-        percentage['std'] = percentage[percentage.columns[:-1]].std(numeric_only=True, axis=1)
         
-        print(DATA_FILENAME)
         # Read metadata to extract the attempt that reached the best result.
         with open(DATA_FILENAME, 'r') as DATA_FILE:
             for line in DATA_FILE:
@@ -732,10 +743,11 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
 
         # Construct the column name for the best result.
         column_best = f'counts_p{p}_{i_best}of{random_attempts}'
-
-        # Select best and average results for plotting.
-        percentage = percentage[[column_best, "average", "std"]]
-        percentage = percentage.sort_values(column_best, ascending=False)
+        
+        # Get the percentage version of df, with average and range columns
+        percentage = get_percentage_df(df, 
+                                   cols_to_keep=[column_best], 
+                                   sorting_col=column_best)
 
         ################################################################
         # Create a subplot for this particular file.
