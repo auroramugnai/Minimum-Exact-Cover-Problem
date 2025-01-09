@@ -800,8 +800,8 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
         plt.grid(alpha=0.2)
 
     # Save the figure with a timestamp.
-    current_datetime = datetime.now().strftime("@%Y-%m-%d@%Hh%Mm%Ss")
-    plt.savefig(f"all1_random_{current_datetime}.pdf")
+    # current_datetime = datetime.now().strftime("@%Y-%m-%d@%Hh%Mm%Ss")
+    # plt.savefig(f"all1_random_{current_datetime}.pdf")
     
     # Set the overall title.
     if show_title:
