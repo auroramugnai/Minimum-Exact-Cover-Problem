@@ -110,10 +110,10 @@ def underline_states(ax: Axes, states_to_underline: List[str], fontsize: int) ->
                         xytext=(0, -10),  # Shift the annotation 10 units below the tick
                         xycoords=('data', 'axes fraction'),  # Use axis coordinates for placement
                         textcoords='offset points',  # Use offset points for text positioning
-                        ha='center', va='top',  # Align the annotation in the center horizontally and top vertically
+                        ha='center', va='top',
                         rotation=90,  # Rotate the underline to make it horizontal
-                        fontsize=fontsize,  # Set the font size of the underline
-                        color='grey')  # Set the underline color to grey
+                        fontsize=fontsize,
+                        color='grey') 
 
 
 
@@ -477,9 +477,18 @@ def build_title(filename: str,
     >>> build_title(file, ["n", "k"])
     Instance #1, $p=3$, $ra=2$, [0,2pi]x[-110,110]$'
     """
-
+    # Extract parameters
     parameters = define_parameters_from_filename(filename, verbose=False)
     n, instance, init_name, p, random_attempts, k = parameters
+    
+    # Set a more elegant name for initialization
+    if init_name == "all1": 
+        init_name = "$|1 \\rangle$-initialization"
+    elif init_name == "all0":
+        init_name = "$|0 \\rangle$-initialization"
+    else:
+        raise ValueError(f"Error: '{init_name}' is not a valid value for init_name."
+                         + "It must be 'all1' or 'all0'.")
 
     # Prepare the title string dictionary with the parameters
     d = {"n": f"$n={n}$", "i": f"Instance #{instance}", "init": f"{init_name}",
@@ -502,7 +511,6 @@ def build_title(filename: str,
 #############################################################################################################
 
 def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
-              states_to_underline: Optional[List[str]] = None, 
               show_title: Optional[bool] = True,
               dont_show_in_title: List[str] = [], 
               figsize: Tuple[int, int] = (18, 8), 
@@ -521,8 +529,6 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
         Color for the bars in the plot.
     alpha : float
         Transparency level for the bars.
-    states_to_underline : list of str, optional
-        List of states to underline on the x-axis (default is None).
     show_title : bool, optional
         If True, a title is shown with file parameters. Default is True.
     dont_show_in_title : list of str, optional
@@ -587,7 +593,8 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     percentage = percentage[[column_best, "average", "range"]]
     percentage = percentage.sort_values(column_best, ascending=False)
 
-    ############################# LABELS ###################################
+    
+    ################################################################
     # Create subplot for bar chart
     ax = sns.barplot(x="states", y=column_best, data=percentage, width=0.7, color=colorchosen, alpha=alpha)
     
@@ -613,24 +620,10 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
                 markerfacecolor='none', linewidth=1, marker='o', color='k', ecolor='k', 
                 elinewidth=0.7, capsize=3.5, barsabove=True, alpha=0.6)
 
-    ########################### HIGHLIGHT #####################################
     # Highlight exact covers
     df_for_ticks = percentage.copy()
     df_for_ticks["states"] = df_for_ticks.index
     highlight_correct_ticks(ax, EXACT_COVERS)
-
-    # Underline the initial states based on initialization type
-    if init_name == "all1":
-        one_one_states = ["".join(elem) for elem in distinct_permutations('0' * (n - 1) + '1')]
-        init_string = "$|1 \\rangle$-initialization"
-        underline_states(ax, one_one_states, fontsize=N+2)
-    elif init_name == "all0":
-        underline_states(ax, "0" * n, fontsize=N+2)
-        init_string = "$|0 \\rangle$-initialization"
-    else:
-        underline_states(ax, states_to_underline, fontsize=N+4)
-        init_string = ""
-
     
     # Set title
     title = build_title(FILENAME, dont_show_in_title)
@@ -657,7 +650,6 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
 
 def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], colorchosen: str, alpha: float,
                        init_name: Optional[str] = None,
-                       states_to_underline: Optional[List[str]] = None, 
                        title: Optional[str] = None,
                        dont_show_in_title: List[str] = [], 
                        dont_show_in_titles: List[str] = [], 
@@ -679,8 +671,6 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
         Transparency level of the bars in the plot.
     init_name : str, optional
         Initialization type (e.g., "all0" or "all1"). If None, no initialization is displayed.
-    states_to_underline : list of str, optional
-        States to be underlined in the plot.
     title : str, optional
         Title of the entire figure. If None, a title will be generated from the parameters.
     dont_show_in_title : list of str, optional
@@ -747,7 +737,7 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
         percentage = percentage[[column_best, "average", "std"]]
         percentage = percentage.sort_values(column_best, ascending=False)
 
-        ############################# LABELS ###################################
+        ################################################################
         # Create a subplot for this particular file.
         fig.add_subplot(num_rows, num_cols, num_subplot + 1)
         ax = sns.barplot(x="states", y=column_best, data=percentage, width=0.7, 
@@ -772,20 +762,11 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
                     markersize=3, color="k", ecolor="k", 
                     elinewidth=0.7, capsize=3.5, barsabove=True, alpha=1)
 
-        ########################### HIGHLIGHT #####################################
+        
         # Highlight exact covers by adjusting ticks.
         df_for_ticks = percentage.copy()
         df_for_ticks["states"] = df_for_ticks.index
         highlight_correct_ticks(ax, EXACT_COVERS)
-
-        # Sottolinea gli stati iniziali (underline initial states based on init_name)
-        if init_name == "all1":
-            one_one_states = ["".join(elem) for elem in distinct_permutations('0' * (n - 1) + '1')]
-            init_string = "$|1 \\rangle$-initialization"
-        elif init_name == "all0":
-            init_string = "$|0 \\rangle$-initialization"
-        else:
-            init_string = ""
 
         # Set title
         subplot_title = build_title(FILENAME, dont_show_in_titles)
@@ -896,22 +877,10 @@ def plot_file_parameter_fixing(datafile: str,
                     f"{max_height:.1f}%", ha='center', va='bottom', fontsize=N
                 )
 
-    ############################### HIGHLIGHT AND UNDERLINE ###############################
+                
+    # Highlight exact covers and mec
     highlight_correct_ticks(ax, EXACT_COVERS)
 
-    # Underline initial states
-    if init_name == "all1":
-        one_one_states = ["".join(elem) for elem in distinct_permutations('0' * (n - 1) + '1')]
-        init_string = "$|1 \\rangle$-initialization"
-        underline_states(ax, one_one_states, fontsize=N+2)
-    elif init_name == "all0":
-        underline_states(ax, "0" * n, fontsize=N+2)
-        init_string = "$|0 \\rangle$-initialization"
-    else:
-        underline_states(ax, list_of_states_to_underline, fontsize=N+4)
-        init_string = ""
-        
-    ##################################################################
 
     # Set title
     if show_title:
@@ -1022,21 +991,9 @@ def plot_list_of_files_parameter_fixing(
                         x_position, max_height,
                         f"{max_height:.1f}%", ha='center', va='bottom', fontsize=N
                     )
-        ############################### EVIDENZIA E SOTTOLINEA ###############################
+        
+        # Highlight exact covers and mec
         highlight_correct_ticks(ax, EXACT_COVERS)
-
-        # Sottolinea gli stati iniziali
-        if init_name == "all1":
-            one_one_states = ["".join(elem) for elem in distinct_permutations('0' * (n - 1) + '1')]
-            init_string = "$|1 \\rangle$-initialization"
-            underline_states(ax, one_one_states, fontsize=N+1)
-        elif init_name == "all0":
-            underline_states(ax, "0" * n, fontsize=N+1)
-            init_string = "$|0 \\rangle$-initialization"
-        else:
-            underline_states(ax, list_of_states_to_underline, fontsize=N+1)
-            init_string = ""
-
 
         # Set title
         subplot_title = build_title(file, dont_show_in_titles)
