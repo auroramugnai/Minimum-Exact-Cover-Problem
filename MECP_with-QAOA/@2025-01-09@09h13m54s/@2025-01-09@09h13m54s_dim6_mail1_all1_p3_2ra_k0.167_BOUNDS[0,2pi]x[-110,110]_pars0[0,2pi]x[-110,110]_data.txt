@@ -1,0 +1,53 @@
+current datetime = @2025-01-09@09h13m54sThe initial state is an equal superposition of: ['100000', '010000', '001000', '000100', '000010', '000001'] 
+max_p = 3
+Random attempts for each layer: 2
+
+---------- 1/2 random attempts ----------
+
+E_min = -0.07043696854450762
+E_min's parameters: betas = [4.735056722357435], gammas = [-110.0]
+
+---------- 2/2 random attempts ----------
+
+E_min = -0.07694531305710745
+E_min's parameters: betas = [4.556851237824969], gammas = [1.9087506859344554e-05]
+
+----- p = 1 layer -----
+Minimum energy found in each attempt: [-0.07043696854450762, -0.07694531305710745]
+E_best = -0.07694531305710745
+E_best's parameters: betas = [4.556851237824969], gammas = [1.9087506859344554e-05]
+Execution time of p=1 layer: 0.1 min
+
+---------- 1/2 random attempts ----------
+
+E_min = -0.07846916446924534
+E_min's parameters: betas = [4.6256511269589655, 0.24921137035530916], gammas = [1.778489887022793e-05, -94.74085910284134]
+
+---------- 2/2 random attempts ----------
+
+E_min = -0.08488790477296367
+E_min's parameters: betas = [5.418427207221782, 5.077555801047961], gammas = [1.431087006582638e-05, 3.543091698114612e-05]
+
+----- p = 2 layer -----
+Minimum energy found in each attempt: [-0.07846916446924534, -0.08488790477296367]
+E_best = -0.08488790477296367
+E_best's parameters: betas = [5.418427207221782, 5.077555801047961], gammas = [1.431087006582638e-05, 3.543091698114612e-05]
+Execution time of p=2 layer: 0.6 min
+
+---------- 1/2 random attempts ----------
+
+E_min = -0.09174888721371884
+E_min's parameters: betas = [5.612813243481273, 6.283185305539501, 4.632949196003133], gammas = [3.259302436093842e-06, 4.8265588872313826e-05, 0.00022334753994382092]
+
+---------- 2/2 random attempts ----------
+
+E_min = -0.08488790477298641
+E_min's parameters: betas = [5.41842660679236, 5.077555330001216, 6.283185307179578], gammas = [1.2880870058130728e-05, 3.1671720911362096e-05, -48.03183385226673]
+
+----- p = 3 layer -----
+Minimum energy found in each attempt: [-0.09174888721371884, -0.08488790477298641]
+E_best = -0.09174888721371884
+E_best's parameters: betas = [5.612813243481273, 6.283185305539501, 4.632949196003133], gammas = [3.259302436093842e-06, 4.8265588872313826e-05, 0.00022334753994382092]
+Execution time of p=3 layer: 2.2 min
+
+TOTAL ELAPSED TIME: 2.871306359767914 minutes.

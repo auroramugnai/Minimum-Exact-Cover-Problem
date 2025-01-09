@@ -378,7 +378,7 @@ def extract_instance_from_filename(filename: str) -> int:
 
 def find_files_containing_string(strings: list, path: str, verbose: bool = False) -> tuple:
     """
-    Finds files that contain specific substrings in their names and sorts them based on an extracted parameter.
+    Finds files that contain specific substrings in their names and sorts them based on instance.
 
     Parameters
     ----------
