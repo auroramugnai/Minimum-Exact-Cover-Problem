@@ -32,14 +32,11 @@ Features:
 6. **User Input Handling:**
    - Dynamically accepts configurable parameters, such as the number of reads, samples, and units.
 """
-
-
 from datetime import datetime
 import json
 import os
 import time
-from typing import List, Union, Dict, Set  # For type annotations
-import sys
+from typing import List, Union, Dict, Set, Optional # For type annotations
 
 import numpy as np
 import pandas as pd
@@ -47,13 +44,9 @@ from termcolor import colored # For coloring a dataframe
 
 from random_EC_classical_solver import build_ham_EC
 from instances import all_instances, all_solutions
-from utils import from_bool_to_numeric_lst
-
-# pylint: disable=bad-whitespace, invalid-name, redefined-outer-name, bad-indentation
 
 
 # ******************************************************************************
-
 # get current date and time
 current_datetime = datetime.now().strftime("%m-%d@%Hh%Mm%Ss")
 
@@ -179,7 +172,6 @@ def from_bool_to_numeric_str(bool_str: str) -> str:
     numeric_list = [i for i, val in enumerate(bool_list) if val == 1]
     return str(numeric_list)
 
-
 # *******************************************************************************
 # *************************** MAIN **********************************************
 # *******************************************************************************
@@ -303,13 +295,16 @@ if __name__ == '__main__':
         # ---------------     Add labels to states     ------------------------
 
         # From the solution list find the MEC
-        solutions_str = [str(s) for s in solutions]
-        MEC = min(solutions_str, key=len, default=None)
+        ec = [str(s) for s in solutions]
+        MEC = min(ec, key=len, default=None)
 
-        df_sum['label'] = df_sum['state'].apply(lambda x: "MEC" if x==MEC
-                                                               else "EC" if x in solutions_str 
-                                                               else "feasible" if is_feasible(x, subsets)
-                                                               else "xxx")
+        df_sum['label'] = df_sum['state'].apply(lambda state, MEC=MEC, ec=ec, subsets=subsets: 
+                                                "MEC" if state == MEC
+                                                 else "EC" if state in ec 
+                                                 else "feasible" if is_feasible(state, subsets)
+                                                 else "xxx")
+
+
 
         # Rearrange columns to move 'label' after 'state'.
         df_sum = df_sum[['state', 'label', 'num_occurrences']]
@@ -320,9 +315,8 @@ if __name__ == '__main__':
         df_print = df_sum.copy()
         
         # Define a function that colors arrays in green if they are a solution.
-        color_solutions = lambda x: (colored(x, None, 'on_green') 
-                                     if x in solutions_str
-                                     else colored(x, 'white', None))
+        color_solutions = lambda state, ec=ec: (colored(state, None, 'on_green') if state in ec
+                                                else colored(state, 'white', None))
 
         df_print['state'] = df_print['state'].map(color_solutions)
 
@@ -341,7 +335,7 @@ if __name__ == '__main__':
         #---------------------- Compute EC and MEC accuracy -------------------------
 
         # Count the total number of exact covers.
-        num_EC = df_sum.loc[df_sum["state"].isin(solutions_str), "num_occurrences"].sum()
+        num_EC = df_sum.loc[df_sum["state"].isin(ec), "num_occurrences"].sum()
 
         # Count the total number of minimum exact covers.
         num_MEC = df_sum.loc[df_sum['state'].apply(lambda string: string == MEC), 'num_occurrences']
