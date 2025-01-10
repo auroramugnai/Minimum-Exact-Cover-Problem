@@ -4,13 +4,13 @@ This repository contains several notebooks and scripts for solving the Minimum-E
 
 ## 📚 Notebooks Overview
 
-1. **QAOA_k**  
+1. `QAOA_k.ipynb` 
    This notebook is dedicated to the **calculation and visualization of "k" ratios** for different dimensions, instances, and L values. It helps analyze the relationship between `k` and the other parameters across multiple instances.
 
-2. **QAOA_random_parameters**  
+2. `QAOA_random_parameters.ipynb` 
    This notebook is focused on **solving the MECP using the "Random Parameters" technique** in the context of QAOA+. The notebook generates output files related to the solution obtained.
 
-3. **QAOA_parameter_fixing**  
+3. `QAOA_parameter_fixing.ipynb` 
    This notebook is focused on **solving the MECP using the "Parameter Fixing" technique** in the context of QAOA+. It generates output files related to the solution obtained.
 
 ## 📁 Output Folders
