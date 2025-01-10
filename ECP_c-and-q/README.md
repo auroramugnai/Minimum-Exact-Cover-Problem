@@ -38,34 +38,32 @@ The `utils.py` file contains several utility functions that are helpful across t
    - Check `utils.py` for utility functions that can help you with various tasks throughout the project.
 
 ---
-## Setting Up D-Wave LEAP Environment 🌐
+## Setting Up D-Wave LEAP API Token 🌐
+Follow these simple steps to automatically set up your D-Wave API token for use in this project:
 
-To use the D-Wave quantum solver, you need to set up the **D-Wave LEAP** environment, which provides access to D-Wave's quantum computers. Here's how to do it:
-
-### Step 1: Create a D-Wave Account
-1. Go to [D-Wave LEAP](https://www.dwavesys.com/take-leap) and sign up for a free account if you don't already have one.
-2. After signing up, you'll be able to access your **API token**, which is required for connecting to the D-Wave system.
-
-### Step 2: Install the D-Wave Ocean SDK
-The D-Wave Ocean SDK provides the necessary tools to work with quantum solvers. Install it using the following command:
-
+### Step 1: Install D-Wave Ocean SDK
+First, install the D-Wave Ocean SDK with the following command:
 ```
 pip install dwave-ocean-sdk
 ```
+### Step 2: Configure Your API Token
+Run this command to automatically configure your API token:
+```
+dwave configure --token <YOUR_API_TOKEN> --url https://cloud.dwavesys.com/sapi
+```
+Replace <YOUR_API_TOKEN> with the API token you received when signing up on D-Wave LEAP.
+This command will save your token and D-Wave system preferences for future use.
 
-### Step 3: Configure Your API Token
-Once you've installed the Ocean SDK, you need to configure your API token. Use the following command to set up the token:
+### Step 3: Verify the Configuration
+To make sure the token was set correctly, run:
 ```
 dwave config
 ```
-Then you will have to use your API Tooken.
+You should see your token and system information displayed.
 
-### Step 4: Verify the Setup
-To verify that the setup is correct, run the following command to check your connection to D-Wave:
+### Step 4: Test the Connection
+Check the connection to D-Wave by running:
 ```
 dwave ping
 ```
-If everything is set up correctly, you should see a success message.
-
-### Step 5: Run EC_DWave.py
-Now that you have D-Wave set up, you can run the EC_DWave.py script to solve the EC problem using D-Wave's quantum computer. 
+If everything is set up correctly, you’ll see a success message.
