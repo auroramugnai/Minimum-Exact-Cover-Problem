@@ -12,8 +12,6 @@ from qiskit.circuit.library import QAOAAnsatz, RXGate, MCMTVChain, PauliEvolutio
 from qiskit.quantum_info import SparsePauliOp, Statevector
 from qiskit.visualization import plot_histogram
 
-# from ipynb.fs.full.utils_to_study_an_instance import *
-# from ipynb.fs.full.utils_for_plotting_and_reading import *
 from utils_to_study_an_instance import *
 from utils_for_plotting_and_reading import *
 
