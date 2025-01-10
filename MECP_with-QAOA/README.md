@@ -2,6 +2,26 @@
 
 This repository contains several notebooks and scripts for solving the Minimum-Exact-Cover-Problem (MECP) using the Quantum Alternating Operator Ansatz (QAOA+) and visualizing the results.
 
+---
+## 🛠️ Accessing `.ipynb` Files with Jupyter Notebook
+
+This repository contains Jupyter Notebook (`.ipynb`) files that you can open and modify using **Jupyter Notebook**. Follow the instructions below to set up your environment and access the files.
+
+If you don't have **Jupyter Notebook** installed, run the following command in your terminal to install it:
+```
+pip install jupyter notebook
+```
+Then, 🚀 launch Jupyter Notebook by running:
+```
+jupyter notebook
+```
+This will open your default browser with the Jupyter Notebook interface. If it doesn't, copy and paste the link provided in the terminal into your browser's address bar.
+
+### 📂 Open the `.ipynb` Files
+In the Jupyter Notebook interface, use the file browser to navigate to the repository directory.  
+Click on a `.ipynb` file to open it and start working.
+
+---
 ## 📚 Notebooks Overview
 
 1. `QAOA_k.ipynb` 
