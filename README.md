@@ -17,18 +17,13 @@ This directory focuses on:
 2. **Solving fixed instances** of the Exact Cover Problem using the D-Wave quantum annealer (q).
 
 ---
-
-## 📚 Accessing `.ipynb` Files with JupyterLab or Jupyter Notebook
-
-This repository contains Jupyter Notebook (`.ipynb`) files that you can open and modify using **JupyterLab** or **Jupyter Notebook**. Follow the instructions below to set up your environment and access the files.
-
-### 🛠️ Prerequisites
+## 🛠️ Prerequisites
 Ensure you have the following tools installed on your system:
 - **Python** (version 3.7 or higher)
 - **pip**
 
-
-### 📥 Clone the Repository
+---
+## 📥 Clone the Repository
 To access the files, you'll need to clone this repository to your computer. Run one of the following commands in your terminal:
 - HTTPS
   ```
@@ -41,9 +36,8 @@ To access the files, you'll need to clone this repository to your computer. Run 
   git clone git@github.com:auroramugnai/Minimum-Exact-Cover-Problem.git
   cd Minimum-Exact-Cover-Problem
   ```
-
+  
 ---
-
 ## 📖 Accessing Function Documentation with `help()`
 Using `help()` is useful when you're working with unfamiliar functions or libraries. To access the documentation of a function `my_function` , simply call:
 ```
