@@ -50,19 +50,19 @@ Navigate to the repository directory:
 cd Minimum-Exact-Cover-Problem
 ```
 
-#### Option 1: Launch JupyterLab
-Start JupyterLab by running:
-```
-jupyter lab
-```
-This will open your default browser with the JupyterLab interface. If it doesn't, copy and paste the link provided in the terminal into your browser's address bar.
-
-#### Option 2: Launch Jupyter Notebook
+#### Option 1: Launch Jupyter Notebook
 Start Jupyter Notebook by running:
 ```
 jupyter notebook
 ```
-This will open your default browser with the Jupyter Notebook interface. Similarly, if it doesn't open automatically, copy and paste the link from the terminal into your browser.
+This will open your default browser with the Jupyter Notebook interface. If it doesn't, copy and paste the link provided in the terminal into your browser's address bar.
+
+#### Option 2: Launch JupyterLab
+Start JupyterLab by running:
+```
+jupyter lab
+```
+This will open your default browser with the JupyterLab interface. Similarly, if it doesn't open automatically, copy and paste the link from the terminal into your browser.
 
 ### 📂 Open the `.ipynb` Files
 In the JupyterLab or Jupyter Notebook interface, use the file browser to navigate to the repository directory.  
