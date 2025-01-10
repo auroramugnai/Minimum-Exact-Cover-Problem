@@ -8,6 +8,7 @@ This repository contains two main directories, **ECP_c-and-q** and **MECP_with-Q
 This directory is dedicated to:
 1. Implementing the **QAOA+ (Quantum Alternating Operator Ansatz)** on Qiskit to solve the Minimum Exact Cover Problem (MECP).
 2. Solving the Minimum Exact Cover Problem on fixed instances using QAOA+.
+
 This directory contains a 📜 **README.md** file that provides an overview of the contents.
 
 ### 📁 **ECP_c-and-q**
