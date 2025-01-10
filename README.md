@@ -13,6 +13,7 @@ This directory is dedicated to:
 This directory focuses on:
 1. **Solving random instances** of the Exact Cover Problem (ECP) and Minimum Exact Cover Problem (MECP) using classical strategies (c).
 2. **Solving fixed instances** of the Exact Cover Problem using the D-Wave quantum annealer (q).
+This directory contains a 📜 **README.md** file that provides an overview of the contents.
 
 
 ---
