@@ -11,13 +11,13 @@ If you don't have **Jupyter Notebook** installed, run the following command in y
 ```
 pip install jupyter notebook
 ```
-Then, 🚀 launch Jupyter Notebook by running:
+Then, launch Jupyter Notebook by running:
 ```
 jupyter notebook
 ```
 This will open your default browser with the Jupyter Notebook interface. If it doesn't, copy and paste the link provided in the terminal into your browser's address bar.
 
-To 📂 ppen the `.ipynb` files in the Jupyter Notebook interface, use the file browser to navigate to the repository directory. Click on a `.ipynb` file to open it and start working.
+To open the `.ipynb` files in the Jupyter Notebook interface, use the file browser to navigate to the repository directory. Click on a `.ipynb` file to open it and start working.
 
 ---
 ## 📚 Notebooks Overview
