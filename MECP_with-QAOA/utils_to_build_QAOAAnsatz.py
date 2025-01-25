@@ -65,7 +65,7 @@ def get_parameters_from_user() -> Dict:
         chosen_instances = range(1, 11)
 
     # Ask for the choice of k
-    chosen_k = input("Choice for 'chosen_k' ('L=max(L_EC)', 'L=n', 'L=L_MEC'), default is 'L=L_MEC': ") or 'L=L_MEC'
+    chosen_k = input("Choice for 'chosen_k' (1, 'L=n', 'L=max(L_EC)', 'L=L_MEC'), default is 'L=L_MEC': ") or 'L=L_MEC'
 
     return {
             'p': p,
