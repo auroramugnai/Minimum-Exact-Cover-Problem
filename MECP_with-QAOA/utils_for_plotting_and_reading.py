@@ -234,13 +234,16 @@ def get_percentage_df(df: pd.DataFrame, cols_to_keep: List[str], sorting_col: st
     percentage['max'] = percentage.max(numeric_only=True, axis=1)
     percentage['min'] = percentage.min(numeric_only=True, axis=1)
 
-    # Calculate the max-min error (max - min)
-    percentage['error'] = percentage['max'] - percentage['min']
-
+    # Create the "error" column with tuples for asymmetric error bars
+    percentage["error"] = list(zip(
+        percentage["average"] - percentage["min"],  # Lower error
+        percentage["max"] - percentage["average"]   # Upper error
+    ))
+    
     # Keep only cols_to_keep, average, and error columns
     percentage = percentage[cols_to_keep + ["average", "error"]]
     percentage = percentage.sort_values(sorting_col, ascending=False)
-    
+   
     return percentage
 
 
@@ -294,7 +297,10 @@ def plot_histogram_of_best_column(df: pd.DataFrame,
     # Overlay error bars for the average values using max-min error
     x_coords = [p.get_x() + 0.5 * p.get_width() for p in ax.patches]  # Get the x positions of bars
     y_coords = percentage["average"]  # Average values for the y-axis
-    ax.errorbar(x=x_coords, y=y_coords, yerr=percentage["error"], linestyle="",
+    
+    # Separate the errors into two lists: lower errors and upper errors.
+    yerr = list(zip(*percentage["error"]))
+    ax.errorbar(x=x_coords, y=y_coords, yerr=yerr, linestyle="",
                 markerfacecolor='none', linewidth=1,
                 marker='o', color='k', ecolor='k', elinewidth=0.7, capsize=3.5, 
                 barsabove=True, alpha=0.5)  # Plot error bars for averages
@@ -634,7 +640,8 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
     # Add error bars for average values
     x_coords = [p.get_x() + 0.5 * p.get_width() for p in ax.patches]
     y_coords = percentage["average"]
-    ax.errorbar(x=x_coords, y=y_coords, yerr=percentage["range"], linestyle="",
+    yerr = list(zip(*percentage["error"]))
+    ax.errorbar(x=x_coords, y=y_coords, yerr=yerr, linestyle="",
                 markerfacecolor='none', linewidth=1, marker='o', color='k', ecolor='k', 
                 elinewidth=0.7, capsize=3.5, barsabove=True, alpha=0.6)
 
@@ -769,7 +776,8 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
         # Add error bars for average values.
         x_coords = [p.get_x() + 0.5 * p.get_width() for p in ax.patches]
         y_coords = percentage["average"]
-        ax.errorbar(x=x_coords, y=y_coords, yerr=percentage["std"], linestyle="",
+        yerr = list(zip(*percentage["error"]))
+        ax.errorbar(x=x_coords, y=y_coords, yerr=yerr, linestyle="",
                     markerfacecolor='none', linewidth=1, marker='o', 
                     markersize=3, color="k", ecolor="k", 
                     elinewidth=0.7, capsize=3.5, barsabove=True, alpha=1)
