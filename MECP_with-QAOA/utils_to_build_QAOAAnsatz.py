@@ -772,8 +772,7 @@ def cost_func(params, ansatz, hamiltonian, estimator):
 #############################################################################################################
 #############################################################################################################
 #############################################################################################################
-
-def find_gamma_bound(n: int, instance: int, k: float, verbose: bool = False) -> int:
+def find_gamma_bound(n: int, instance: int, k: float, verbose: bool = False) -> float:
     """
     Computes the upper bound for the gamma parameter in quantum optimization.
 
@@ -794,61 +793,40 @@ def find_gamma_bound(n: int, instance: int, k: float, verbose: bool = False) -> 
 
     Returns
     -------
-    int
-        The upper bound for gamma, rounded up to the nearest integer.
+    gamma_bound : float
+        The upper bound for gamma, computed as gamma_bound = π / (2a), ensuring
+        gamma ∈ [-gamma_bound, gamma_bound].
 
     Example
     -------
     If `n=10`, `instance=2`, and `k=0.5`, this function will compute the upper bound 
     for gamma based on the defined instance and the scaling factor `k`.
     """
-    # Get the instance and its subsets from the problem definition
+    # Get the instance data 
     U, subsets_dict = define_instance(n, instance, verbose=verbose)
     subsets = list(subsets_dict.values())
 
-    # Scaling factor for l2, which is used in the calculation of the eigenvalue
-    l2 = 1 / (n * len(U) - 2)
+    # Compute l2 factor, avoiding division by zero
+    denom = n * len(U) - 2
+    if denom == 0:
+        raise ValueError("Denominator for l2 computation is zero. Check input values.")
 
-    # Example explanation:
-    # For subsets like [[1, 2], [3], [4, 5, 6], [7, 8, 9, 10]], and a cumulative 
-    # sum of subset lengths, we need to find the eigenvalue with the minimum 
-    # absolute value based on the formula:
-    # |f| = l2 * | Σx_i - k * n * Σw_i * x_i |
+    l2 = 1 / denom
 
-    # Sort subsets in increasing order of length.
-    how_many_elements = lambda x: len(x)
-    subsets_ord = sorted(subsets, key=how_many_elements)
-    
-    # Compute the cumulative sum of subset lengths. This helps in determining 
-    # how much weight each subset contributes to the sum.
-    cumul_subsets_len = [0]
-    for i, s in enumerate(subsets_ord):
-        cumul_subsets_len.append(cumul_subsets_len[-1] + len(s))
-    
-    # Calculate the minimum of f as described in the example.
-    f_min = []
-    for i, cumul in enumerate(cumul_subsets_len):
-        f_min.append(l2 * (i - k * n * cumul))
-    
-    # Although the function might give values lower than -1, this is expected,
-    # as we are dealing with subset lengths and not limited to a range of [-1, 1].
-    
-    # To find the maximum value for gamma, we identify the smallest absolute 
-    # value from f_min (this will correspond to the value at position 1).
-    gamma_max = 2 * np.pi / abs(f_min[1])
-    
-    # Round up to the nearest greater integer for gamma
-    gamma_max = math.ceil(gamma_max)
+    # Find min_w, the weight of the smallest subset
+    min_w = min(len(subset) for subset in subsets)
 
-    # Compute the gamma bound (half of the maximum gamma)
-    gamma_bound = math.ceil(gamma_max / 2)
+    # Compute a, the absolute value of the smallest eigenvalue of H_P
+    a = l2 * (n * min_w - 1)
+    if a == 0:
+        raise ValueError("Computed eigenvalue factor 'a' is zero, leading to division by zero.")
 
-    # If verbose, print the computed gamma bounds for debugging purposes.
+    gamma_max = np.pi / a
+
     if verbose:
-        print(f"Gamma bounds -> [0, {2 * gamma_bound}] or [{-gamma_bound}, {gamma_bound}]")
+        print(f"Gamma bounds -> [0, {gamma_max}] or [{-gamma_max/2}, {gamma_max/2}]")
 
-    return gamma_bound
-
+    return gamma_max / 2
 
 
 #############################################################################################################
@@ -859,7 +837,6 @@ def find_gamma_bound(n: int, instance: int, k: float, verbose: bool = False) -> 
 # Uncomment the code if you wish to execute it.
 
 # In[17]:
-
 
 # n = 6  # Dimension of the problem (number of qubits)
 # instance = 2  # Identifier of the chosen problem instance
