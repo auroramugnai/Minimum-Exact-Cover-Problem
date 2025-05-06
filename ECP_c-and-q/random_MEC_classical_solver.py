@@ -68,7 +68,6 @@ def build_ham_MEC(x: np.ndarray, U: Set[int], subsets: Dict[int, Set[int]]) -> (
     """
 
     B = 1.  # constant parameter of H_B.
-    x = A + B
     A = len(U) * (B + 1)  # constant parameter of H_A. It must be A > u*B
 
     s = len(x)  # number of subsets
