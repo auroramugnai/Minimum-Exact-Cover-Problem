@@ -128,7 +128,7 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
                                 states_to_underline: List[str], 
                                 title: str = '',
                                 fontsize: int = 13,
-                                figsize: Tuple[int, int] = (7, 3)) -> Axes:
+                                figsize: Tuple[int, int] = (7,3)) -> Axes:
     """
     Plots a histogram of a specified column from a dataframe, highlighting exact covers and underlining specific states.
 
@@ -174,7 +174,7 @@ def plot_histogram_of_df_column(df: pd.DataFrame,
     
     ##### PLOT FIGURE
     
-    plt.figure(figsize=figsize)
+    plt.figure(figsize=figsize, dpi=300)
     ax = sns.barplot(x="states", y=column_to_plot, data=percentage, 
                      width=0.7, color='steelblue', alpha=0.5)
     
@@ -1056,3 +1056,55 @@ def plot_list_of_files_parameter_fixing(
 #     plt.savefig(f"parameters_fixing_{init_name}.pdf", bbox_inches='tight', pad_inches=0.1)
     
     plt.show()
+    
+    
+    
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+    
+def plot_each_attempt_from_folder(folder_path, wanted_instances=None, 
+                                  figsize: Tuple[int, int] = (18, 8), 
+                                  dpi: int = 300, N: int = 10):
+    """
+    Plot histograms for each attempt stored in CSV files within a folder.
+
+    Folder structure: one CSV file per instance, each containing multiple attempts (ra).
+
+    This function reads CSV files from the specified folder, extracts instance parameters from 
+    filenames, reconstructs the corresponding problem instance, computes the exact covers, 
+    and plots a histogram for each attempt recorded in the file.
+
+    Parameters
+    ----------
+    folder_path : str
+        Path to the folder containing CSV files.
+
+    wanted_instances : list of str, optional
+        List of instance names to include. If None, all instances found in the folder are processed.
+    """
+    for filename in os.listdir(folder_path):
+        if filename.endswith('.csv'):
+            # Extract parameters from filename
+            n, instance, init_name, p, ra, k = define_parameters_from_filename(filename, verbose=False)
+
+            if wanted_instances is None or instance in wanted_instances:
+                
+                file_path = os.path.join(folder_path, filename)
+                df = pd.read_csv(file_path, dtype=str)
+
+                # Reconstruct the instance and compute exact covers
+                U, subsets_dict = define_instance(n, instance, verbose=False)
+                subsets = list(subsets_dict.values())
+                _, _, _, _, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k)
+                MEC = [state for state in EXACT_COVERS if state.count("1") == min(x.count("1") for x in EXACT_COVERS)]
+
+                # Plot histogram for each attempt
+                print(f"### INSTANCE {instance} ###")
+                for attempt in range(1, ra):
+                    print(f"Attempt {attempt}/{ra}")
+                    plot_histogram_of_df_column(df=df,
+                                                column_to_plot=f'counts_p{p}_{attempt}of{ra}',
+                                                EXACT_COVERS=EXACT_COVERS,
+                                                states_to_underline=init_name)
+                    plt.show()
