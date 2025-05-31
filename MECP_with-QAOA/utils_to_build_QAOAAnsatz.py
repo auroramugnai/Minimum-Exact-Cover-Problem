@@ -65,8 +65,22 @@ def get_parameters_from_user() -> Dict:
         chosen_instances = range(1, 11)
 
     # Ask for the choice of k
-    chosen_k = input("Choice for 'chosen_k' (1, 'L=n', 'L=max(L_EC)', 'L=L_MEC'), default is 'L=L_MEC': ") or 'L=L_MEC'
-
+    if len(chosen_instances) == 1:
+        instance = chosen_instances[0]
+        chosen_k = input("Choice for L, to compute k ('L=n', 'L=max(L_EC)', 'L=L_MEC'), default is 'customize L') ") or 'customize L'
+    else:
+        chosen_k = input("Choice for L, to compute k ('L=n', 'L=max(L_EC)', 'L=L_MEC'), default is 'L=L_MEC') ") or 'L=L_MEC'
+       
+    if chosen_k == 'customize L':
+        wanted_L = int(input("Define the L you want to use to compute k:"))
+        chosen_k = k_from_L(n, instance, wanted_L)
+    else:
+        # This is computed in QAOA_k.ipynb
+        k_dict = {'L=L_MEC': [0.167,0.167,0.167,0.112,0.167,0.167,0.25,0.167,0.084,0.084],
+                  'L=max(L_EC)': [0.167,0.167,0.25,0.167,0.334,0.25,0.25,0.167,0.084,0.084],
+                  'L=n': [0.334, 0.5, 0.5, 0.334, 0.5, 0.5, 0.5, 0.334, 0.25, 0.25]}
+        chosen_k = k_dict[chosen_k][instance-1]
+            
     return {
             'p': p,
             'random_attempts': random_attempts,
@@ -74,7 +88,7 @@ def get_parameters_from_user() -> Dict:
             'n': n,
             'chosen_instances': chosen_instances,
             'chosen_k': chosen_k
-        }
+            }
 
 def get_circuit_parameters(subsets: List[Set[int]], verbose: bool = False) -> Tuple[List[List[int]], int, int, int]:
     """

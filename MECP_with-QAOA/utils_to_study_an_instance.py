@@ -696,3 +696,40 @@ def find_spectrum(U, subsets_dict, n, k):
             EXACT_COVERS.append(state)
     return states, energies, states_feasible, energies_feasible, EXACT_COVERS
 
+
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+def k_from_L(n, instance, wanted_L):
+    """
+    Compute the parameter
+        k = wanted_L / (min_length * n)
+    where `min_length` is the size of the smallest subset in the instance.
+
+    Parameters
+    ----------
+    n : int
+        The size of the problem.
+    instance : int
+        The identifier of the instance.
+    wanted_L : float or int
+        The target value of L to use for computing k.
+
+    Returns
+    -------
+    k : float
+        The computed k value.
+    """
+    # Generate the instance and its subsets
+    U, subsets_dict = define_instance(n, instance, verbose=False)
+
+    # Compute the lengths of all subsets
+    lengths = [len(s) for s in list(subsets_dict.values())]
+
+    k = (wanted_L / min(lengths)) / n
+    
+    return k
+
