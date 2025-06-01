@@ -313,7 +313,7 @@ def plot_histogram_of_best_column(df: pd.DataFrame,
 #############################################################################################################
 #############################################################################################################
 
-def define_parameters_from_filename(filename: str, verbose: bool) -> tuple:
+def define_parameters_from_filename(filename: str, verbose: bool = False) -> tuple:
     """
     Extracts parameters from a filename string.
 
@@ -1108,3 +1108,8 @@ def plot_each_attempt_from_folder(folder_path, wanted_instances=None,
                                                 EXACT_COVERS=EXACT_COVERS,
                                                 states_to_underline=init_name)
                     plt.show()
+
+    
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
