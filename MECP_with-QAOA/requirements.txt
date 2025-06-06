@@ -1,1 +1,7 @@
-
+numpy
+matplotlib
+qiskit
+qiskit-aer
+pandas
+more-itertools
+seaborn
