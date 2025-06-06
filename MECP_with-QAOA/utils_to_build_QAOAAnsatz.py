@@ -15,7 +15,7 @@ from qiskit.visualization import plot_histogram
 from utils_to_study_an_instance import *
 from utils_for_plotting_and_reading import *
 
-def get_parameters_from_user() -> Dict:
+def get_parameters_from_user(info) -> Dict:
     """
     Prompts the user to input various parameters for the computation.
 
@@ -25,12 +25,16 @@ def get_parameters_from_user() -> Dict:
     - Initialization string (init_string)
     - Size n
     - List of chosen instances
-    - Choice for 'chosen_k'
+    - Choice for a list of Ls to compute 'chosen_ks'
 
     The function ensures that if no input is provided, default values are used.
     The list of chosen instances can be input as a comma-separated string, 
     either with square brackets or without.
-
+    
+    Parameters
+    ----------
+    info 
+        A dictionary containing all the info about the instances.
     Returns
     -------
     dict
@@ -40,54 +44,39 @@ def get_parameters_from_user() -> Dict:
         - 'init_string' : str (initialization string)
         - 'n' : int (size)
         - 'chosen_instances' : List[int] (list of chosen instances)
-        - 'chosen_k' : str (choice for 'chosen_k')
+        - 'chosen_ks' : list of floats (list of chosen ks)
     """
     # Ask the user to input the parameters
-    p = int(input("Number of layers (p), default is 3: ") or 3)
-    random_attempts = int(input("Number of random attempts, default is 20: ") or 20)
-    init_string = input("String initialization (all1 or all0), default is 'all1': ") or "all1"
+    p = int(input("Number of layers (p), default is 4: ") or 4)
+    random_attempts = int(input("Number of random attempts, default is 50: ") or 20)
+    init_string = input("String initialization (all1 or all0), default is all0: ") or "all0"
     n = int(input("Size n (6, 8, 10), default is 6: ") or 6)
 
     # Ask for a list of numbers for the chosen instances
-    chosen_instances = input("Number or list of numbers from 1 to 10 for chosen instances, default is [1, ..., 10]: ").strip()
+    chosen_instances = input("Chosen instances, default is [1, ..., 10] (Give a list please!): ").strip() 
     if chosen_instances:
-        # Check if input is in the format "[2,3]" or "2,3"
-        if '[' in chosen_instances and ']' in chosen_instances:
-            # Parse input with square brackets
-            chosen_instances = chosen_instances.strip("[]").split(',')
-        else:
-            # Parse input without square brackets
-            chosen_instances = chosen_instances.split(',')
+        # Parse input with square brackets
+        chosen_instances = chosen_instances.strip("[]").split(',')
             
         # Convert to integers
         chosen_instances = [int(x.strip()) for x in chosen_instances]
     else:
         chosen_instances = range(1, 11)
 
-    # Ask for the choice of k
-    if len(chosen_instances) == 1:
-        instance = chosen_instances[0]
-        chosen_k = input("Choice for L, to compute k ('L=n', 'L=max(L_EC)', 'L=L_MEC'), default is 'customize L') ") or 'customize L'
-    else:
-        chosen_k = input("Choice for L, to compute k ('L=n', 'L=max(L_EC)', 'L=L_MEC'), default is 'L=L_MEC') ") or 'L=L_MEC'
-       
-    if chosen_k == 'customize L':
-        wanted_L = int(input("Define the L you want to use to compute k:"))
-        chosen_k = k_from_L(n, instance, wanted_L)
-    else:
-        # This is computed in QAOA_k.ipynb
-        k_dict = {'L=L_MEC': [0.167,0.167,0.167,0.112,0.167,0.167,0.25,0.167,0.084,0.084],
-                  'L=max(L_EC)': [0.167,0.167,0.25,0.167,0.334,0.25,0.25,0.167,0.084,0.084],
-                  'L=n': [0.334, 0.5, 0.5, 0.334, 0.5, 0.5, 0.5, 0.334, 0.25, 0.25]}
-        chosen_k = k_dict[chosen_k][instance-1]
-            
+    # Ask for the choice of L to compute k
+    wanted_Ls = input("Choice for L, to compute k as L/(min_length * n). Give a list specifying L for every instance chosen please.")
+    # Parse input with square brackets and convert to integers
+    wanted_Ls = [int(x.strip()) for x in wanted_Ls.strip("[]").split(',')]
+    chosen_ks = [k_from_L(n, instance, L, info) for (L,instance) in zip(wanted_Ls, chosen_instances)]
+    
+
     return {
             'p': p,
             'random_attempts': random_attempts,
             'init_string': init_string,
             'n': n,
             'chosen_instances': chosen_instances,
-            'chosen_k': chosen_k
+            'chosen_ks': chosen_ks
             }
 
 def get_circuit_parameters(subsets: List[Set[int]], verbose: bool = False) -> Tuple[List[List[int]], int, int, int]:
