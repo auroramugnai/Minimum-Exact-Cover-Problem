@@ -48,7 +48,7 @@ def get_parameters_from_user(info) -> Dict:
     """
     # Ask the user to input the parameters
     p = int(input("Number of layers (p), default is 4: ") or 4)
-    random_attempts = int(input("Number of random attempts, default is 50: ") or 20)
+    random_attempts = int(input("Number of random attempts, default is 50: ") or 50)
     init_string = input("String initialization (all1 or all0), default is all0: ") or "all0"
     n = int(input("Size n (6, 8, 10), default is 6: ") or 6)
 
@@ -131,7 +131,7 @@ def get_circuit_parameters(subsets: List[Set[int]], verbose: bool = False) -> Tu
 #############################################################################################################
 #############################################################################################################
 
-def build_cost_circuit(n: int, instance: int, k: float, verbose: bool = False) -> Tuple[float, SparsePauliOp, QuantumCircuit]:
+def build_cost_circuit(n: int, instance: int, k: float, info: dict, verbose: bool = False) -> Tuple[float, SparsePauliOp, QuantumCircuit]:
     """
     Build the cost Hamiltonian and its corresponding quantum circuit for the given problem instance.
 
@@ -146,6 +146,8 @@ def build_cost_circuit(n: int, instance: int, k: float, verbose: bool = False) -
         The index or identifier of the specific instance being solved.
     k : float
         A parameter that defines the relationship between two components of the Hamiltonian.
+    info: dict
+        A dictionary containing all the instances information.
     verbose : bool, optional, default=False
         If True, prints additional details about the construction of the circuit.
 
@@ -159,7 +161,7 @@ def build_cost_circuit(n: int, instance: int, k: float, verbose: bool = False) -
         The quantum circuit that implements the Hamiltonian evolution, parametrized by gamma.
     """
     # Define the instance and its subsets based on the problem configuration.
-    U, subsets_dict = define_instance(n, instance, verbose=verbose)
+    U, subsets_dict = define_instance(n, instance, info, verbose=verbose)
     subsets = list(subsets_dict.values())
     
     # Get quantum circuit parameters (e.g., number of qubits).
@@ -207,7 +209,7 @@ def build_cost_circuit(n: int, instance: int, k: float, verbose: bool = False) -
 #############################################################################################################
 #############################################################################################################
 
-def build_mixing_circuit(n: int, instance: int, verbose: bool = False) -> QuantumCircuit:
+def build_mixing_circuit(n: int, instance: int, info: dict, verbose: bool = False) -> QuantumCircuit:
     """
     Build the mixing Hamiltonian quantum circuit for the given problem instance.
 
@@ -221,6 +223,8 @@ def build_mixing_circuit(n: int, instance: int, verbose: bool = False) -> Quantu
         The size of the problem instance, corresponding to the number of qubits used.
     instance : int
         The index or identifier of the specific instance being solved.
+    info: dict
+        A dictionary containing all the instances information.
     verbose : bool, optional, default=False
         If True, prints additional information during the circuit construction.
 
@@ -230,7 +234,7 @@ def build_mixing_circuit(n: int, instance: int, verbose: bool = False) -> Quantu
         A quantum circuit implementing the mixing Hamiltonian evolution, parametrized by beta.
     """
     # Define the problem instance and extract subsets.
-    U, subsets_dict = define_instance(n, instance, verbose=verbose)
+    U, subsets_dict = define_instance(n, instance, info, verbose=verbose)
     subsets = list(subsets_dict.values())
     
     # Extract circuit parameters: intersections, ancillas, and circuit dimensions.
@@ -597,6 +601,7 @@ def build_initialization_circuit(
     n: int,
     instance: int,
     init_name: Union[str, List[str]],
+    info : dict,
     verbose: bool = False
 ) -> QuantumCircuit:
     """
@@ -616,6 +621,8 @@ def build_initialization_circuit(
         - "all1": Initializes all qubits to the |1⟩ state.
         - List of binary strings: Each string represents a desired state for the qubits 
         in superposition.
+    info: dict
+        A dictionary containing all the instances information.
     verbose : bool, optional
         If True, enables verbose output for debugging purposes. Default is False.
 
@@ -631,7 +638,7 @@ def build_initialization_circuit(
     """
 
     # Define instance-related parameters (e.g., problem-specific subsets)
-    _, subsets_dict = define_instance(n, instance, verbose=verbose)
+    _, subsets_dict = define_instance(n, instance, info, verbose=verbose)
     subsets = list(subsets_dict.values())
     _, _, NUM_ANC, QC_DIM = get_circuit_parameters(subsets, verbose=verbose)
 
@@ -775,7 +782,7 @@ def cost_func(params, ansatz, hamiltonian, estimator):
 #############################################################################################################
 #############################################################################################################
 #############################################################################################################
-def find_gamma_bound(n: int, instance: int, k: float, verbose: bool = False) -> float:
+def find_gamma_bound(n: int, instance: int, k: float, info: dict, verbose: bool = False) -> float:
     """
     Computes the upper bound for the gamma parameter in quantum optimization.
 
@@ -791,6 +798,8 @@ def find_gamma_bound(n: int, instance: int, k: float, verbose: bool = False) -> 
         The identifier for the specific problem instance.
     k : float
         The scaling factor that influences the optimization.
+    info: dict
+        A dictionary containing all the instances information.
     verbose : bool, optional
         If True, enables debug outputs to track the process. Default is False.
 
@@ -806,7 +815,7 @@ def find_gamma_bound(n: int, instance: int, k: float, verbose: bool = False) -> 
     for gamma based on the defined instance and the scaling factor `k`.
     """
     # Get the instance data 
-    U, subsets_dict = define_instance(n, instance, verbose=verbose)
+    U, subsets_dict = define_instance(n, instance, info, verbose=verbose)
     subsets = list(subsets_dict.values())
 
     # Compute l2 factor, avoiding division by zero
