@@ -14,8 +14,10 @@ from qiskit.visualization import plot_histogram
 
 from utils_to_study_an_instance import *
 from utils_for_plotting_and_reading import *
+from random_instances import info_dim6 as info
+# from Wang_instances import info_dim6 as info
 
-def get_parameters_from_user(info) -> Dict:
+def get_parameters_from_user() -> Dict:
     """
     Prompts the user to input various parameters for the computation.
 
@@ -31,10 +33,6 @@ def get_parameters_from_user(info) -> Dict:
     The list of chosen instances can be input as a comma-separated string, 
     either with square brackets or without.
     
-    Parameters
-    ----------
-    info 
-        A dictionary containing all the info about the instances.
     Returns
     -------
     dict
@@ -67,7 +65,7 @@ def get_parameters_from_user(info) -> Dict:
     wanted_Ls = input("Choice for L, to compute k as L/(min_length * n). Give a list specifying L for every instance chosen please.")
     # Parse input with square brackets and convert to integers
     wanted_Ls = [int(x.strip()) for x in wanted_Ls.strip("[]").split(',')]
-    chosen_ks = [k_from_L(n, instance, L, info) for (L,instance) in zip(wanted_Ls, chosen_instances)]
+    chosen_ks = [k_from_L(n, instance, L) for (L,instance) in zip(wanted_Ls, chosen_instances)]
     
 
     return {
@@ -131,7 +129,7 @@ def get_circuit_parameters(subsets: List[Set[int]], verbose: bool = False) -> Tu
 #############################################################################################################
 #############################################################################################################
 
-def build_cost_circuit(n: int, instance: int, k: float, info: dict, verbose: bool = False) -> Tuple[float, SparsePauliOp, QuantumCircuit]:
+def build_cost_circuit(n: int, instance: int, k: float, verbose: bool = False) -> Tuple[float, SparsePauliOp, QuantumCircuit]:
     """
     Build the cost Hamiltonian and its corresponding quantum circuit for the given problem instance.
 
@@ -146,8 +144,6 @@ def build_cost_circuit(n: int, instance: int, k: float, info: dict, verbose: boo
         The index or identifier of the specific instance being solved.
     k : float
         A parameter that defines the relationship between two components of the Hamiltonian.
-    info: dict
-        A dictionary containing all the instances information.
     verbose : bool, optional, default=False
         If True, prints additional details about the construction of the circuit.
 
@@ -161,7 +157,7 @@ def build_cost_circuit(n: int, instance: int, k: float, info: dict, verbose: boo
         The quantum circuit that implements the Hamiltonian evolution, parametrized by gamma.
     """
     # Define the instance and its subsets based on the problem configuration.
-    U, subsets_dict = define_instance(n, instance, info, verbose=verbose)
+    U, subsets_dict = define_instance(n, instance, verbose=verbose)
     subsets = list(subsets_dict.values())
     
     # Get quantum circuit parameters (e.g., number of qubits).
@@ -209,7 +205,7 @@ def build_cost_circuit(n: int, instance: int, k: float, info: dict, verbose: boo
 #############################################################################################################
 #############################################################################################################
 
-def build_mixing_circuit(n: int, instance: int, info: dict, verbose: bool = False) -> QuantumCircuit:
+def build_mixing_circuit(n: int, instance: int, verbose: bool = False) -> QuantumCircuit:
     """
     Build the mixing Hamiltonian quantum circuit for the given problem instance.
 
@@ -223,8 +219,6 @@ def build_mixing_circuit(n: int, instance: int, info: dict, verbose: bool = Fals
         The size of the problem instance, corresponding to the number of qubits used.
     instance : int
         The index or identifier of the specific instance being solved.
-    info: dict
-        A dictionary containing all the instances information.
     verbose : bool, optional, default=False
         If True, prints additional information during the circuit construction.
 
@@ -234,7 +228,7 @@ def build_mixing_circuit(n: int, instance: int, info: dict, verbose: bool = Fals
         A quantum circuit implementing the mixing Hamiltonian evolution, parametrized by beta.
     """
     # Define the problem instance and extract subsets.
-    U, subsets_dict = define_instance(n, instance, info, verbose=verbose)
+    U, subsets_dict = define_instance(n, instance, verbose=verbose)
     subsets = list(subsets_dict.values())
     
     # Extract circuit parameters: intersections, ancillas, and circuit dimensions.
@@ -601,7 +595,6 @@ def build_initialization_circuit(
     n: int,
     instance: int,
     init_name: Union[str, List[str]],
-    info : dict,
     verbose: bool = False
 ) -> QuantumCircuit:
     """
@@ -621,8 +614,6 @@ def build_initialization_circuit(
         - "all1": Initializes all qubits to the |1⟩ state.
         - List of binary strings: Each string represents a desired state for the qubits 
         in superposition.
-    info: dict
-        A dictionary containing all the instances information.
     verbose : bool, optional
         If True, enables verbose output for debugging purposes. Default is False.
 
@@ -638,7 +629,7 @@ def build_initialization_circuit(
     """
 
     # Define instance-related parameters (e.g., problem-specific subsets)
-    _, subsets_dict = define_instance(n, instance, info, verbose=verbose)
+    _, subsets_dict = define_instance(n, instance, verbose=verbose)
     subsets = list(subsets_dict.values())
     _, _, NUM_ANC, QC_DIM = get_circuit_parameters(subsets, verbose=verbose)
 
@@ -782,7 +773,7 @@ def cost_func(params, ansatz, hamiltonian, estimator):
 #############################################################################################################
 #############################################################################################################
 #############################################################################################################
-def find_gamma_bound(n: int, instance: int, k: float, info: dict, verbose: bool = False) -> float:
+def find_gamma_bound(n: int, instance: int, k: float, verbose: bool = False) -> float:
     """
     Computes the upper bound for the gamma parameter in quantum optimization.
 
@@ -798,8 +789,6 @@ def find_gamma_bound(n: int, instance: int, k: float, info: dict, verbose: bool 
         The identifier for the specific problem instance.
     k : float
         The scaling factor that influences the optimization.
-    info: dict
-        A dictionary containing all the instances information.
     verbose : bool, optional
         If True, enables debug outputs to track the process. Default is False.
 
@@ -815,7 +804,7 @@ def find_gamma_bound(n: int, instance: int, k: float, info: dict, verbose: bool 
     for gamma based on the defined instance and the scaling factor `k`.
     """
     # Get the instance data 
-    U, subsets_dict = define_instance(n, instance, info, verbose=verbose)
+    U, subsets_dict = define_instance(n, instance, verbose=verbose)
     subsets = list(subsets_dict.values())
 
     # Compute l2 factor, avoiding division by zero

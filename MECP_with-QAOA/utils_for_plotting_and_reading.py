@@ -13,6 +13,8 @@ from more_itertools import distinct_permutations
 import seaborn as sns
 
 from utils_to_study_an_instance import define_instance, find_spectrum
+from random_instances import info_dim6 as info
+# from Wang_instances import info_dim6 as info
 
 def highlight_correct_ticks(ax: Axes, EXACT_COVERS: List[str]) -> None:
     """
@@ -544,7 +546,7 @@ def build_title(filename: str,
 #############################################################################################################
 #############################################################################################################
 
-def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float, info: dict,
+def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
               show_title: Optional[bool] = True,
               dont_show_in_title: List[str] = [], 
               figsize: Tuple[int, int] = (18, 8), 
@@ -563,8 +565,6 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
         Color for the bars in the plot.
     alpha : float
         Transparency level for the bars.
-    info: dict
-        A dictionary containing all instances information.
     show_title : bool, optional
         If True, a title is shown with file parameters. Default is True.
     dont_show_in_title : list of str, optional
@@ -595,7 +595,7 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
                                                                                     verbose=False)
 
     # Define the problem instance using the extracted parameters
-    U, subsets_dict = define_instance(n, instance, info, verbose=False)
+    U, subsets_dict = define_instance(n, instance, verbose=False)
 
     # Analyze spectrum to extract relevant state information
     states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k=1)
@@ -622,7 +622,8 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
                                    sorting_col=column_best)
     ################################################################
     # Create subplot for bar chart
-    ax = sns.barplot(x="states", y=column_best, data=percentage, width=0.7, color=colorchosen, alpha=alpha)
+    ax = sns.barplot(x="states", y=column_best, data=percentage, 
+                     width=0.7, color=colorchosen, alpha=alpha)
     
     # Add edge color to the bars for better visibility
     for bar in ax.patches:
@@ -675,9 +676,7 @@ def plot_file(FILENAME: str, DATA_FILENAME: str, colorchosen: str, alpha: float,
 #############################################################################################################
 #############################################################################################################
 
-def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], colorchosen: str, alpha: float,
-                       info: dict,
-                       init_name: Optional[str] = None,
+def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], colorchosen: str, alpha: float, init_name: Optional[str] = None,
                        title: Optional[str] = None,
                        dont_show_in_title: List[str] = [], 
                        dont_show_in_titles: List[str] = [], 
@@ -696,9 +695,7 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
     colorchosen : str
         Color to be used for the bars in the plot.
     alpha : float
-        Transparency level of the bars in the plot.
-    info: dict
-        A dictionary containing all instances information.
+        Transparency level of the bars in the plot.    
     init_name : str, optional
         Initialization type (e.g., "all0" or "all1"). If None, no initialization is displayed.
     title : str, optional
@@ -735,7 +732,7 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
         n, instance, init_name, p, random_attempts, k = define_parameters_from_filename(DATA_FILENAME, verbose=False)
             
         # Define the problem instance based on extracted parameters.
-        U, subsets_dict = define_instance(n, instance, info, verbose=False)
+        U, subsets_dict = define_instance(n, instance, verbose=False)
 
         # Analyze spectrum to extract relevant state information.
         states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k=1)
@@ -833,7 +830,6 @@ def plot_list_of_files(FILENAME_list: List[str], DATA_FILENAME_list: List[str], 
 
 def plot_file_parameter_fixing(datafile: str,
                                file: str,
-                               info: dict,
                                show_title: Optional[bool] = True,
                                figsize: Tuple[int, int] = (16, 10),
                                N: int = 10,
@@ -849,7 +845,6 @@ def plot_file_parameter_fixing(datafile: str,
     Parameters:
         datafile (str): The main data file that contains parameter information.
         file (str): The associated CSV file containing data to plot.
-        info (dict): A dictionary containing all instances information.
         show_title (Optional[bool], optional): If True, a title with parameters is shown. Default is True.
         figsize (Tuple[int, int], optional): Figure size for the plot (default is (16, 10)).
         N (int, optional): Font size for the plot labels (default is 10).
@@ -867,7 +862,7 @@ def plot_file_parameter_fixing(datafile: str,
     n, instance, init_name, maxp, random_attempts, k = define_parameters_from_filename(datafile, verbose=False)
     plot_title = f"n={n}, i={instance}, init={init_name}, maxp={maxp}, ra={random_attempts}, k={k}"
 
-    U, subsets_dict = define_instance(n, instance, info, verbose=False)
+    U, subsets_dict = define_instance(n, instance,  verbose=False)
     states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k)
     
     # Load data from CSV file
@@ -930,7 +925,6 @@ def plot_file_parameter_fixing(datafile: str,
 def plot_list_of_files_parameter_fixing(
     datafiles: List[str],
     associated_files: List[List[str]],
-    info: dict,
     dont_show_in_title: List[str] = [],
     dont_show_in_titles: List[str] = [],
     figsize: Tuple[int, int] = (16, 10),
@@ -948,7 +942,6 @@ def plot_list_of_files_parameter_fixing(
     Parameters:
         datafiles (List[str]): A list of data file names to be plotted.
         associated_files (List[List[str]]): A list of lists, where each list contains associated files for the corresponding datafile.
-        info (dict):A dictionary containing all instances information.
         dont_show_in_title (List[str], optional): Parameters to exclude from the title of the subplot. Defaults to [].
         dont_show_in_titles (List[str], optional): Parameters to exclude from the overall figure title. Defaults to [].
         figsize (Tuple[int, int], optional): Size of the figure (default is (16, 10)).
@@ -981,7 +974,7 @@ def plot_list_of_files_parameter_fixing(
         n, instance, init_name, maxp, random_attempts, k = define_parameters_from_filename(datafile, verbose=False)
         plot_title = f"n={n}, i={instance}, init={init_name}, maxp={maxp}, ra={random_attempts}, k={k}"
 
-        U, subsets_dict = define_instance(n, instance, info, verbose=False)
+        U, subsets_dict = define_instance(n, instance, verbose=False)
         states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k)
         
         ##################################################################################
@@ -1072,7 +1065,7 @@ def plot_list_of_files_parameter_fixing(
 #############################################################################################################
 #############################################################################################################
     
-def plot_each_attempt_from_folder(folder_path, info, wanted_instances=None, 
+def plot_each_attempt_from_folder(folder_path,  wanted_instances=None, 
                                   figsize: Tuple[int, int] = (18, 8), 
                                   dpi: int = 300, N: int = 10):
     """
@@ -1088,9 +1081,6 @@ def plot_each_attempt_from_folder(folder_path, info, wanted_instances=None,
     ----------
     folder_path : str
         Path to the folder containing CSV files.
-    info: dict
-        A dictionary containing all instances information.
-
     wanted_instances : list of str, optional
         List of instance names to include. If None, all instances found in the folder are processed.
     """
@@ -1105,7 +1095,7 @@ def plot_each_attempt_from_folder(folder_path, info, wanted_instances=None,
                 df = pd.read_csv(file_path, dtype=str)
 
                 # Reconstruct the instance and compute exact covers
-                U, subsets_dict = define_instance(n, instance, info, verbose=False)
+                U, subsets_dict = define_instance(n, instance, verbose=False)
                 subsets = list(subsets_dict.values())
                 _, _, _, _, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k)
                 MEC = [state for state in EXACT_COVERS if state.count("1") == min(x.count("1") for x in EXACT_COVERS)]

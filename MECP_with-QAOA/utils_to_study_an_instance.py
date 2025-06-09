@@ -4,6 +4,9 @@ import itertools
 import matplotlib.pyplot as plt 
 import rustworkx as rx
 
+from random_instances import info_dim6 as info
+# from Wang_instances import info_dim6 as info
+
 # import networkx as nx  
 
 # from utils_for_plotting_and_reading import highlight_correct_ticks
@@ -53,7 +56,7 @@ import rustworkx as rx
 #############################################################################################################
 #############################################################################################################
 
-def define_instance(n, instance, info, verbose):
+def define_instance(n, instance, verbose):
     """
     Define an instance with a given dimension and number, returning the associated universe set
     and subsets dictionary. Optionally, print additional information if verbose is True.
@@ -210,7 +213,7 @@ def define_instance(n, instance, info, verbose):
 #         raise ValueError(f"Instance {instance} is not defined for dimension {n}.")
     
     subsets = info[instance]['subsets']
-    U = set().union(*subsets)
+    U = info['U']
     subsets_dict = {i + 1: subset for i, subset in enumerate(subsets)}
 
     if verbose:
@@ -541,7 +544,7 @@ def compute_energy_Wang(state, U, subsets_dict, k=1):
 #############################################################################################################
 #############################################################################################################
 #############################################################################################################
-def show_spectrum(n, instance, k, info, fontsize=13, verbose=False):
+def show_spectrum(n, instance, k, fontsize=13, verbose=False):
     """
     Shows the spectrum of an instance for a given value of k, including the energy of all states 
     and the energy of feasible states. Highlights the exact covers and minimal exact covers (MEC).
@@ -564,7 +567,7 @@ def show_spectrum(n, instance, k, info, fontsize=13, verbose=False):
     """
     
     # Define the universe and subsets based on the given instance
-    U, subsets_dict = define_instance(n, instance, info, verbose=verbose)
+    U, subsets_dict = define_instance(n, instance, verbose=verbose)
 
     # Find the spectrum, including all states, energies, feasible states, and exact covers
     states, energies, states_feasible, energies_feasible, EXACT_COVERS = find_spectrum(U, subsets_dict, n, k)
@@ -705,7 +708,7 @@ def find_spectrum(U, subsets_dict, n, k):
 #############################################################################################################
 #############################################################################################################
 
-def k_from_L(n, instance, wanted_L, info):
+def k_from_L(n, instance, wanted_L):
     """
     Compute the parameter
         k = wanted_L / (min_length * n)
@@ -726,7 +729,7 @@ def k_from_L(n, instance, wanted_L, info):
         The computed k value.
     """
     # Generate the instance and its subsets
-    U, subsets_dict = define_instance(n, instance, info, verbose=False)
+    U, subsets_dict = define_instance(n, instance, verbose=False)
 
     # Compute the lengths of all subsets
     lengths = [len(s) for s in list(subsets_dict.values())]
