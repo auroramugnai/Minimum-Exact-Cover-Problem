@@ -231,6 +231,7 @@ def define_instance(n, instance, verbose):
 #############################################################################################################
 
 def build_instance_graph(subsets, verbose=False, draw_graph=False):
+    
     """
     Builds a graph representation of the instance, where each subset is a node, and edges represent 
     non-zero intersections between subsets. Optionally, it can draw the graph and print additional details.
@@ -267,6 +268,7 @@ def build_instance_graph(subsets, verbose=False, draw_graph=False):
     
     # Draw the graph if requested
     if draw_graph:
+        from rustworkx.visualization import mpl_draw
         mpl_draw(
             G, pos=rx.circular_layout(G), with_labels=True, node_color="#EE5396", font_color="#F4F4F4"
         )
