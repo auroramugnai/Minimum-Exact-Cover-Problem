@@ -270,7 +270,8 @@ def build_instance_graph(subsets, verbose=False, draw_graph=False):
     if draw_graph:
         from rustworkx.visualization import mpl_draw
         mpl_draw(
-            G, pos=rx.circular_layout(G), with_labels=True, node_color="#EE5396", font_color="#F4F4F4"
+            G, pos=rx.circular_layout(G), with_labels=True, 
+            node_color="#EE5396", font_color="#F4F4F4"
         )
 
     ### Find the list of intersections
