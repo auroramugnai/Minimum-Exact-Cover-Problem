@@ -105,7 +105,7 @@ def repair_subsets(subsets, max_attempts=1000):
         fix_small_sets(new_subsets)
 
         # Condition
-        if 1 < compute_mean_valency(new_subsets) < 5 and all(len(s) >= 2 for s in new_subsets):
+        if 2 < compute_mean_valency(new_subsets) < 5 and all(len(s) >= 2 for s in new_subsets):
             return new_subsets
 
         return new_subsets
@@ -113,102 +113,108 @@ def repair_subsets(subsets, max_attempts=1000):
     raise RuntimeError(f"Could not repair subsets in {max_attempts} attempts")
 
 
-U = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
-n = 6
+if __name__ == "__main__":
 
-mec_length = 2
-max_len_of_mec_subsets = 10
-min_len_of_mec_subsets = 2
+    U = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
+    n = 6
 
-max_len_of_non_mec_subsets = 4 # keep them small
-elements_to_be_added = max_len_of_non_mec_subsets - 2 # 2 is the min num of elements in non mec subsets
-iteration = 0
+    mec_length = 2
+    max_len_of_mec_subsets = 10
+    min_len_of_mec_subsets = 2
+
+    max_len_of_non_mec_subsets = 4 # keep them small
+
+    # 2 is the min num of elements in non mec subsets
+    elements_to_be_added = max_len_of_non_mec_subsets - 2 
+    iteration = 0
+    START_AGAIN = True
+
+    # Generate the MEC with 2 subsets.
+    subsets = []
+    set_1 = set(random.sample(sorted(U), random.randint(min_len_of_mec_subsets, max_len_of_mec_subsets)))
+    set_2 = U - set_1
+    subsets.extend([set_1, set_2])
+    mec = [set_1, set_2]
+    print("mec:", mec)
 
 
-START_AGAIN = True
+    while START_AGAIN == True:
+        print("    **********************************")
 
-# Generate the MEC with 2 subsets.
-subsets = []
-set_1 = set(random.sample(sorted(U), random.randint(min_len_of_mec_subsets, max_len_of_mec_subsets)))
-set_2 = U - set_1
-subsets.extend([set_1, set_2])
-mec = [set_1, set_2]
-print("mec:", mec)
+        # Generate the other subsets, with only 2 element each.
+        not_mec = []
+        for _ in range(n - mec_length):
+            random_two_elem_set = set(random.sample(sorted(U), 2))
+            not_mec.append(random_two_elem_set)
+        print("    not mec:", not_mec)
 
-
-while START_AGAIN == True:
-    print("    **********************************")
-
-    # Generate the other subsets, with only 2 element each.
-    not_mec = []
-    for _ in range(n - mec_length):
-        random_two_elem_set = set(random.sample(sorted(U), 2))
-        not_mec.append(random_two_elem_set)
-    print("    not mec:", not_mec)
-
-        
-    # Shuffle the "not_mec" part of subsets,
-    subsets = mec + random.sample(not_mec, len(not_mec))
-    subsets_tmp = copy.deepcopy(subsets)
-    print("    shuffled subsets: ", subsets)
-
-    for iteration in range(elements_to_be_added):
-        for subset in subsets_tmp[2::]:
-            print("        **********************************")
-      
-            print("        Working on subset:", subset)
-
-            # Find which elements 1-12 are not in subset yet.
-            available = U - subset
-            elem = random.choice(list(available))
-            subset.add(elem)
-            print("        new subset:", subset)
-
-            mean_valency = compute_mean_valency(subsets_tmp)
-            print("        mean_valency: ", mean_valency)
             
-            if (1 < mean_valency < 5):
-                subsets = subsets_tmp
-                print("\n        **** SUCCESS ****")
-                print("        new subsets:", subsets)
-                continue
-            else:
-                # This value of iteration will be a signal in the outer loop
-                # that the computation has NOT ended successfully.
-                iteration = elements_to_be_added + 1
-                print("\n        **** FAIL ****")
-                break
+        # Shuffle the "not_mec" part of subsets,
+        subsets = mec + random.sample(not_mec, len(not_mec))
+        subsets_tmp = copy.deepcopy(subsets)
+        print("    shuffled subsets: ", subsets)
+
+        for iteration in range(elements_to_be_added):
+            for subset in subsets_tmp[2::]:
+                print("        **********************************")
+        
+                print("        Working on subset:", subset)
+
+                # Find which elements 1-12 are not in subset yet.
+                available = U - subset
+                elem = random.choice(list(available))
+                subset.add(elem)
+                print("        new subset:", subset)
+
+                mean_valency = compute_mean_valency(subsets_tmp)
+                print("        mean_valency: ", mean_valency)
+                
+                if (2 < mean_valency < 5):
+                    subsets = subsets_tmp
+                    print("\n        **** SUCCESS ****")
+                    print("        new subsets:", subsets)
+                    continue
+                else:
+                    # This value of iteration will be a signal in the outer loop
+                    # that the computation has NOT ended successfully.
+                    iteration = elements_to_be_added + 1
+                    print("\n        **** FAIL ****")
+                    break
+        
+        if iteration == elements_to_be_added - 1:
+            # The computation has ended successfully.
+            START_AGAIN = False
+
+        print("----------\nFINAL VALUES:")
+        print("subsets:", subsets)
+        print("mean_valency: ", mean_valency)
+
+
+    # Now we generate an EC by selecting 3 or 4 subsets (not both the 1st and the 2nd)
+    while True:
+        ec_length = random.randint(3, 4)  # how many subsets to select
+        ec_subsets = random.sample(subsets, ec_length)
+        
+
+        # Constraint: do not select both the first two elements
+        if not any(subset in ec_subsets for subset in mec):
+            break
+
+    print("Selected subsets to create ec:", ec_subsets)
+    remaining_subsets = [s for s in subsets if not(s in ec_subsets)]
+
+    fixed_ec = repair_subsets(ec_subsets)
+    print("final EC", fixed_ec)
+    subsets = remaining_subsets + fixed_ec
+    print("final subsets", subsets)
+    # subsets = random.sample(subsets, len(subsets))
+    random.shuffle(subsets)
     
-    if iteration == elements_to_be_added - 1:
-        # The computation has ended successfully.
-        START_AGAIN = False
+    print("final shuffled subsets", subsets)
+    print("final mean valency:",compute_mean_valency(subsets))
 
-    print("----------\nFINAL VALUES:")
-    print("subsets:", subsets)
-    print("mean_valency: ", mean_valency)
+    ec_str = ''.join(['1' if s in fixed_ec else '0' for s in subsets])
+    mec_str = ''.join(['1' if s in mec else '0' for s in subsets])
 
-
-# Now we generate an EC by selecting 3 or 4 subsets (not both the 1st and the 2nd)
-while True:
-    ec_length = random.randint(3, 4)  # how many subsets to select
-    ec_subsets = random.sample(subsets, ec_length)
-
-    # Constraint: do not select both the first two elements
-    if not any(subset in ec_subsets for subset in mec):
-        break
-
-print("Selected EC subsets:", ec_subsets)
-
-
-
-
-
-fixed_ec_subsets = repair_subsets(ec_subsets)
-print("final EC", fixed_ec_subsets)
-final_subsets = mec + fixed_ec_subsets
-print("final subsets", final_subsets)
-print("final mean valency",compute_mean_valency(final_subsets))
-
-
-
-print("final shuffled subsets", random.sample(final_subsets, len(final_subsets)))
+    print("ec_str:", ec_str)
+    print("mec_str:", mec_str)
