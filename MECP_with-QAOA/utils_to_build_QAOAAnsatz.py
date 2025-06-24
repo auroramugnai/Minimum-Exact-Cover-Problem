@@ -14,8 +14,8 @@ from qiskit.visualization import plot_histogram
 
 from utils_to_study_an_instance import *
 from utils_for_plotting_and_reading import *
-from random_instances import info_dim6 as info
-# from Wang_instances import info_dim6 as info
+# from random_instances import info_dim6 as info
+from Wang_instances import info_dim6 as info
 
 def get_parameters_from_user() -> Dict:
     """

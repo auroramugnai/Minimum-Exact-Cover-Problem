@@ -4,8 +4,8 @@ import itertools
 import matplotlib.pyplot as plt 
 import rustworkx as rx
 
-from random_instances import info_dim6 as info
-# from Wang_instances import info_dim6 as info
+# from random_instances import info_dim6 as info
+from Wang_instances import info_dim6 as info
 
 # import networkx as nx  
 

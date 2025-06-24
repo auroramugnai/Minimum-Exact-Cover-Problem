@@ -1,11 +1,3 @@
-import copy
-import random
-import numpy as np
-import matplotlib.pyplot as plt
-
-from utils_to_study_an_instance import find_intersections_lists, build_instance_graph
-
-
 info_dim6 = {1: {'exact_covers': ['101110', '010001'],
      'mec': '010001',
      'subsets': [{9, 6}, {9, 10, 6, 1}, {5, 12}, {2, 3, 4, 10}, {1, 7, 8, 11}, {2, 3, 4, 5, 7, 8, 11, 12}]},
@@ -131,6 +123,13 @@ def repair_subsets(subsets, max_attempts=1000):
 
 
 if __name__ == "__main__":
+    import copy
+    import random
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    from utils_to_study_an_instance import find_intersections_lists, build_instance_graph
+
 
     U = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
     n = 6
