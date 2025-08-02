@@ -13,8 +13,8 @@ from more_itertools import distinct_permutations
 import seaborn as sns
 
 from utils_to_study_an_instance import define_instance, find_spectrum
-# from random_instances import info_dim6 as info
-from Wang_instances import info_dim6 as info
+from random_instances import info_dim6 as info
+# from Wang_instances import info_dim6 as info
 
 def highlight_correct_ticks(ax: Axes, EXACT_COVERS: List[str]) -> None:
     """
