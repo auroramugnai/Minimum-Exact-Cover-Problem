@@ -345,7 +345,7 @@ def find_intersections_lists(subsets):
 def edges_from_sets(subsets):
     """
     Creates a list of edges for a graph, where each edge connects two sets that have a non-zero intersection.
-
+f
     Parameters
     ----------
     subsets (list of sets): A list of sets.
