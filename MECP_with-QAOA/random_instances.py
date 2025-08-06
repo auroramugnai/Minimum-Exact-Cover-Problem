@@ -147,11 +147,31 @@ def repair_subsets(subsets, U, mec_position):
             elem_to_subsets.setdefault(elem, []).append(i)
     print("    elem_to_subsets", elem_to_subsets)
 
+    # Rimuovi le voci con lista di 0 o 1 elemento
+    elem_to_subsets = {k: v for k, v in elem_to_subsets.items() if len(v) > 1}
+    print("    elem_to_subsets (removed 0 and 1 lists)", elem_to_subsets)
+    
     for elem, subsets_that_have_elem in elem_to_subsets.items():
-        # Choose the one to keep, preferring a fixed subset if possible
-        keep = random.choice([i for i in subsets_that_have_elem if i in mec_position] or subsets_that_have_elem)
+        print(f"\n\n considering elem, subsets_that_have_elem = {elem}, {subsets_that_have_elem}")
+        # Choose the one to keep
+        # Exclude the mec subset and those subsets that have length <=2
+        # print("[i for i in subsets_that_have_elem]", [i for i in subsets_that_have_elem])
+        candidates = [i for i in subsets_that_have_elem if i in mec_position]
+        if candidates == []:
+            candidates = [i for i in subsets_that_have_elem if len(ec[i]) < 3]
+            
+        if candidates == []:
+            candidates = subsets_that_have_elem
+            
+        print("candidates", candidates)
+        if not candidates:
+            raise ValueError(f"Nessun subset valido trovato per l'elemento {elem}")
+        keep = random.choice(candidates)
+
         for subset_idx in subsets_that_have_elem:
-            if subset_idx != keep and subset_idx not in mec_position:
+            print("new_subsets[subset_idx]", new_subsets[subset_idx])
+            if subset_idx != keep:
+                print(f"keep = {keep}, discarding elem={elem} from new_subsets[subset_idx={subset_idx}] = {new_subsets[subset_idx]}")
                 new_subsets[subset_idx].discard(elem)
 
     print(f"    ec = {new_subsets}")
@@ -269,10 +289,10 @@ if __name__ == "__main__":
         # Now we generate an EC by selecting 3 or 4 subsets (not both the 1st and the 2nd)
         while True:
             ec_length = random.randint(3, 4)  # how many subsets to select
-            ec = random.sample(subsets, ec_length)
+            ec = random.sample(list(subsets), ec_length)
             
             # Sort as they appear in subsets
-            ec = sorted(ec, key=lambda x: subsets.index(x))
+            ec = sorted(ec, key=lambda x: list(subsets).index(x))
             positions = [i for i,s in enumerate(subsets) if s in ec]
             
             # Constraint: do not select both the first two elements
