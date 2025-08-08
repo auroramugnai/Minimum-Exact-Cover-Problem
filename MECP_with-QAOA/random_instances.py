@@ -37,25 +37,29 @@ def compute_mean_valency_variance(info_dim6, verbose=False):
 
 def compute_mean_valency(subsets, verbose=False):
     """
+    Calculates the mean valency for a list of subsets.
+
     Parameters
     ----------
-        subsets (list of sets)
-    
-    Return
-    ------
-        mean_valency (float)
+    subsets : list of set
+        A list where each element is a set representing a subset.
+
+    Returns
+    -------
+    mean_valency : float
+        The average number of other subsets each subset intersects with.
     """
-    
-    ### Find the list of intersections
-    # For every subset, find the subsets it has a non-zero intersection with
+
+    # Find the list of intersections:
+    # For each subset, find the subsets it has a non-zero intersection with.
     list_of_intersections = find_intersections_lists(subsets)
-    
-    ### Find the valencies for each subset (i.e., the number of subsets it intersects with)
+
+    # Calculate the valency for each subset (i.e., the number of subsets it intersects with).
     valencies = [len(x) for x in list_of_intersections]
     mean_valency = np.mean(valencies)
     if verbose:
-        print("valencies: ", valencies)
-        print("mean_valency: ", mean_valency)
+        print("Valencies: ", valencies)
+        print("Mean valency: ", mean_valency)
     
     return mean_valency
 
@@ -65,20 +69,22 @@ import random
 
 def fix_small_sets(subsets, min_size=2, protected_positions=None):
     """
-    Ensure that no subset in the list has fewer than `min_size` elements.
-    Subsets at protected_positions will NOT be modified.
+    Ensures that every subset in the provided list has at least `min_size` elements, except for those at specified protected positions.
 
-    Parameters:
-    -----------
-    subsets : list of set
-        A list where each element is a set representing a subset of elements.
-    min_size : int, optional
-        The minimum allowed size for each subset (default is 2).
-    protected_positions : list of int, optional
-        Indices of subsets that must not be modified.
+    Parameters
+    ----------
+        subsets: A list of sets, where each set represents a subset of elements.
+        min_size: The minimum number of elements required in each subset (default is 2).
+        protected_positions: List of indices indicating subsets that must not be modified.
 
-    This function modifies `subsets` in place.
+    Notes
+    -----
+    - The function modifies `subsets` in place.
+    - Subsets at indices specified in `protected_positions` are never changed.
+    - If a subset has fewer than `min_size` elements, the function attempts to add elements from other non-protected subsets that have more than `min_size` elements.
+    - The process repeats until no further changes are possible or all subsets meet the minimum size requirement.
     """
+
     if protected_positions is None:
         protected_positions = []
 
@@ -105,27 +111,26 @@ def fix_small_sets(subsets, min_size=2, protected_positions=None):
                 changed = True
 
 
-                ####################
-                ################
-                ##################
-                ##################
-import copy
-import random
-
 def repair_subsets(subsets, U, mec_position):
     """
-    mec_position (list of int)
-
-    Try to fix subsets so that:
-    - union covers U,
-    - no duplicates across subsets,
-    - no subset smaller than 2,
-    - mean valency is met (not implemented here).
-
-    Subsets in mec_position will NOT be modified.
-    Returns fixed subsets or raises RuntimeError if fails.
+    Repairs a collection of subsets to satisfy specific constraints for the Minimum Exact Cover Problem.
+    Args:
+        subsets (list of set): List of subsets (as sets) to be repaired.
+        U (set): The universe of elements that must be covered by the union of subsets.
+        mec_position (list of int): Indices of subsets that are part of the minimum exact cover and must not be modified.
+    The function attempts to:
+        - Ensure the union of all subsets covers U.
+        - Remove duplicate elements across subsets (each element appears in only one subset).
+        - Ensure no subset (except those in mec_position) has fewer than 2 elements.
+        - Subsets in mec_position are not modified.
+    Returns:
+        list of set: The repaired list of subsets.
+    Raises:
+        RuntimeError: If the repair process fails to satisfy the constraints.
+        ValueError: If no valid subset can be found for a duplicate element.
+    Note:
+        The mean valency constraint is not implemented.
     """
-
     new_subsets = copy.deepcopy(subsets)
 
     # Add missing elements
@@ -136,8 +141,6 @@ def repair_subsets(subsets, U, mec_position):
         # Choose a subset not in mec_position
         candidates = [s for i, s in enumerate(new_subsets) if i not in mec_position]
         random.choice(candidates).add(elem)
-
-    # print(f"    EC_tmp = {new_subsets}")
 
 
     # Remove duplicates
@@ -171,7 +174,7 @@ def repair_subsets(subsets, U, mec_position):
 
     # print(f"    EC_tmp = {new_subsets}")
 
-    # Fix small sets (only outside mec_position)
+    # Ensure no subset is smaller than 2 elements
     # print("... Fixing small sets ...")
     fix_small_sets(new_subsets, protected_positions=mec_position)
     # print("    EC_tmp = ", new_subsets)
@@ -205,14 +208,15 @@ if __name__ == "__main__":
 
     from Wang_instances import info_dim6 as info_dim6_wang
     wang_variance = compute_mean_valency_variance(info_dim6_wang)
-    print(f"\nWang variance = {wang_variance}")
+    
+    variance_attempts = 0
     VARIANCE_IS_NOT_SIMILAR_TO_WANG = True
-    while VARIANCE_IS_NOT_SIMILAR_TO_WANG == True: 
+    while VARIANCE_IS_NOT_SIMILAR_TO_WANG == True and variance_attempts < 100000: 
         
         for instance_idx in range(NUM_INSTANCES):
-            print(f"\n--- Instance {instance_idx} ---")
+            # print(f"\n--- Instance {instance_idx} ---")
             START_INSTANCE_AGAIN = True
-            FIND_OTHER_SUBSETS_AGAIN = True
+            CREATE_NEW_SUBSETS = True
 
             discard = 0
             while START_INSTANCE_AGAIN == True:
@@ -233,13 +237,11 @@ if __name__ == "__main__":
                     subsets.append(subset)
                     mec.append(subset)
                     start += w
-                print(f"    MEC = {mec}")
+                # print(f"    MEC = {mec}")
 
 
 
-                while FIND_OTHER_SUBSETS_AGAIN == True:
-                    # print("\n        **********************************")
-                    # print("        while FIND_OTHER_SUBSETS_AGAIN == True:")
+                while CREATE_NEW_SUBSETS == True:
 
                     # Generate the other subsets.
                     not_mec = []
@@ -253,47 +255,28 @@ if __name__ == "__main__":
                     subsets = mec + random.sample(not_mec, len(not_mec))
                     subsets_tmp = copy.deepcopy(subsets)
 
-                    for ith_elem_to_be_added in range(elems_to_be_added):
-                        # print("            **********************************")
-                        # print(f"            Adding element number #{1+ith_elem_to_be_added}")
-                        
-                        for subset in subsets_tmp[mec_len::]: # exlcuding the mec
-                            # print("\n                **********************************")
-                            # print("                ...Working on subset:", subset)
-
-                            # Find which elements 1-12 are not in 'subset' yet.
-                            not_yet = list(U - subset)
-                            subset.add(random.choice(not_yet))
-                            # print("                new subset:", subset)
-                            
-                            # See how the global mean valency has changed.
-                            mean_valency = compute_mean_valency(subsets_tmp)
-                            # print("                updated global mean_valency: ", mean_valency, end="")
-
-                            if (2 < mean_valency < 5):
-                                # print(" -->> **** OK, WE CAN CONTINUE ****")
-                                # print("                new subsets:", subsets_tmp)
-                                continue
+                    mean_valency_ctrl = True
+                    for i in range(elems_to_be_added):
+                        for s in subsets_tmp[mec_len::]: # exlcuding the mec
+                            not_yet = list(U - s) # elements 1-12 not in 's' yet.
+                            s.add(random.choice(not_yet))
+                    
+                            updated_mean_valency = compute_mean_valency(subsets_tmp)
+                            if (2 < updated_mean_valency < 5):
+                                continue # Go to the next subset.
                             else:
-                                # This value of ith_elem_to_be_added will be a signal in the outer loop
-                                # that the computation has NOT ended successfully.
-                                ith_elem_to_be_added = elems_to_be_added + 1
-                                # print(" -->> #### FAIL OF MEAN VALENCY ####\n...Breaking the subset loop...")
+                                mean_valency_ctrl = False # Create subsets again.
                                 break
-                        
-                        if ith_elem_to_be_added == elems_to_be_added - 1:
-                            # The computation has ended successfully.
-                            FIND_OTHER_SUBSETS_AGAIN = False
-                            # print("\n\n            ****END: EVERY ELEMENT HAS BEEN ADDED****")
-                            # print("            ****Breaking the ith_elem_to_be_added loop" 
-                            #       + "(FIND_OTHER_SUBSETS_AGAIN = False)...****")
+                        if mean_valency_ctrl == False: # Create subsets again.
                             break
-                        # else:
-                            # print(f"\n\n            ****MORE ELEMENTS TO BE ADDED****")
-                            
-                # print("    subsets =", subsets_tmp)
-                # print("    mean_valency = ", mean_valency)
+
+                        # Check if we've added all required elements
+                        if i == elems_to_be_added - 1 and mean_valency_ctrl==True:
+                            # The computation has ended successfully.
+                            CREATE_NEW_SUBSETS = False
+                            break
                 
+                # All subsets have been generated with the required mean valency.
                 subsets = subsets_tmp
 
                 # Now we generate an EC by selecting 3 or 4 subsets (not both the 1st and the 2nd)
@@ -329,10 +312,10 @@ if __name__ == "__main__":
                         break
                     else:
                         # If no valid configuration found after all attempts
-                        print(f"Could not repair subsets in {max_attempts} attempts")
+                        # print(f"Could not repair subsets in {max_attempts} attempts")
                         break
                     
-                if  FIND_OTHER_SUBSETS_AGAIN == False:
+                if  CREATE_NEW_SUBSETS == False:
                     # print(f"\n--> Attempt {attempt} repaired EC.")
                     # print(f"subsets = {subsets_tmp}")
                     # print(f"mean_valency = {mv}")
@@ -357,10 +340,8 @@ if __name__ == "__main__":
                     if instance_idx == 0:
                         my_variance_old = my_variance
                     else:
-                        # Compare current variance with previous variance
-                        # If the new variance is lower, consider it "worse" and discard the instance
                         if my_variance < my_variance_old:
-                            # New variance is worse than the previous one, so discard and restart
+                            # Discard the whole instance and restart
                             discard += 1
                             START_INSTANCE_AGAIN = True
 
@@ -368,11 +349,27 @@ if __name__ == "__main__":
                         my_variance_old = my_variance
 
 
-        if my_variance > wang_variance - 0.2:
-            print(f"my_variance = {my_variance} is similar to Wang's variance = {wang_variance}")
+        if my_variance > wang_variance - 0.15 :
+            # End the computation
             VARIANCE_IS_NOT_SIMILAR_TO_WANG = False
         
     
     print(discard, "instances discarded")
     print(f"my_variance = {my_variance}")
     print(f"wang_variance = {wang_variance}")
+    
+    import pickle
+
+    if my_variance > 0.48:
+        with open("instance_dict.pkl", "wb") as f:
+            pickle.dump(instance_dict, f)
+        print("instance_dict salvato in instance_dict.pkl")
+    else:
+        print("instance_dict NON salvato (my_variance <= 0.48)")
+
+
+
+# with open("instance_dict.pkl", "rb") as f:
+#     instance_dict = pickle.load(f)
+
+# print(instance_dict)
