@@ -209,12 +209,13 @@ if __name__ == "__main__":
     from Wang_instances import info_dim6 as info_dim6_wang
     wang_variance = compute_mean_valency_variance(info_dim6_wang)
     
-    variance_attempts = 0
+    variance_attempt = 0
     VARIANCE_IS_NOT_SIMILAR_TO_WANG = True
-    while VARIANCE_IS_NOT_SIMILAR_TO_WANG == True and variance_attempts < 100000: 
-        
+    while VARIANCE_IS_NOT_SIMILAR_TO_WANG == True and variance_attempt < 100000: 
+        print(f"\r--- Variance attempt {variance_attempt}/100000 ---", end="")
+        variance_attempt += 1
         for instance_idx in range(NUM_INSTANCES):
-            # print(f"\n--- Instance {instance_idx} ---")
+            # print(f"\n--- Building instance {instance_idx} ---")
             START_INSTANCE_AGAIN = True
             CREATE_NEW_SUBSETS = True
 
@@ -354,7 +355,7 @@ if __name__ == "__main__":
             VARIANCE_IS_NOT_SIMILAR_TO_WANG = False
         
     
-    print(discard, "instances discarded")
+    print(f"\n {discard} instances discarded")
     print(f"my_variance = {my_variance}")
     print(f"wang_variance = {wang_variance}")
     
