@@ -69,22 +69,25 @@ import random
 
 def fix_small_sets(subsets, min_size=2, protected_positions=None):
     """
-    Ensures that every subset in the provided list has at least `min_size` elements, except for those at specified protected positions.
+    Ensures that each subset in the list has at least `min_size` elements,
+    except for those at specified protected positions.
 
-    Parameters
-    ----------
-        subsets: A list of sets, where each set represents a subset of elements.
-        min_size: The minimum number of elements required in each subset (default is 2).
-        protected_positions: List of indices indicating subsets that must not be modified.
+    Args:
+        subsets (list[set]): A list of subsets (Python sets).
+        min_size (int, optional): The minimum allowed size of a subset.
+                                  Defaults to 2.
+        protected_positions (list[int], optional): Indices of subsets that
+                                  must remain unchanged. Defaults to None.
 
-    Notes
-    -----
-    - The function modifies `subsets` in place.
-    - Subsets at indices specified in `protected_positions` are never changed.
-    - If a subset has fewer than `min_size` elements, the function attempts to add elements from other non-protected subsets that have more than `min_size` elements.
-    - The process repeats until no further changes are possible or all subsets meet the minimum size requirement.
+    Notes:
+        - The function modifies `subsets` in place.
+        - Protected subsets (in `protected_positions`) are never altered.
+        - If a subset has fewer than `min_size` elements, the function
+          attempts to transfer elements from non-protected donor subsets
+          that have more than `min_size` elements.
+        - The repair process continues iteratively until no further
+          changes are possible or all subsets satisfy the size constraint.
     """
-
     if protected_positions is None:
         protected_positions = []
 
@@ -93,17 +96,19 @@ def fix_small_sets(subsets, min_size=2, protected_positions=None):
         changed = False
         for i, s in enumerate(subsets):
             if i in protected_positions:
-                continue  # non toccare questo subset
+                continue  # Skip protected subsets
 
             if len(s) < min_size:
-                # Trova donatori validi (non protetti e con più di min_size elementi)
+                # Find candidate donors: subsets that are not protected
+                # and have more than min_size elements
                 donors = [
                     j for j, other in enumerate(subsets)
                     if j != i and j not in protected_positions and len(other) > min_size
                 ]
                 if not donors:
-                    continue  # nessun donatore disponibile
+                    continue  # No valid donor available
 
+                # Randomly choose a donor subset and transfer one element
                 donor = random.choice(donors)
                 elem = random.choice(list(subsets[donor]))
                 subsets[donor].remove(elem)
@@ -113,73 +118,77 @@ def fix_small_sets(subsets, min_size=2, protected_positions=None):
 
 def repair_subsets(subsets, U, mec_position):
     """
-    Repairs a collection of subsets to satisfy specific constraints for the Minimum Exact Cover Problem.
+    Repairs a collection of subsets so that they satisfy the constraints 
+    of the Minimum Exact Cover Problem (MEC).
+
     Args:
-        subsets (list of set): List of subsets (as sets) to be repaired.
-        U (set): The universe of elements that must be covered by the union of subsets.
-        mec_position (list of int): Indices of subsets that are part of the minimum exact cover and must not be modified.
-    The function attempts to:
-        - Ensure the union of all subsets covers U.
-        - Remove duplicate elements across subsets (each element appears in only one subset).
-        - Ensure no subset (except those in mec_position) has fewer than 2 elements.
-        - Subsets in mec_position are not modified.
+        subsets (list[set]): List of subsets (Python sets) to be repaired.
+        U (set): The universe of elements that must be fully covered 
+                 by the union of subsets.
+        mec_position (list[int]): Indices of subsets that are part of 
+                 the exact cover solution and must remain unchanged.
+
+    The function enforces the following constraints:
+        - The union of all subsets must equal U.
+        - Duplicate elements are removed so that each element 
+          appears in exactly one subset.
+        - No subset (except those in mec_position) can have fewer than 2 elements.
+        - Subsets in mec_position are preserved as-is.
+
     Returns:
-        list of set: The repaired list of subsets.
+        list[set]: The repaired list of subsets.
+
     Raises:
-        RuntimeError: If the repair process fails to satisfy the constraints.
-        ValueError: If no valid subset can be found for a duplicate element.
+        ValueError: If no valid subset can be found for a duplicated element.
+
     Note:
-        The mean valency constraint is not implemented.
+        The "mean valency" constraint is not implemented.
     """
     new_subsets = copy.deepcopy(subsets)
 
-    # Add missing elements
-    # print("... Add missing elements ...")
+    # --- Step 1: Add missing elements ---
     current_union = set.union(*new_subsets)
     missing = U - current_union
     for elem in missing:
-        # Choose a subset not in mec_position
+        # Place the missing element in a subset that is not protected (not in mec_position)
         candidates = [s for i, s in enumerate(new_subsets) if i not in mec_position]
         random.choice(candidates).add(elem)
 
-
-    # Remove duplicates
-    # print("... Removing duplicates ...")
+    # --- Step 2: Remove duplicates ---
+    # Build a mapping: element -> subsets containing that element
     elem_to_subsets = {}
     for i, subset in enumerate(new_subsets):
         for elem in subset:
             elem_to_subsets.setdefault(elem, []).append(i)
 
-    # Rimuovi le voci con lista di 0 o 1 elemento
+    # Keep only elements that appear in more than one subset
     elem_to_subsets = {k: v for k, v in elem_to_subsets.items() if len(v) > 1}
-    
+
     for elem, subsets_that_have_elem in elem_to_subsets.items():
-        # Choose the one to keep
-        # Exclude the mec subset and those subsets that have length <=2
-        # print("[i for i in subsets_that_have_elem]", [i for i in subsets_that_have_elem])
+        # Select one subset to keep the element
+        # Priority: protected subsets, then subsets with fewer than 3 elements, otherwise any
         candidates = [i for i in subsets_that_have_elem if i in mec_position]
-        if candidates == []:
-            candidates = [i for i in subsets_that_have_elem if len(ec[i]) < 3]
-            
-        if candidates == []:
-            candidates = subsets_that_have_elem
-            
         if not candidates:
-            raise ValueError(f"Nessun subset valido trovato per l'elemento {elem}")
+            candidates = [i for i in subsets_that_have_elem if len(new_subsets[i]) < 3]
+        if not candidates:
+            candidates = subsets_that_have_elem
+
+        if not candidates:
+            raise ValueError(f"No valid subset found for element {elem}")
+
         keep = random.choice(candidates)
 
+        # Remove the element from all other subsets
         for subset_idx in subsets_that_have_elem:
             if subset_idx != keep:
                 new_subsets[subset_idx].discard(elem)
 
-    # print(f"    EC_tmp = {new_subsets}")
-
-    # Ensure no subset is smaller than 2 elements
-    # print("... Fixing small sets ...")
+    # --- Step 3: Ensure minimum subset size ---
+    # Fix subsets with fewer than 2 elements (except protected ones)
     fix_small_sets(new_subsets, protected_positions=mec_position)
-    # print("    EC_tmp = ", new_subsets)
 
     return new_subsets
+
 
   
 if __name__ == "__main__":
@@ -221,17 +230,17 @@ if __name__ == "__main__":
 
             discard = 0
             while START_INSTANCE_AGAIN == True:
-                # Generate the MEC with 2 subsets.
+                ## Generate 'mec_len' disjoint subsets that partition U
                 subsets = []
                 mec = []
                 mec_len = random.randint(2,3)
+                
+                ## Randomly choose the weights of the mec subsets, between min_w and max_w.
+                ws_mec = [random.randint(min_w, max_w) for _ in range(mec_len - 1)]
+                ws_mec.append(len(U) - sum(ws_mec))
 
-                # Generate 'mec_len' disjoint subsets that partition U
                 u = list(sorted(U))
                 random.shuffle(u)
-                ws_mec = [random.randint(min_w, max_w) for _ in range(mec_len - 1)]
-                # Ensure total size does not exceed len(U)
-                ws_mec.append(len(U) - sum(ws_mec))
                 start = 0
                 for w in ws_mec:
                     subset = set(u[start:start + w])
@@ -240,22 +249,20 @@ if __name__ == "__main__":
                     start += w
                 # print(f"    MEC = {mec}")
 
-
-
+                ## Generate the other subsets ensuring that
+                ## the global mean valency is between 2 and 5.
                 while CREATE_NEW_SUBSETS == True:
-
-                    # Generate the other subsets.
                     not_mec = []
                     for _ in range(n - mec_len):
                         # For now, each subset has only min_w_non_mec=2 elements.
                         random_two_elem_set = set(random.sample(sorted(U), min_w_non_mec))
                         not_mec.append(random_two_elem_set)
 
-
-                    # Shuffle the 'not_mec' part of subsets,
+                    ## Shuffle the 'not_mec' part of subsets,
                     subsets = mec + random.sample(not_mec, len(not_mec))
                     subsets_tmp = copy.deepcopy(subsets)
 
+                    ## Add elements to the 'not_mec' subsets until the mean valency is between 2 and 5.
                     mean_valency_ctrl = True
                     for i in range(elems_to_be_added):
                         for s in subsets_tmp[mec_len::]: # exlcuding the mec
@@ -271,25 +278,26 @@ if __name__ == "__main__":
                         if mean_valency_ctrl == False: # Create subsets again.
                             break
 
-                        # Check if we've added all required elements
+                        ## Check if we've added all required elements
                         if i == elems_to_be_added - 1 and mean_valency_ctrl==True:
                             # The computation has ended successfully.
                             CREATE_NEW_SUBSETS = False
                             break
                 
-                # All subsets have been generated with the required mean valency.
+                ## All subsets have been generated with the required mean valency.
                 subsets = subsets_tmp
 
-                # Now we generate an EC by selecting 3 or 4 subsets (not both the 1st and the 2nd)
+                ## Generate an EC by selecting a random number of subsets 
+                ## (not both the 1st and the 2nd -- the mec)
                 while True:
                     ec_length = random.randint(mec_len+1, 6)  # how many subsets to select
                     ec = random.sample(list(subsets), ec_length)
                     
-                    # Sort as they appear in subsets
+                    # Sort as they appear in 'subsets'
                     ec = sorted(ec, key=lambda x: list(subsets).index(x))
                     positions = [i for i,s in enumerate(subsets) if s in ec]
                     
-                    # Constraint: do not select both the first two elements
+                    # Constraint: do not select both the first two substets (the mec)
                     if not all(mec_subset in ec for mec_subset in mec):
                         break
                 
@@ -310,13 +318,15 @@ if __name__ == "__main__":
                     if 2 < mv < 5 and all(len(s) >= 2 for s in subsets_tmp):
                         # print("SUCCESS: breaking...")
                         START_INSTANCE_AGAIN = False
+                        # Exit
                         break
                     else:
                         # If no valid configuration found after all attempts
                         # print(f"Could not repair subsets in {max_attempts} attempts")
+                        # Exit (with error)
                         break
                     
-                if  CREATE_NEW_SUBSETS == False:
+                if  START_INSTANCE_AGAIN == False:
                     # print(f"\n--> Attempt {attempt} repaired EC.")
                     # print(f"subsets = {subsets_tmp}")
                     # print(f"mean_valency = {mv}")
