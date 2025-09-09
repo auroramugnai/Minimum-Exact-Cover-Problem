@@ -1,4 +1,4 @@
-info_dim6 = {0: {'exact_covers': ['101100', '110000'],
+info_dim6 = {1: {'exact_covers': ['101100', '110000'],
                 'mec': '110000',
                 'subsets': [{3, 7, 8, 9, 10, 12},
                             {1, 2, 4, 5, 6, 11},
@@ -6,7 +6,7 @@ info_dim6 = {0: {'exact_covers': ['101100', '110000'],
                             {1, 6},
                             {2, 3, 4, 6, 7, 8, 9, 10, 11, 12},
                             {1, 3, 4, 5, 6, 7, 8, 9, 11, 12}]},
-            1: {'exact_covers': ['101101', '111000'],
+            2: {'exact_covers': ['101101', '111000'],
                 'mec': '111000',
                 'subsets': [{4, 5, 6},
                             {1, 2, 3, 7, 10, 12},
@@ -14,7 +14,7 @@ info_dim6 = {0: {'exact_covers': ['101100', '110000'],
                             {2, 3},
                             {2, 4, 5, 6, 7, 8, 9, 10, 11, 12},
                             {1, 7, 10, 12}]},
-            2: {'exact_covers': ['101110', '111000'],
+            3: {'exact_covers': ['101110', '111000'],
                 'mec': '111000',
                 'subsets': [{1, 6},
                             {2, 10, 4, 5},
@@ -22,7 +22,7 @@ info_dim6 = {0: {'exact_covers': ['101100', '110000'],
                             {4, 5},
                             {2, 10},
                             {1, 3, 4, 5, 6, 7, 9, 10, 11, 12}]},
-            3: {'exact_covers': ['101010', '110000'],
+            4: {'exact_covers': ['101010', '110000'],
                 'mec': '110000',
                 'subsets': [{1, 2, 8, 9, 10, 11},
                             {3, 4, 5, 6, 7, 12},
@@ -30,7 +30,7 @@ info_dim6 = {0: {'exact_covers': ['101100', '110000'],
                             {1, 2, 3, 4, 5, 6, 7, 8, 9, 11},
                             {5, 6},
                             {1, 4, 5, 6, 7, 8, 9, 10, 11, 12}]},
-            4: {'exact_covers': ['011101', '111000'],
+            5: {'exact_covers': ['011101', '111000'],
                 'mec': '111000',
                 'subsets': [{10, 12, 5, 6},
                             {1, 2, 3, 4, 7, 8},
@@ -38,7 +38,7 @@ info_dim6 = {0: {'exact_covers': ['101100', '110000'],
                             {5, 6},
                             {1, 2, 4, 5, 7, 8, 9, 10, 11, 12},
                             {10, 12}]},
-            5: {'exact_covers': ['010110', '110000'],
+            6: {'exact_covers': ['010110', '110000'],
                 'mec': '110000',
                 'subsets': [{1, 3, 6, 7, 10, 11},
                             {2, 4, 5, 8, 9, 12},
@@ -46,7 +46,7 @@ info_dim6 = {0: {'exact_covers': ['101100', '110000'],
                             {1, 3, 6},
                             {7, 10, 11},
                             {1, 2, 4, 5, 7, 8, 9, 10, 11, 12}]},
-            6: {'exact_covers': ['011011', '111000'],
+            7: {'exact_covers': ['011011', '111000'],
                 'mec': '111000',
                 'subsets': [{1, 3, 8, 9, 10, 12},
                             {4, 5},
@@ -54,7 +54,7 @@ info_dim6 = {0: {'exact_covers': ['101100', '110000'],
                             {1, 2, 3, 4, 5, 6, 7, 8, 9, 12},
                             {9, 10},
                             {1, 3, 8, 12}]},
-            7: {'exact_covers': ['100011', '110000'],
+            8: {'exact_covers': ['100011', '110000'],
                 'mec': '110000',
                 'subsets': [{8, 9, 3},
                             {1, 2, 4, 5, 6, 7, 10, 11, 12},
@@ -62,7 +62,7 @@ info_dim6 = {0: {'exact_covers': ['101100', '110000'],
                             {1, 2, 3, 4, 5, 6, 7, 10, 11, 12},
                             {2, 4, 7, 11, 12},
                             {1, 5, 6, 10}]},
-            8: {'exact_covers': ['011101', '111000'],
+            9: {'exact_covers': ['011101', '111000'],
                 'mec': '111000',
                 'subsets': [{2, 4, 6, 7, 12},
                             {1, 3, 5},
@@ -70,7 +70,7 @@ info_dim6 = {0: {'exact_covers': ['101100', '110000'],
                             {2, 12},
                             {1, 2, 3, 4, 5, 6, 9, 10, 11, 12},
                             {4, 6, 7}]},
-            9: {'exact_covers': ['011001', '110000'],
+            10: {'exact_covers': ['011001', '110000'],
                 'mec': '110000',
                 'subsets': [{1, 2, 5, 6, 9, 10, 12},
                             {3, 4, 7, 8, 11},
@@ -79,10 +79,15 @@ info_dim6 = {0: {'exact_covers': ['101100', '110000'],
                             {1, 2, 4, 5, 6, 7, 8, 9, 10, 12},
                             {5, 6, 9, 12}]},
             'U': {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}}
-}
 
-import pprint
-import random
+
+# min_length = [2,2,2,2,2,3,2,3,2,3]
+# min_length * n = [12,12,12,12,12,18,12,18,12,18]
+# LEC = [3,4,4,3,4,3,4,3,4,3]
+# to have k = L/(min_length * n) = 1:
+
+
+
 
 def compute_mean_valency_variance(info_dim6, verbose=False):
 
@@ -102,6 +107,7 @@ def compute_mean_valency_variance(info_dim6, verbose=False):
     return variance
 
 
+############################################################################################
 def compute_mean_valency(subsets, verbose=False):
     """
     Calculates the mean valency for a list of subsets.
@@ -131,6 +137,7 @@ def compute_mean_valency(subsets, verbose=False):
     return mean_valency
 
 
+############################################################################################
 def fix_small_sets(subsets, min_size=2, protected_positions=None):
     """
     Ensures that each subset in the list has at least `min_size` elements,
@@ -180,6 +187,7 @@ def fix_small_sets(subsets, min_size=2, protected_positions=None):
                 changed = True
 
 
+############################################################################################                
 def repair_subsets(subsets, U, mec_position):
     """
     Repairs a collection of subsets so that they satisfy the constraints 
@@ -253,7 +261,8 @@ def repair_subsets(subsets, U, mec_position):
 
     return new_subsets
 
-    
+
+############################################################################################
 def build_mec(U, mec_len):
     """
     Build 'mec_len' disjoint subsets that partition U.
@@ -280,6 +289,7 @@ def build_mec(U, mec_len):
     return mec
 
 
+############################################################################################
 def build_not_mec(U, mec_len, n, min_w_non_mec):
     """
     Build 'n - mec_len' subsets that are not part of the mec.
@@ -322,6 +332,7 @@ def build_not_mec(U, mec_len, n, min_w_non_mec):
     return subsets_tmp
 
 
+############################################################################################
 def choose_ec_subsets(mec, subsets):
     while True:
         ec_length = random.randint(len(mec)+1, 4)  # how many subsets to select
@@ -338,16 +349,56 @@ def choose_ec_subsets(mec, subsets):
     return ec, positions
 
 
+############################################################################################
+def plot_mv_vs_instance(variance_attempt, num_variance_attempts, instance_dict):
+        
+    ## Plot.
+    if variance_attempt == 0:
+        plt.figure()
+
+    # Compute the mean valency values for each instance.
+    mv_list = []
+    for k,v in instance_dict.items():
+        if k == 'U':
+            continue
+        mv_list.append(compute_mean_valency(v['subsets']))
+
+    # markersize gets littler as the number of attempts increases.
+    markersize = max(15 - variance_attempt*3, 2)
+
+    # fix a color for each attempt.
+    c = plt.cm.viridis(1-variance_attempt / num_variance_attempts)
+
+    # Plot the mean valency values for this attempt.
+    plt.plot(mv_list, 'o', color =c, markersize=markersize, markerfacecolor='None',
+             label=f'Attempt {variance_attempt}, Variance = {my_variance:.4f}')
+
+    # Plot the mean of the mean_valency values for this attempt.
+    plt.axhline(np.mean(mv_list), color =c, label=f'Mean valency average attempt {variance_attempt}')
+
+    # show variance of each attempt as a vertical segment.
+    plt.errorbar([len(mv_list)+0.+0.1*variance_attempt], [np.mean(mv_list)], 
+                 yerr=[[my_variance], [my_variance]], 
+                 fmt='o', color=c, capsize=10, label='My variance')  
+
+    if variance_attempt == num_variance_attempts - 1:
+        plt.xlabel("Instance index")
+        plt.ylabel("Mean valency")
+        plt.legend(loc='best')
+        plt.grid()
+        plt.show()
+                
+                
 ########################################################################################
 ########################################################################################
 ########################################################################################
 if __name__ == "__main__":
     import copy
     import random
+    import pprint
     import numpy as np
     import matplotlib.pyplot as plt
     
-
     from utils_to_study_an_instance import find_intersections_lists, build_instance_graph
 
     
@@ -369,7 +420,7 @@ if __name__ == "__main__":
     
     my_variance_list = []
     num_variance_attempts = 10
-    num_ec_repair_attempts = 50
+    num_ec_repair_attempts = 100
     my_variance_old = -1
 
     for variance_attempt in range(num_variance_attempts): 
@@ -378,10 +429,9 @@ if __name__ == "__main__":
         for instance_idx in range(NUM_INSTANCES):
             # print(f"\n********************************\n--- Building instance {instance_idx} ---\n********************************\n")
             START_INSTANCE_AGAIN = True
-            # CREATE_NEW_SUBSETS = True
             CONDITION_MET = False
-
             while START_INSTANCE_AGAIN == True:
+                # print(f"\n--- Restarting instance {instance_idx} ---")
                 ## Generate 'mec_len' disjoint subsets that partition U
                 mec_len = random.randint(2,3)
                 mec = build_mec(U, mec_len)
@@ -391,21 +441,29 @@ if __name__ == "__main__":
 
                 mec_position = [i for i,s in enumerate(ec_tmp) if s in mec]
                 
+
                 ## Try to repair ec_tmp in a way that makes 2 < mv < 5.
                 for _ in range(num_ec_repair_attempts):
+                    # print(f"\rec repair attempt {_}/{num_ec_repair_attempts} ---", end="")
                     ec_tmp = repair_subsets(ec_tmp, U, mec_position)
                     subsets_tmp = subsets
                     for i,subset in zip(positions, ec_tmp):
                         subsets_tmp[i] = subset
+                    
+                    if not(all(len(s) >= 2 for s in subsets_tmp)):
+                        CONDITION_MET = False
+                        continue
 
                     mv = compute_mean_valency(subsets_tmp)
-                    if 2 < mv < 5 and all(len(s) >= 2 for s in subsets_tmp):
+                    if 2 < mv < 5:
                         CONDITION_MET = True # success :)
                         ec = ec_tmp
                         subsets = subsets_tmp
+                        # print("Condition met!")
                         break
                     else:
                         CONDITION_MET = False
+
                 
                 if CONDITION_MET:
                     ec = ec_tmp
@@ -431,57 +489,24 @@ if __name__ == "__main__":
                                             
         ####################################################################################
         ## Here, the dictionary 'instance_dict' has been filled with NUM_INSTANCES instances.
+        ## The dictionary has 'my_variance' variance.
         my_variance_list.append(my_variance)
         print("my variance:", my_variance)
         
-        ## Plot.
-        if variance_attempt == 0:
-            plt.figure()
-
-        # Compute the mean valency values for each instance.
-        mv_list = []
-        for k,v in instance_dict.items():
-            if k == 'U':
-                continue
-            mv_list.append(compute_mean_valency(v['subsets']))
-
-        # markersize gets littler as the number of attempts increases.
-        markersize = max(15 - variance_attempt*3, 2)
-
-        # fix a color for each attempt.
-        c = plt.cm.viridis(variance_attempt / num_variance_attempts)
-
-        # Plot the mean valency values for this attempt.
-        plt.plot(mv_list, 'o', color =c, markersize=markersize, markerfacecolor='None',
-                 label=f'Attempt {variance_attempt}, Variance = {my_variance:.4f}')
-
-        # Plot the mean of the mean_valency values for this attempt.
-        plt.axhline(np.mean(mv_list), color =c, label=f'Mean valency average attempt {variance_attempt}')
-
-        # show variance of each attempt as a vertical segment.
-        plt.errorbar([len(mv_list)+0.+0.1*variance_attempt], [np.mean(mv_list)], 
-                     yerr=[[my_variance], [my_variance]], 
-                     fmt='o', color=c, capsize=10, label='My variance')  
-
-        if variance_attempt == num_variance_attempts - 1:
-            plt.xlabel("Instance index")
-            plt.ylabel("Mean valency")
-            plt.legend(loc='best')
-            plt.grid()
-            plt.show()
+        plot_mv_vs_instance(variance_attempt, num_variance_attempts, instance_dict)
+       
 
     pprint.pprint(instance_dict)
     print("my variance list:", my_variance_list)
 
-    ## Save the instance_dict if my_variance > 0.48.
-    import pickle
-    if my_variance > 0.4444444444444443:
-        with open("instance_dict.pkl", "wb") as f:
-            pickle.dump(instance_dict, f)
-        print("instance_dict salvato in instance_dict.pkl")
-    else:
-        print("instance_dict NON salvato.")
-
+    # ## Save the instance_dict if my_variance > 0.48.
+    # import pickle
+    # if my_variance > 0.48:
+    #     with open("instance_dict.pkl", "wb") as f:
+    #         pickle.dump(instance_dict, f)
+    #     print("instance_dict salvato in instance_dict.pkl")
+    # else:
+    #     print("instance_dict NON salvato.")
     # import pickle
     # with open("instance_dict.pkl", "rb") as f:
     #     instance_dict = pickle.load(f)
