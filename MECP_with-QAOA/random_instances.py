@@ -30,14 +30,14 @@ info_dim6 = {1: {'exact_covers': ['101100', '110000'],
                             {1, 2, 3, 4, 5, 6, 7, 8, 9, 11},
                             {5, 6},
                             {1, 4, 5, 6, 7, 8, 9, 10, 11, 12}]},
-            5: {'exact_covers': ['011101', '111000'],
-                'mec': '111000',
-                'subsets': [{10, 12, 5, 6},
-                            {1, 2, 3, 4, 7, 8},
-                            {9, 11},
+            5: {'exact_covers': ['110101', '100011'],
+                'mec': '100011',
+                'subsets': [{9, 11},
                             {5, 6},
                             {1, 2, 4, 5, 7, 8, 9, 10, 11, 12},
-                            {10, 12}]},
+                            {10, 12},
+                            {10, 12, 5, 6},
+                            {1, 2, 3, 4, 7, 8},]},
             6: {'exact_covers': ['010110', '110000'],
                 'mec': '110000',
                 'subsets': [{1, 3, 6, 7, 10, 11},
@@ -85,8 +85,6 @@ info_dim6 = {1: {'exact_covers': ['101100', '110000'],
 # min_length * n = [12,12,12,12,12,18,12,18,12,18]
 # LEC = [3,4,4,3,4,3,4,3,4,3]
 # to have k = L/(min_length * n) = 1:
-
-
 
 
 def compute_mean_valency_variance(info_dim6, verbose=False):
@@ -471,6 +469,13 @@ if __name__ == "__main__":
 
                     ec_str = ''.join(['1' if s in ec else '0' for s in subsets])
                     mec_str = ''.join(['1' if s in mec else '0' for s in subsets])
+
+                    # Shuffle subsets and accordingly ec and mec strings.
+                    shuffled_indices = list(range(len(subsets)))
+                    random.shuffle(shuffled_indices)
+                    subsets = [subsets[i] for i in shuffled_indices]
+                    ec_str = ''.join([ec_str[i] for i in shuffled_indices])
+                    mec_str = ''.join([mec_str[i] for i in shuffled_indices])
 
                     instance_dict[instance_idx] = {
                         'exact_covers': [ec_str, mec_str],
