@@ -1,0 +1,262 @@
+
+Chosen parameters:
+Number of layers (p): 3
+Number of random attempts: 50
+Initialization type: all0
+Size (n): 6
+Chosen instances (chosen_instances): range(1, 11)
+Choices of k (chosen_ks): [0.25, 0.3333333333333333, 0.3333333333333333, 0.25, 0.3333333333333333, 0.16666666666666666, 0.3333333333333333, 0.16666666666666666, 0.3333333333333333, 0.16666666666666666]
+
+---------- 1/50 random_attempts -----------
+
+E_min = -0.29999999999999993
+E_min's parameters: betas = [np.float64(0.0), np.float64(6.283185307179586), np.float64(3.141592631428192)], gammas = [np.float64(-9.474945742406032), np.float64(-5.7588390933780325), np.float64(-6.163180714834665)]
+
+---------- 2/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(3.141592675457048), np.float64(6.283185282529784), np.float64(2.5779302911753586e-09)], gammas = [np.float64(-2.5473152978261453), np.float64(-8.739610904938317), np.float64(-2.897734678067837)]
+
+---------- 3/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(3.1415926161978485), np.float64(6.28318495889779), np.float64(3.608928449342585e-07)], gammas = [np.float64(0.009675735479919654), np.float64(7.988952047535273), np.float64(-0.09889217183146959)]
+
+---------- 4/50 random_attempts -----------
+
+E_min = -0.2999999999999998
+E_min's parameters: betas = [np.float64(3.1415926677926227), np.float64(6.283185307179586), np.float64(6.283185256679225)], gammas = [np.float64(-1.6276222819887982), np.float64(7.835171828778059), np.float64(-3.24129522159567)]
+
+---------- 5/50 random_attempts -----------
+
+E_min = -0.30000000000000004
+E_min's parameters: betas = [np.float64(3.1415926777033985), np.float64(6.283185303575962), np.float64(6.283185305588043)], gammas = [np.float64(5.2256145793199895), np.float64(8.507975579679588), np.float64(-3.1658019686984935)]
+
+---------- 6/50 random_attempts -----------
+
+E_min = -0.2999999999999593
+E_min's parameters: betas = [np.float64(6.283185307179586), np.float64(3.1415916792912757), np.float64(0.0)], gammas = [np.float64(5.62864462012236), np.float64(3.7524974296113216), np.float64(0.2483381206531441)]
+
+---------- 7/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(2.225628048583906e-08), np.float64(1.0621571093690565e-08), np.float64(3.1415926515434487)], gammas = [np.float64(-9.995686171757239), np.float64(6.262378051629305), np.float64(9.993045912354942)]
+
+---------- 8/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(6.2831852819726475), np.float64(3.1415926770178544), np.float64(6.283185303761439)], gammas = [np.float64(2.97104174998959), np.float64(-6.201140142925477), np.float64(-1.077335891338679)]
+
+---------- 9/50 random_attempts -----------
+
+E_min = -0.30000000000000004
+E_min's parameters: betas = [np.float64(2.3508004802552235e-08), np.float64(3.1415926236087026), np.float64(1.1930900460893345e-08)], gammas = [np.float64(3.9873971970548423), np.float64(0.1893000892331931), np.float64(7.948419577492981)]
+
+---------- 10/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(4.271202251305552e-09), np.float64(3.346225319692169e-09), np.float64(3.1415926306175685)], gammas = [np.float64(6.88903682614669), np.float64(-9.71565671274813), np.float64(-1.074354226899755)]
+
+---------- 11/50 random_attempts -----------
+
+E_min = -0.30000000000000004
+E_min's parameters: betas = [np.float64(6.28318528545795), np.float64(2.2709542458879165e-08), np.float64(3.141592679395792)], gammas = [np.float64(0.7231897599841696), np.float64(-2.3901431598903717), np.float64(9.262389970366955)]
+
+---------- 12/50 random_attempts -----------
+
+E_min = -0.29999999999999993
+E_min's parameters: betas = [np.float64(3.141592659150648), np.float64(6.28318528712152), np.float64(6.283185305700359)], gammas = [np.float64(9.524626667798852), np.float64(-5.058635376005935), np.float64(-6.952795551552459)]
+
+---------- 13/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(6.283185307179586), np.float64(6.283185307179586), np.float64(3.1415926592661907)], gammas = [np.float64(0.5781370797757024), np.float64(-9.995976625058432), np.float64(-4.92454601908031)]
+
+---------- 14/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(3.1415926545135195), np.float64(6.283185304022195), np.float64(1.4244062944281524e-10)], gammas = [np.float64(7.386600845811341), np.float64(9.142102843100737), np.float64(9.995976625058432)]
+
+---------- 15/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(0.0), np.float64(6.283185307179586), np.float64(3.1415926587469523)], gammas = [np.float64(8.634722481744216), np.float64(9.85490224403499), np.float64(-7.389370067299821)]
+
+---------- 16/50 random_attempts -----------
+
+E_min = -0.29999999999999993
+E_min's parameters: betas = [np.float64(6.283185301832599), np.float64(9.870315742813141e-09), np.float64(3.141592664306942)], gammas = [np.float64(-9.966696503087114), np.float64(-1.009340948903937), np.float64(9.602011932725109)]
+
+---------- 17/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(6.283185298944728), np.float64(3.1415926748026486), np.float64(6.283185302236873)], gammas = [np.float64(3.320095552795433), np.float64(-0.13301814653023325), np.float64(4.427291026981711)]
+
+---------- 18/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(6.283185307179586), np.float64(6.283185307179586), np.float64(3.1415926310061053)], gammas = [np.float64(-8.978928500400347), np.float64(-0.5434078371909616), np.float64(-6.635832615589095)]
+
+---------- 19/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(2.280703240738835e-08), np.float64(6.694644392241441e-09), np.float64(3.1415926290844194)], gammas = [np.float64(3.288543479247883), np.float64(8.566719348105144), np.float64(-9.759115896247092)]
+
+---------- 20/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(6.283185303614735), np.float64(6.283185307179586), np.float64(3.1415926318293073)], gammas = [np.float64(-2.533452842281928), np.float64(4.123708300402966), np.float64(-9.87266174379068)]
+
+---------- 21/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(7.85570707892576e-09), np.float64(6.283185307179586), np.float64(3.141592675450398)], gammas = [np.float64(9.03559044302932), np.float64(9.993321259222135), np.float64(-9.71344374421603)]
+
+---------- 22/50 random_attempts -----------
+
+E_min = -0.29999999999999993
+E_min's parameters: betas = [np.float64(3.141592653419994), np.float64(6.283185142363794), np.float64(1.451276594957055e-07)], gammas = [np.float64(-7.293947441794569), np.float64(2.6596788582213193), np.float64(0.783017198385758)]
+
+---------- 23/50 random_attempts -----------
+
+E_min = -0.29999999999999993
+E_min's parameters: betas = [np.float64(2.351390322822747e-08), np.float64(6.283185269708741), np.float64(3.1415926861917525)], gammas = [np.float64(-9.273192000221492), np.float64(0.4751722651843727), np.float64(9.995976551865008)]
+
+---------- 24/50 random_attempts -----------
+
+E_min = -0.30000000000000004
+E_min's parameters: betas = [np.float64(6.2831852841064455), np.float64(2.3193474010031253e-08), np.float64(3.1415926312364357)], gammas = [np.float64(2.1629294015157177), np.float64(-9.745017610183162), np.float64(-2.410356389228734)]
+
+---------- 25/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(3.141592656712729), np.float64(6.283185306061276), np.float64(6.283185286090685)], gammas = [np.float64(-8.00370814424478), np.float64(9.746020570967406), np.float64(-1.5428643010434906)]
+
+---------- 26/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(3.141592681699577), np.float64(0.0), np.float64(6.28318528333384)], gammas = [np.float64(-9.827100811259585), np.float64(0.5037222079199772), np.float64(-3.3436258525235285)]
+
+---------- 27/50 random_attempts -----------
+
+E_min = -0.29999999999999993
+E_min's parameters: betas = [np.float64(6.283185300946988), np.float64(3.0694225166765765e-08), np.float64(3.141592602873925)], gammas = [np.float64(1.2215084173710113), np.float64(-1.7723004403311051), np.float64(7.788746580531064)]
+
+---------- 28/50 random_attempts -----------
+
+E_min = -0.30000000000000004
+E_min's parameters: betas = [np.float64(1.15397570340039e-08), np.float64(3.1415926284081204), np.float64(1.0280833254454225e-08)], gammas = [np.float64(3.306690669751215), np.float64(-0.006671407965704616), np.float64(-5.374965121750517)]
+
+---------- 29/50 random_attempts -----------
+
+E_min = -0.299999999993943
+E_min's parameters: betas = [np.float64(6.283176889891198), np.float64(6.24607446214865e-06), np.float64(3.141596214505112)], gammas = [np.float64(1.103678442452764), np.float64(-9.980556869559521), np.float64(-9.995976625058432)]
+
+---------- 30/50 random_attempts -----------
+
+E_min = -0.2999999999999999
+E_min's parameters: betas = [np.float64(3.1415926505720604), np.float64(3.647970228871604e-07), np.float64(6.283184940272468)], gammas = [np.float64(-3.273149693269719), np.float64(-9.995863420054226), np.float64(-0.8251234030134981)]
+
+---------- 31/50 random_attempts -----------
+
+E_min = -0.2999999999999997
+E_min's parameters: betas = [np.float64(6.283185307179586), np.float64(4.145187082283262e-08), np.float64(3.1415926832823162)], gammas = [np.float64(-1.8928398344134512), np.float64(3.2767219314876055), np.float64(-6.4837366891884205)]
+
+---------- 32/50 random_attempts -----------
+
+E_min = -0.2999999999999999
+E_min's parameters: betas = [np.float64(3.1415926038110067), np.float64(4.8929002124716074e-08), np.float64(6.283185307179586)], gammas = [np.float64(9.950733837184018), np.float64(-7.085697167643209), np.float64(1.769317196551054)]
+
+---------- 33/50 random_attempts -----------
+
+E_min = -0.29999999999999993
+E_min's parameters: betas = [np.float64(6.283185284571129), np.float64(3.1415926990500047), np.float64(6.28318529356552)], gammas = [np.float64(2.6389017655634426), np.float64(-1.552672207417376), np.float64(2.1117339908503068)]
+
+---------- 34/50 random_attempts -----------
+
+E_min = -0.29999999999970217
+E_min's parameters: betas = [np.float64(6.283185307179586), np.float64(6.283185307179586), np.float64(3.1415900175395315)], gammas = [np.float64(-9.584960184302407), np.float64(-4.381377593921904), np.float64(0.463875060041655)]
+
+---------- 35/50 random_attempts -----------
+
+E_min = -0.2999999999999158
+E_min's parameters: betas = [np.float64(3.1415908620111774), np.float64(7.28793258038911e-07), np.float64(6.283185307179586)], gammas = [np.float64(5.147299556918083), np.float64(-0.5741910405907713), np.float64(0.35056599052630977)]
+
+---------- 36/50 random_attempts -----------
+
+E_min = -0.30000000000000004
+E_min's parameters: betas = [np.float64(2.3101831602371858e-08), np.float64(6.28318529104504), np.float64(3.141592691926753)], gammas = [np.float64(9.995976625058432), np.float64(-4.265182817792114), np.float64(4.129685362283138)]
+
+---------- 37/50 random_attempts -----------
+
+E_min = -0.30000000000000004
+E_min's parameters: betas = [np.float64(3.1415926764404922), np.float64(6.2831817983822535), np.float64(3.4932192169541963e-06)], gammas = [np.float64(-6.300424169728326), np.float64(-5.192984161419528), np.float64(-0.0082046486622673)]
+
+---------- 38/50 random_attempts -----------
+
+E_min = -0.30000000000000004
+E_min's parameters: betas = [np.float64(3.1415926261638503), np.float64(0.0), np.float64(2.2464634171234105e-08)], gammas = [np.float64(-9.79851847375417), np.float64(-9.974312575177118), np.float64(9.33118154576487)]
+
+---------- 39/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(3.6450626621908405e-09), np.float64(6.283185307179586), np.float64(3.141592653818435)], gammas = [np.float64(-0.5954069267105498), np.float64(9.98659034916921), np.float64(-9.99597644179751)]
+
+---------- 40/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(6.283185303212815), np.float64(6.283185302158039), np.float64(3.141592654070603)], gammas = [np.float64(-3.1315062615935743), np.float64(-0.7762473501180336), np.float64(-9.570234050521401)]
+
+---------- 41/50 random_attempts -----------
+
+E_min = -0.29999999999999993
+E_min's parameters: betas = [np.float64(3.141592649708981), np.float64(5.366005582526942e-08), np.float64(6.283185251347425)], gammas = [np.float64(-1.950590176895632), np.float64(2.1241131943857705), np.float64(3.269813662320757)]
+
+---------- 42/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(6.2831852844722995), np.float64(8.49252373704896e-09), np.float64(3.1415926485954877)], gammas = [np.float64(-3.804572370475971), np.float64(6.912634830277561), np.float64(7.978169004870464)]
+
+---------- 43/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(3.1415926770101006), np.float64(6.283185147411158), np.float64(1.533780291307764e-07)], gammas = [np.float64(-8.587563934503603), np.float64(-1.904187474734628), np.float64(0.5288643613184463)]
+
+---------- 44/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(2.3837691712767706e-08), np.float64(6.283185294610074), np.float64(3.1415926755404975)], gammas = [np.float64(4.276240057984496), np.float64(-2.1219725269614864), np.float64(9.995976158668384)]
+
+---------- 45/50 random_attempts -----------
+
+E_min = -0.29999999999998767
+E_min's parameters: betas = [np.float64(6.283184624696609), np.float64(5.793998764120871e-07), np.float64(3.141592582483872)], gammas = [np.float64(-1.7761462630530405), np.float64(0.10223858706331751), np.float64(6.251125861857819)]
+
+---------- 46/50 random_attempts -----------
+
+E_min = -0.2825920597535063
+E_min's parameters: betas = [np.float64(0.961925837330729), np.float64(1.3228413356667197), np.float64(1.1191934608841514)], gammas = [np.float64(-3.968249669860916), np.float64(-9.995976625058432), np.float64(9.2861516218092)]
+
+---------- 47/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(3.1415926461203227), np.float64(6.283185307179586), np.float64(0.0)], gammas = [np.float64(-9.775774775690087), np.float64(-4.089281519449303), np.float64(-0.14839178119868618)]
+
+---------- 48/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(7.067998461736731e-09), np.float64(3.1415926282753954), np.float64(6.283185307179586)], gammas = [np.float64(7.207019333994298), np.float64(2.672643486313147), np.float64(0.49412908575766684)]
+
+---------- 49/50 random_attempts -----------
+
+E_min = -0.3
+E_min's parameters: betas = [np.float64(6.283185285215399), np.float64(6.283185307179586), np.float64(3.1415926457887395)], gammas = [np.float64(5.114679815770796), np.float64(5.352447316884856), np.float64(4.811229561063584)]
+
+---------- 50/50 random_attempts -----------
+
+E_min = -0.299999999999985
+E_min's parameters: betas = [np.float64(3.141592816744075), np.float64(6.2824796396119895), np.float64(0.0007056485960387578)], gammas = [np.float64(-4.1203959028903885), np.float64(-9.995976625058432), np.float64(-0.0047104885894501125)]
+
+*******************************
+Attempt that reached the best result with E_min = -0.30000000000000004 is #5 
+TOTAL ELAPSED TIME: 4.708214541276296 minutes.
